@@ -23,7 +23,7 @@ services:
       - ./data/:/var/www/html
       - vendor:/var/www/html/vendor
       - node_modules:/var/www/html/node_modules
-      - ./config/resolv.conf:/etc/resolv.conf
+      # - ./config/resolv.conf:/etc/resolv.conf
     dns:
       - 1.1.1.1
       - 8.8.8.8

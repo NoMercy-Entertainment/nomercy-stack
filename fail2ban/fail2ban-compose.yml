@@ -14,5 +14,5 @@ services:
     volumes:
       - ./config:/config
       - ../logs/fail2ban/:/config/log/fail2ban/
-      - ../logs/nginx/access.log:/remotelogs/nginx:ro
+      - ../logs/nginx/:/remotelogs/nginx/:ro
     restart: unless-stopped

@@ -7,3 +7,4 @@ maxretry = 1
 bantime = -1
 findtime = 86400   # 24 hours
 backend = auto
+action = iptables-allports[name=nginx-wp-scan]

@@ -1,0 +1,34 @@
+# Custom iptables action configuration for fail2ban
+# This overrides the default iptables actions to use host script
+
+[INCLUDES]
+before = iptables-common.conf
+
+[Definition]
+
+# Use host-based iptables script via bind mount
+iptables = /host-scripts/host-iptables.sh
+
+# Ban IP (allports version - no port specification)
+actionban = <iptables> -I f2b-<name> 1 -s <ip> -j <blocktype>
+
+# Unban IP  
+actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype>
+
+# Check if chain exists, create if not (allports version)
+actionstart = <iptables> -N f2b-<name> 2>/dev/null || true
+              <iptables> -A f2b-<name> -j RETURN 2>/dev/null || true
+              <iptables> -I <chain> -j f2b-<name> 2>/dev/null || true
+
+# Remove chain (allports version)
+actionstop = <iptables> -D <chain> -j f2b-<name> 2>/dev/null || true
+             <iptables> -F f2b-<name> 2>/dev/null || true
+             <iptables> -X f2b-<name> 2>/dev/null || true
+
+# Log all iptables operations
+actioncheck = <iptables> -n -L <chain> | grep -q 'f2b-<name>[ \t]'
+
+[Init]
+# Default values for allports
+chain = INPUT
+blocktype = REJECT --reject-with icmp-port-unreachable

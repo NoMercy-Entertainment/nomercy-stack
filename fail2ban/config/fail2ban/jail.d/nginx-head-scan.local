@@ -1,0 +1,9 @@
+[nginx-head-scan]
+enabled = true
+port = http,https
+filter = nginx-head-scan
+logpath = /remotelogs/nginx/access.log
+maxretry = 1
+bantime = -1
+findtime = 86400
+action = iptables-allports[name=nginx-head-scan]

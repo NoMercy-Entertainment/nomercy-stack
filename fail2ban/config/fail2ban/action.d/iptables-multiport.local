@@ -1,0 +1,33 @@
+# Custom iptables action configuration for fail2ban
+# Optimized version with better error handling
+
+[Definition]
+
+# Use xtables-legacy-multi directly with error suppression
+iptables = /usr/sbin/xtables-legacy-multi iptables
+
+# Ban IP
+actionban = <iptables> -I f2b-<name> 1 -s <ip> -j <blocktype> 2>/dev/null || true
+
+# Unban IP  
+actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype> 2>/dev/null || true
+
+# Check if chain exists, create if not
+actionstart = <iptables> -N f2b-<name> 2>/dev/null || true
+              <iptables> -A f2b-<name> -j RETURN 2>/dev/null || true
+              <iptables> -I <chain> -p <protocol> -m multiport --dports <port> -j f2b-<name> 2>/dev/null || true
+
+# Remove chain - more robust
+actionstop = <iptables> -D <chain> -p <protocol> -m multiport --dports <port> -j f2b-<name> 2>/dev/null || true
+             <iptables> -F f2b-<name> 2>/dev/null || true
+             <iptables> -X f2b-<name> 2>/dev/null || true
+
+# Check chain exists safely
+actioncheck = <iptables> -n -L <chain> 2>/dev/null | grep -q 'f2b-<name>[ \t]' || false
+
+[Init]
+# Default values
+chain = INPUT
+port = ssh
+protocol = tcp
+blocktype = REJECT --reject-with icmp-port-unreachable

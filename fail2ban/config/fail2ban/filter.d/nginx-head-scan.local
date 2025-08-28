@@ -1,0 +1,7 @@
+[Definition]
+# Detect systematic HEAD request scanning patterns
+# This catches bots doing reconnaissance with HEAD requests
+
+failregex = ^.*"HEAD .*".*404.*<HOST>.*$
+
+ignoreregex = ^.*"HEAD .*".*200.*<HOST>.*$

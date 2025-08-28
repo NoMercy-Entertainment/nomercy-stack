@@ -35,3 +35,4 @@ logs/fail2ban/fail2ban.log
 logs/nginx/access.log
 logs/nginx/debug.log
 logs/nginx/error.log
+logs/fail2ban/fail2ban-performance.csv

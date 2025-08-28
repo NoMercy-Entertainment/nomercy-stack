@@ -1,0 +1,9 @@
+[Definition]
+# ZERO TOLERANCE - Permanent ban for any WordPress-related requests
+# Single attempt = PERMANENT BAN
+
+failregex = ^.*".*wp.*".*<HOST>.*$
+            ^.*".*wordpress.*".*<HOST>.*$
+            ^.*".*wp-.*".*<HOST>.*$
+
+ignoreregex =

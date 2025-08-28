@@ -1,0 +1,6 @@
+[apache-fakegooglebot]
+enabled = true
+maxretry = 1
+bantime = -1
+findtime = 86400
+logpath = /remotelogs/nginx/access.log

@@ -1,0 +1,11 @@
+# Override for ALL jails to use our custom iptables wrapper
+# This ensures fail2ban uses the proper iptables binary
+
+[DEFAULT]
+# Use custom iptables action
+banaction = iptables-multiport[blocktype=REJECT]
+banaction_allports = iptables-allports[blocktype=REJECT]
+
+# Log iptables actions
+action_mwl = %(action_)s
+             %(mta)s-whois-lines[sender="%(sender)s", dest="%(destemail)s", logpath="%(logpath)s", chain="%(chain)s"]

@@ -1,0 +1,8 @@
+[nginx-reconnaissance]
+enabled = true
+filter = nginx-reconnaissance
+logpath = /remotelogs/nginx/debug.log
+maxretry = 1
+findtime = 86400
+bantime = -1
+action = iptables-allports[name=nginx-reconnaissance]

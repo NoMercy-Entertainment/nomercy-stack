@@ -1,0 +1,8 @@
+[nginx-direct-access]
+enabled = true
+filter = nginx-direct-access
+logpath = /remotelogs/nginx/debug.log
+maxretry = 1
+findtime = 86400
+bantime = -1
+action = iptables-allports[name=nginx-direct-access]

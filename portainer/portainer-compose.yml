@@ -8,7 +8,7 @@ services:
         aliases:
           - portainer
     restart: unless-stopped
-    image: portainer/portainer-ee:2.33.0
+    image: portainer/portainer-ee:2.32.0
     command: -H unix:///var/run/docker.sock
 #    ports:
 #      - "9000:9000"

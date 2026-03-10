@@ -1,4 +1,4 @@
-# NoMercyStack
+# nomercy-stack
 
 A multi-service development stack using Docker Compose, including MySQL, PostgreSQL, Keycloak, phpMyAdmin, pgAdmin, Portainer, Nginx proxy, and a website container. This stack is designed for local development and testing.
 
@@ -11,8 +11,8 @@ A multi-service development stack using Docker Compose, including MySQL, Postgre
 
 1. **Clone the repository**
    ```sh
-   git https://github.com/NoMercy-Entertainment/NoMercyStack.git
-   cd NoMercyStack
+   git https://github.com/NoMercy-Entertainment/nomercy-stack.git
+   cd nomercy-stack
    ```
 
 1. **Provide SSL Certificates**

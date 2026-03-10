@@ -7,7 +7,7 @@ echo "========================================================"
 echo "📈 FAIL2BAN PERFORMANCE TRENDS"
 echo "========================================================"
 
-LOG_FILE="/opt/NoMercyStack/logs/fail2ban/fail2ban-performance.csv"
+LOG_FILE="/opt/nomercy-stack/logs/fail2ban/fail2ban-performance.csv"
 
 if [ ! -f "$LOG_FILE" ]; then
     echo "❌ No performance data found. Run ./fail2ban-monitor.sh first."

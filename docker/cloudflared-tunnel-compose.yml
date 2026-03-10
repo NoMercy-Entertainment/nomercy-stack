@@ -1,3 +1,7 @@
+networks:
+  backend:
+    driver: bridge
+
 services:
   ### Cloudflare Tunnel ##################################
   tunnel:

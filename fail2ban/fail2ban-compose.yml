@@ -14,8 +14,8 @@ services:
       - VERBOSITY=-vv
     volumes:
       - ./config:/config
-      - ./scripts/fix-iptables-service.sh:/etc/services.d/fix-iptables/run:ro
-      - /var/log/auth.log:/var/log/auth.log:ro
+      # - ./scripts/fix-iptables-service.sh:/etc/services.d/fix-iptables/run:ro
+      # - /var/log/auth.log:/var/log/auth.log:ro
       - ../logs/:/config/log/:rw
       - ../logs/nginx/:/remotelogs/nginx/:ro
     restart: unless-stopped

@@ -1,4 +1,4 @@
-FROM alpine:3.21
+FROM alpine:3.22.2
 LABEL Maintainer="Stoney Eagle <stoney@nomercy.tv>"
 LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.4 based on Alpine Linux."
 

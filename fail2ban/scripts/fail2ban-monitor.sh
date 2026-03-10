@@ -178,7 +178,7 @@ echo "🕐 Monitoring since: $(date)"
 echo "========================================================"
 
 # Optional: Log performance data for time-series tracking
-LOG_DIR="/opt/NoMercyStack/logs/fail2ban"
+LOG_DIR="/opt/nomercy-stack/logs/fail2ban"
 if [ -d "$LOG_DIR" ]; then
     TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo "$TIMESTAMP,$TOTAL_BANNED,$TOTAL_ATTEMPTS,$TOTAL_UNIQUE_BANNED,$JAIL_COUNT" >> "$LOG_DIR/fail2ban-performance.csv"

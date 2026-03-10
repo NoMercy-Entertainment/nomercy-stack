@@ -79,11 +79,17 @@ COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Make sure files/folders needed by the processes are accessable when they run under the www user
 RUN chown -R www:www /var/www/html /run /var/lib/nginx /var/log/nginx
 
-# Add application
-# COPY --chown=www ./data/ /var/www/html/
-
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Copy application code and install dependencies at build time
+COPY --chown=www ./data/ /var/www/html/
+RUN su -s /bin/bash www -c "composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
+RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
+
+# Stash pre-built deps outside the volume mount point
+RUN cp -a /var/www/html/vendor /opt/_vendor_built \
+ && cp -a /var/www/html/node_modules /opt/_node_modules_built
 
 # Expose the port nginx is reachable on
 ADD config/start.sh /start.sh
@@ -94,8 +100,6 @@ ADD config/resolv.conf /etc/resolv.conf
 EXPOSE 8080
 
 RUN sed -i -e 's/\r$//' /start.sh
-
-USER www
 
 CMD ["/start.sh"]
 

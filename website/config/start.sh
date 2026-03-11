@@ -15,5 +15,8 @@ if [ ! -d /var/www/html/node_modules/.cache ] && [ -d /opt/_node_modules_built ]
     cp -a /opt/_node_modules_built/. /var/www/html/node_modules/
 fi
 
+# Run all Laravel production optimizations
+su -s /bin/bash www -c "cd /var/www/html && php artisan optimize:production"
+
 # Start supervisord and services (must be last — exec replaces the shell)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

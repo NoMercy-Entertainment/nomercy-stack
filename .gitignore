@@ -2,6 +2,13 @@
 .idea
 .vscode
 
+# Database dumps and backups — never commit these
+*.sql
+*.sql.gz
+*.sql.bz2
+*.dump
+*.bak
+
 keycloak/themes/*
 !keycloak/themes/.gitkeep
 

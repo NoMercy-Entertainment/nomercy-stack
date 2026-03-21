@@ -13,14 +13,14 @@ services:
           - website
     restart: unless-stopped
     build:
-      context: ../../../
-      dockerfile: infra/nomercy-stack/website/Dockerfile
+      context: ./
+      dockerfile: Dockerfile
     environment:
       - TZ=${TZ}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ../../../apps/nomercy-tv/:/var/www/html
+      - ./data/:/var/www/html
       - vendor:/var/www/html/vendor
       - node_modules:/var/www/html/node_modules
       # - ./config/resolv.conf:/etc/resolv.conf

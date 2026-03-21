@@ -60,20 +60,20 @@ RUN apk add --no-cache \
 RUN ln -s /usr/bin/php84 /usr/bin/php
 
 # Configure nginx - http
-COPY config/nginx.conf /etc/nginx/nginx.conf
+COPY infra/nomercy-stack/website/config/nginx.conf /etc/nginx/nginx.conf
 # Configure nginx - default server
-COPY config/conf.d /etc/nginx/conf.d/
+COPY infra/nomercy-stack/website/config/conf.d /etc/nginx/conf.d/
 
 # Configure PHP-FPM
 ENV PHP_INI_DIR /etc/php84
 ENV php_ini ${PHP_INI_DIR}/php.ini
 ENV fpm_conf ${PHP_INI_DIR}/php-fpm.d/www.conf
 
-COPY config/fpm-pool.conf ${fpm_conf}
-COPY config/php.ini ${php_ini}
+COPY infra/nomercy-stack/website/config/fpm-pool.conf ${fpm_conf}
+COPY infra/nomercy-stack/website/config/php.ini ${php_ini}
 
 # Configure supervisord
-COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY infra/nomercy-stack/website/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Make sure files/folders needed by the processes are accessable when they run under the www user
 RUN chown -R www:www /var/www/html /run /var/lib/nginx /var/log/nginx
@@ -82,7 +82,7 @@ RUN chown -R www:www /var/www/html /run /var/lib/nginx /var/log/nginx
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Copy application code and install dependencies at build time
-COPY --chown=www ./data/ /var/www/html/
+COPY --chown=www ./apps/nomercy-tv/ /var/www/html/
 RUN su -s /bin/bash www -c "composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
 RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
 
@@ -91,10 +91,10 @@ RUN cp -a /var/www/html/vendor /opt/_vendor_built \
  && cp -a /var/www/html/node_modules /opt/_node_modules_built
 
 # Expose the port nginx is reachable on
-ADD config/start.sh /start.sh
+ADD infra/nomercy-stack/website/config/start.sh /start.sh
 RUN chmod 755 /start.sh
 
-ADD config/resolv.conf /etc/resolv.conf
+ADD infra/nomercy-stack/website/config/resolv.conf /etc/resolv.conf
 
 EXPOSE 8080
 

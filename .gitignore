@@ -2,6 +2,9 @@
 .idea
 .vscode
 
+# Local dev compose override — not for production
+docker-compose.override.yml
+
 # Database dumps and backups — never commit these
 *.sql
 *.sql.gz

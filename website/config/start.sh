@@ -15,6 +15,10 @@ if [ ! -d /var/www/html/node_modules/.cache ] && [ -d /opt/_node_modules_built ]
     cp -a /opt/_node_modules_built/. /var/www/html/node_modules/
 fi
 
+# Ensure storage is writable by PHP-FPM (www user)
+chown -R www:www /var/www/html/storage
+chmod -R 775 /var/www/html/storage
+
 # Run all Laravel production optimizations
 su -s /bin/bash www -c "cd /var/www/html && php artisan optimize:production"
 

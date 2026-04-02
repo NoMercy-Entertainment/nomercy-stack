@@ -20,10 +20,17 @@ services:
       - backend
       - frontend
     depends_on:
-      - keycloak
-      - postgres
-      - pgadmin
-      - mysql
-      - phpmyadmin
-      - portainer
-      - website
+      keycloak:
+        condition: service_healthy
+      website:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      pgadmin:
+        condition: service_started
+      phpmyadmin:
+        condition: service_started
+      portainer:
+        condition: service_started

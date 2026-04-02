@@ -28,8 +28,15 @@ services:
       --features token-exchange,preview,admin2,docker
     environment:
       KC_PROXY: edge
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
     depends_on:
-      - postgres-kc
+      postgres-kc:
+        condition: service_healthy
 #    ports:
 #      - "8080:8080"
 #      - "8443:8443"

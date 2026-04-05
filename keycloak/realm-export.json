@@ -1806,6 +1806,18 @@
             "id.token.claim": "true",
             "access.token.claim": "true"
           }
+        },
+        {
+          "id": "cfe8398c-51bb-46e9-af1a-dda79cce297a",
+          "name": "nomercy-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "nomercy-api",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
         }
       ],
       "defaultClientScopes": [

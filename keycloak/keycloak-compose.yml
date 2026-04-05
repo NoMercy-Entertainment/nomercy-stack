@@ -7,25 +7,26 @@ services:
       backend:
         aliases:
           - keycloak
-    image: quay.io/keycloak/keycloak:22.0.1
+    image: quay.io/keycloak/keycloak:26.1
     restart: unless-stopped
     command: >
       start
-      --hostname-strict true
       --db postgres
       --db-url-host postgres-kc
       --db-username keycloak
       --db-password ${KEYCLOAK_DATABASE_PASSWORD}
-      --hostname ${KEYCLOAK_FRONTEND_URL}
-      --hostname-admin ${KEYCLOAK_FRONTEND_URL}
-      --proxy edge
+      --hostname https://${KEYCLOAK_FRONTEND_URL}
+      --proxy-headers xforwarded
+      --http-enabled true
       --spi-login-protocol-openid-connect-suppress-logout-confirmation-screen=true
       --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
-      --features token-exchange,preview,admin2,docker
+      --features token-exchange,preview,docker,persistent-user-sessions
+      --health-enabled true
+      --metrics-enabled false
     environment:
-      KC_PROXY: edge
+      KC_PROXY_HEADERS: xforwarded
     healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail http://localhost:8080/health/ready || exit 1"]
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/9000 && echo -e \"GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && timeout 5 cat <&3 | grep -q UP'"]
       interval: 30s
       timeout: 10s
       retries: 5

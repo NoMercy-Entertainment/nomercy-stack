@@ -32,7 +32,7 @@ proxy/certificates/*
 
 proxy/sites/*
 !proxy/sites/.gitkeep
-!proxy/sites/wildcard.conf
+!proxy/sites/*.conf
 
 shares/*
 !shares/.gitkeep

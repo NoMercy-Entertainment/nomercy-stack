@@ -1,0 +1,247 @@
+{
+  "clientId": "nomercy-cast-receiver",
+  "name": "NoMercy Cast Receiver",
+  "description": "Cast Web Receiver. Refresh-only public client at cast.nomercy.tv. 12h access / 7d refresh. Audience cast_receiver. Per-session claims (device_id, session_id, server_id, cast_session_id) set by server via token-exchange session notes.",
+  "rootUrl": "",
+  "adminUrl": "",
+  "baseUrl": "",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": [],
+  "webOrigins": [
+    "https://cast.nomercy.tv"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": false,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": true,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "access.token.lifespan": "43200",
+    "client.session.idle.timeout": "604800",
+    "client.session.max.lifespan": "604800",
+    "client.offline.session.idle.timeout": "0",
+    "client.offline.session.max.lifespan": "0",
+    "use.refresh.tokens": "true",
+    "client_credentials.use_refresh_token": "false",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "require.pushed.authorization.requests": "false",
+    "tls.client.certificate.bound.access.tokens": "false",
+    "post.logout.redirect.uris": "+",
+    "frontchannel.logout.session.required": "false",
+    "backchannel.logout.session.required": "false",
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "id.token.as.detached.signature": "false",
+    "exclude.session.state.from.auth.response": "false",
+    "display.on.consent.screen": "false",
+    "token.response.type.bearer.lower-case": "false",
+    "saml.multivalued.roles": "false",
+    "saml.force.post.binding": "false",
+    "saml.server.signature.keyinfo.ext": "false",
+    "saml.server.signature": "false",
+    "saml.client.signature": "false",
+    "saml.assertion.signature": "false",
+    "saml.encrypt": "false",
+    "saml.artifact.binding": "false",
+    "saml.authnstatement": "false",
+    "saml.onetimeuse.condition": "false",
+    "saml.allow.ecp.flow": "false",
+    "saml_force_name_id_format": "false",
+    "acr.loa.map": "{}",
+    "realm_client": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "audience-cast-receiver",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-audience-mapper",
+      "consentRequired": false,
+      "config": {
+        "included.custom.audience": "cast_receiver",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "lightweight.claim": "false",
+        "introspection.token.claim": "true"
+      }
+    },
+    {
+      "name": "cast-device-id",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "device_id",
+        "claim.name": "device_id",
+        "jsonType.label": "String",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "false",
+        "introspection.token.claim": "true"
+      }
+    },
+    {
+      "name": "cast-session-id",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "session_id",
+        "claim.name": "session_id",
+        "jsonType.label": "String",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "false",
+        "introspection.token.claim": "true"
+      }
+    },
+    {
+      "name": "cast-server-id",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "server_id",
+        "claim.name": "server_id",
+        "jsonType.label": "String",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "false",
+        "introspection.token.claim": "true"
+      }
+    },
+    {
+      "name": "cast-session-uuid",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "cast_session_id",
+        "claim.name": "cast_session_id",
+        "jsonType.label": "String",
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "false",
+        "introspection.token.claim": "true"
+      }
+    },
+    {
+      "name": "username",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "username",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "preferred_username",
+        "jsonType.label": "String",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "email",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "email",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "email",
+        "jsonType.label": "String",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "given name",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "firstName",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "given_name",
+        "jsonType.label": "String",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "family name",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "lastName",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "family_name",
+        "jsonType.label": "String",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "full name",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-full-name-mapper",
+      "consentRequired": false,
+      "config": {
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "Display Name",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "display_name",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "display_name",
+        "jsonType.label": "String",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "locale",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "locale",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "locale",
+        "jsonType.label": "String",
+        "userinfo.token.claim": "true"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "web-origins",
+    "profile",
+    "roles",
+    "basic",
+    "email"
+  ],
+  "optionalClientScopes": [],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  }
+}

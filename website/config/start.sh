@@ -19,6 +19,11 @@ fi
 chown -R www:www /var/www/html/storage
 chmod -R 775 /var/www/html/storage
 
+# Apply pending migrations on boot. DB is ready (depends_on mysql healthy) and the
+# app code is the freshly reset bind mount. set -e means a bad migration fails the
+# container start loudly instead of serving a green deploy on a stale schema.
+su -s /bin/bash www -c "cd /var/www/html && php artisan migrate --force"
+
 # Run all Laravel production optimizations
 su -s /bin/bash www -c "cd /var/www/html && php artisan optimize:production"
 

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM alpine:3.22.2
 LABEL Maintainer="Stoney Eagle <stoney@nomercy.tv>"
 LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.4 based on Alpine Linux."
@@ -83,7 +84,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Copy application code and install dependencies at build time
 COPY --chown=www ./data/ /var/www/html/
-RUN su -s /bin/bash www -c "composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
+RUN --mount=type=cache,target=/tmp/composer-cache,uid=1000 \
+    su -s /bin/bash www -c "COMPOSER_CACHE_DIR=/tmp/composer-cache composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
 RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
 
 # Stash pre-built deps outside the volume mount point

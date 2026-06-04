@@ -1,0 +1,20 @@
+services:
+  ### Autoheal #########################################
+  # Watches containers labelled `autoheal=true` and restarts any that Docker
+  # reports as unhealthy. The restart policy `unless-stopped` only reacts to a
+  # container *exiting*, never to a running-but-unhealthy one, so without this a
+  # wedged web container stays down until someone intervenes.
+  autoheal:
+    container_name: "${APP_NAME}-autoheal"
+    image: willfarrell/autoheal:latest
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=15
+      - AUTOHEAL_START_PERIOD=120
+      - CURL_TIMEOUT=30
+      - TZ=${TZ}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro

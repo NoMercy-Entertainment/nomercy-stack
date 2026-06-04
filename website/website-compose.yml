@@ -12,6 +12,9 @@ services:
         aliases:
           - website
     restart: unless-stopped
+    labels:
+      # Let the autoheal sidecar restart this container if it goes unhealthy.
+      - autoheal=true
     build:
       context: ./
       dockerfile: Dockerfile

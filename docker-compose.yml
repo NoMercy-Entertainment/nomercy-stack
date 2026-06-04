@@ -17,3 +17,4 @@ include:
   - ./website/website-compose.yml
   - ./proxy/proxy-compose.yml
   - ./fail2ban/fail2ban-compose.yml
+  - ./autoheal/autoheal-compose.yml

@@ -14,6 +14,9 @@
   --primary-border:#251e40;
   --link:#9e8cfc;
   --danger:#ff6b6b;
+  --logo-accent:var(--primary);
+  --logo-accent-light:color-mix(in srgb, var(--primary) 55%, #fff);
+  --logo-text:#f4f4f6;
   --r-card:20px; --r-input:8px; --r-btn:10px; --r-code:16px;
   --inset-input:inset 0 1px 0 rgba(0,0,0,.16),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 2px 2px rgba(0,0,0,.16);
 }
@@ -53,7 +56,11 @@ body{
 /* heading */
 .card-pf header{margin:0;padding:0;border:0}
 #kc-page-title{margin:0;text-align:center;line-height:0}
-.nm-logo{display:block;margin:0 auto;width:auto;max-width:90%;max-height:78px}
+.nm-logo{display:inline-flex;align-items:center;justify-content:center;gap:12px}
+.nm-logo__mark{height:58px;width:auto;flex:0 0 auto}
+.nm-logo__text{display:flex;flex-direction:column;line-height:1;text-align:left}
+.nm-logo__name{font-family:Outfit,sans-serif;font-weight:800;font-size:30px;letter-spacing:-.5px;color:var(--logo-text)}
+.nm-logo__tag{font-family:Outfit,sans-serif;font-weight:700;font-size:13px;letter-spacing:.2px;color:var(--logo-accent-light);margin-top:2px}
 
 /* sign-in / sign-up tab toggle */
 .nm-tabs{position:relative;display:flex;gap:8px;height:56px;padding:6px;border-radius:12px;
@@ -109,7 +116,8 @@ body{
   font-family:Inter;font-weight:600;font-size:16px;color:var(--slate-12);text-decoration:none}
 .nm-sbtn:hover{border-color:var(--primary);color:var(--slate-12)}
 .nm-sbtn i{font-size:18px}
-.nm-sicon{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;flex:0 0 auto}
+.nm-sicon{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;flex:0 0 auto;color:#fff}
+.nm-sicon i{color:#fff;font-size:18px;line-height:1}
 .nm-sicon svg{width:20px;height:20px;display:block;fill:#fff}
 .nm-sicon svg path{fill:#fff}
 

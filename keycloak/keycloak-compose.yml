@@ -41,3 +41,4 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./themes/:/opt/keycloak/themes/
+      - ./providers/:/opt/keycloak/providers/

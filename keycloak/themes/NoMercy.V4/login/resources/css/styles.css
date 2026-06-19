@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
 
 :root{
   --slate-1:#151718;
@@ -7,16 +7,32 @@
   --slate-a4:rgba(226,240,253,.08);
   --slate-a6:rgba(223,239,254,.14);
   --slate-a7:rgba(224,243,255,.18);
+  --slate-a8:rgba(229,242,254,.26);
   --slate-a10:rgba(231,243,255,.47);
   --input-text:#ffffff;
   --accent-12:#f1eefe;
   --primary:#6e56cf;
+  /* The accent palette derives from --primary via relative colour (OKLCH), so
+     theming only needs to set --primary. The hex/rgba line is a fallback for
+     engines without relative-colour support; the oklch line overrides it. */
   --primary-border:#251e40;
+  --primary-border:oklch(from var(--primary) calc(l - 0.28) calc(c * 0.5) h);
   --link:#9e8cfc;
+  --link:oklch(from var(--primary) calc(l + 0.18) c h);
+  --link-hover:#b6a8ff;
+  --link-hover:oklch(from var(--primary) calc(l + 0.26) calc(c * 0.85) h);
+  --bg-glow:rgba(114,83,255,.30);
+  --bg-glow:oklch(from var(--primary) l c h / 0.30);
   --danger:#ff6b6b;
   --logo-accent:var(--primary);
   --logo-accent-light:color-mix(in srgb, var(--primary) 55%, #fff);
+  --logo-light:#f1eefe;
+  --logo-light:oklch(from var(--primary) 0.95 calc(c * 0.2) h);
   --logo-text:#f4f4f6;
+  --check-bg:#dfeffe24;
+  --check-border:#e5f2fe42;
+  --accent-wash:#7650ff38;
+  --accent-wash:oklch(from var(--primary) l c h / 0.22);
   --r-card:20px; --r-input:8px; --r-btn:10px; --r-code:16px;
   --inset-input:inset 0 1px 0 rgba(0,0,0,.16),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 2px 2px rgba(0,0,0,.16);
 }
@@ -30,7 +46,7 @@ body{
   font-size:14px !important;
   color:var(--slate-12);
   background:
-    radial-gradient(680px 560px at 6% 1%, rgba(114,83,255,.30), rgba(114,83,255,0) 60%),
+    radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%),
     #1c1e22 !important;
   display:flex; align-items:center; justify-content:center;
   min-height:100vh; padding:40px 20px;
@@ -47,20 +63,34 @@ body{
   position:relative;width:420px;max-width:92vw;margin:0;
   background:var(--slate-1);border:1px solid var(--slate-a4);border-top:1px solid var(--slate-a4);
   border-radius:var(--r-card);padding:32px;color:var(--slate-12);font-weight:400;
-  display:flex;flex-direction:column;gap:28px;overflow:hidden;
-  box-shadow:0 25px 56px rgba(0,0,0,.45),inset 0 1px 1px rgba(255,255,255,.10);
+  display:flex;flex-direction:column;gap:32px;overflow:hidden;
+  box-shadow:0 25px 56px rgba(0,0,0,.40),inset 0 1px 1px rgba(255,255,255,.22);
 }
-.card-pf::before{content:"";position:absolute;inset:0;border-radius:var(--r-card);pointer-events:none;
-  background:radial-gradient(380px 150px at 62% -8%, rgba(114,83,255,.18), rgba(114,83,255,0) 70%)}
+/* designer's card glow: a bright spot off the top-right corner + a wash down from the top */
+.card-pf::before{content:"";position:absolute;inset:0;border-radius:var(--r-card);pointer-events:none;z-index:0;
+  background:
+    radial-gradient(295px 325px at 101% -22px, rgba(114,83,255,.3) 0%, rgba(114,83,255,.12) 50%, transparent 100%),
+    radial-gradient(330px 353px at 63% -23px, rgba(114,83,255,.15) 0%, transparent 100%),
+    linear-gradient(180deg, var(--accent-wash) 0%, transparent 55%);
+  background:
+    radial-gradient(295px 325px at 101% -22px, oklch(from var(--primary) calc(l + .06) calc(c * 1.4) h / .3) 0%, oklch(from var(--primary) calc(l + .06) calc(c * 1.4) h / .12) 50%, transparent 100%),
+    radial-gradient(330px 353px at 63% -23px, oklch(from var(--primary) calc(l + .06) calc(c * 1.4) h / .15) 0%, transparent 100%),
+    linear-gradient(180deg, var(--accent-wash) 0%, transparent 55%)}
+/* designer's grain/sparkle texture, blended over the whole card */
+.card-pf::after{content:"";position:absolute;inset:0;border-radius:var(--r-card);pointer-events:none;z-index:0;
+  background:url(../img/card-noise.png) center/cover;mix-blend-mode:screen;opacity:.16}
+.card-pf > *{position:relative;z-index:1}
+/* beat PatternFly's `.login-pf-page .card-pf` padding (10/20/30) with the design's even inset */
+.login-pf-page .card-pf{padding:24px 32px 32px}
 
-/* heading */
-.card-pf header{margin:0;padding:0;border:0}
-#kc-page-title{margin:0;text-align:center;line-height:0}
-.nm-logo{display:inline-flex;align-items:center;justify-content:center;gap:12px}
-.nm-logo__mark{height:58px;width:auto;flex:0 0 auto}
-.nm-logo__text{display:flex;flex-direction:column;line-height:1;text-align:left}
-.nm-logo__name{font-family:Outfit,sans-serif;font-weight:800;font-size:30px;letter-spacing:-.5px;color:var(--logo-text)}
-.nm-logo__tag{font-family:Outfit,sans-serif;font-weight:700;font-size:13px;letter-spacing:.2px;color:var(--logo-accent-light);margin-top:2px}
+/* heading — .login-pf-page prefix beats PatternFly's header margin */
+.login-pf-page .card-pf header{margin:0;padding:0;border:0}
+#kc-page-title{margin:0;padding:0;font:inherit}
+.nm-head{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.nm-head__title{font-family:Outfit,sans-serif;font-weight:600;font-size:28px;line-height:1.15;letter-spacing:-.3px;color:var(--accent-12)}
+.nm-head__sub{font-family:Inter,sans-serif;font-weight:400;font-size:14px;line-height:20px;color:var(--slate-11)}
+.nm-logo{display:flex;align-items:center;justify-content:center;width:100%}
+.nm-logo__mark{height:72px;width:auto;max-width:100%;flex:0 0 auto}
 
 /* sign-in / sign-up tab toggle */
 .nm-tabs{position:relative;display:flex;gap:8px;height:56px;padding:6px;border-radius:12px;
@@ -71,12 +101,12 @@ body{
 .nm-tab.is-active{background:#3a3f42;color:var(--slate-12);
   box-shadow:0 16px 20px -4px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.4)}
 
-#kc-content,#kc-content-wrapper{width:100%;margin:0}
-#kc-content-wrapper{display:flex;flex-direction:column;gap:24px}
+.login-pf-page #kc-content,.login-pf-page #kc-content-wrapper{width:100%;margin:0;padding:0}
+#kc-content-wrapper{display:flex;flex-direction:column;gap:32px}
 
 /* ---- form ---- */
-.nm-form{display:flex;flex-direction:column;gap:24px}
-.nm-fields{display:flex;flex-direction:column;gap:16px}
+.nm-form{display:flex;flex-direction:column;gap:32px}
+.nm-fields{display:flex;flex-direction:column;gap:32px}
 .nm-field{display:flex;flex-direction:column;gap:6px}
 .nm-field label{font-family:Inter;font-weight:500;font-size:14px;line-height:20px;color:var(--slate-12)}
 .nm-req{color:var(--link)}
@@ -86,28 +116,47 @@ body{
   font-family:Inter;font-size:16px;line-height:24px}
 .nm-input input::placeholder{color:#7e858b}
 .nm-input:focus-within{border-color:var(--primary)}
+/* keep browser autofill on-theme: clip the white fill to the glyphs so the field's own
+   background shows through, and force text/caret to the themed colour (works in both modes) */
+.nm-input input:-webkit-autofill,
+.nm-input input:-webkit-autofill:hover,
+.nm-input input:-webkit-autofill:focus,
+.nm-input input:-webkit-autofill:active,
+.nm-code__box:-webkit-autofill{
+  -webkit-text-fill-color:var(--input-text);
+  -webkit-background-clip:text;background-clip:text;
+  caret-color:var(--primary);
+  transition:background-color 9999s ease 0s;
+}
 .nm-helper{display:flex;justify-content:flex-end}
 .nm-helper a{font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-11);text-decoration:underline}
 .nm-error{color:var(--danger);font-size:14px;line-height:20px}
 
-.nm-check{display:flex;align-items:center;gap:12px;cursor:pointer}
-.nm-check input{width:18px;height:18px;border-radius:4px;accent-color:var(--primary);margin:0}
+/* custom square checkbox — native accent-color can't match the designed box */
+.nm-check{display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.nm-check input{-webkit-appearance:none;appearance:none;flex:0 0 auto;width:18px;height:18px;margin:3px 0 0;
+  border:1.5px solid var(--check-border);border-radius:4px;background:var(--check-bg);box-shadow:var(--inset-input);cursor:pointer;position:relative}
+.nm-check input:checked{background:var(--primary)}
+.nm-check input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.nm-check input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
 .nm-check span{font-family:Inter;font-weight:500;font-size:16px;line-height:24px;color:var(--slate-12)}
+.nm-check a{color:var(--link)}
 
 .nm-btn{height:44px;border-radius:var(--r-btn);width:100%;cursor:pointer;border:1px solid transparent;
   display:flex;align-items:center;justify-content:center;gap:8px;
   font-family:Inter;font-weight:600;font-size:16px;line-height:24px;text-decoration:none}
 .nm-btn-primary{color:#fff;border-color:var(--primary-border);position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,0)),var(--primary);
-  box-shadow:0 1px 2px rgba(16,24,40,.05),inset 0 2px 0 rgba(255,255,255,.32),inset 0 -2px 0 rgba(0,0,0,.24)}
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0)),var(--primary);
+  box-shadow:0 1px 2px rgba(16,24,40,.05),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -2px 0 rgba(0,0,0,.28)}
 .nm-btn-primary:hover{filter:brightness(1.06)}
 .nm-btn[disabled]{opacity:.7;cursor:default}
 .nm-ico{width:20px;height:20px}
 
 /* ---- dividers ---- */
-.nm-divider,.nm-foot{display:flex;align-items:center;justify-content:center;gap:16px}
-.nm-divider .line{height:2px;width:40px;border-radius:4px;background:var(--slate-a6)}
-.nm-divider span:not(.line){font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-a10);white-space:nowrap}
+.nm-divider,.nm-foot{display:flex;align-items:center;justify-content:center;gap:32px}
+.nm-divider .line{height:2px;width:40px;border-radius:4px;background:var(--slate-a4)}
+.nm-divider span:not(.line){font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-a8);white-space:nowrap}
 
 /* ---- social ---- */
 .nm-social{display:flex;gap:8px}
@@ -116,10 +165,10 @@ body{
   font-family:Inter;font-weight:600;font-size:16px;color:var(--slate-12);text-decoration:none}
 .nm-sbtn:hover{border-color:var(--primary);color:var(--slate-12)}
 .nm-sbtn i{font-size:18px}
-.nm-sicon{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;flex:0 0 auto;color:#fff}
-.nm-sicon i{color:#fff;font-size:18px;line-height:1}
-.nm-sicon svg{width:20px;height:20px;display:block;fill:#fff}
-.nm-sicon svg path{fill:#fff}
+.nm-sicon{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;flex:0 0 auto;color:var(--slate-12)}
+.nm-sicon i{color:var(--slate-12);font-size:18px;line-height:1}
+.nm-sicon svg{width:20px;height:20px;display:block;fill:var(--slate-12)}
+.nm-sicon svg path{fill:var(--slate-12)}
 
 /* ---- footer (register / info) ---- */
 .nm-foot{margin-top:4px}
@@ -128,18 +177,24 @@ body{
 .nm-foot a{font-family:Inter;font-weight:500;font-size:16px;line-height:24px;color:var(--link);text-decoration:underline}
 
 a{color:var(--link)}
-a:hover{color:#b6a8ff}
+a:hover{color:var(--link-hover)}
 
 /* ---- one-time code (OTP) ---- */
-.nm-code{display:flex;gap:8px;align-items:center;justify-content:center}
-.nm-code input,.nm-code .digit{width:48px;height:58px;text-align:center;border:1px solid var(--slate-a4);
-  border-radius:var(--r-code);background:var(--slate-a4);box-shadow:var(--inset-input);
-  font-family:Outfit,sans-serif;font-size:24px;color:#fff;outline:none}
-.nm-code input:focus{border-color:var(--primary)}
-.nm-row{display:flex;gap:8px}
+.nm-code{display:flex;gap:8px;align-items:center;justify-content:center;width:100%}
+.nm-code__box{flex:1 1 0;min-width:0;max-width:52px;height:58px;text-align:center;
+  border:1px solid var(--check-border);border-radius:var(--r-code);background:var(--check-bg);box-shadow:var(--inset-input);
+  font-family:Outfit,sans-serif;font-weight:600;font-size:24px;color:var(--input-text);outline:none;caret-color:var(--primary)}
+.nm-code__box:focus{border-color:var(--primary)}
+.nm-code__dash{flex:0 0 auto;width:12px;height:2px;border-radius:2px;background:var(--slate-11)}
+.nm-row{display:flex;gap:12px;align-items:center}
 .nm-row .nm-btn{flex:1}
-.nm-btn-ghost{background:transparent;border:0;color:var(--slate-12)}
-.nm-sub{font-family:Inter;font-size:14px;line-height:20px;opacity:.8;margin:6px 0 0}
+.nm-btn-ghost{background:transparent;border:1px solid transparent;color:var(--slate-12);font-weight:600}
+.nm-btn-ghost:hover{color:var(--slate-12)}
+.nm-resend{text-align:center;font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-a10)}
+.nm-resend a,.nm-resend button{color:var(--link);text-decoration:underline;background:none;border:0;cursor:pointer;font:inherit;padding:0}
+.nm-resend button:hover{color:var(--link-hover)}
+.nm-status{text-align:center;font-family:Inter;font-size:13px;color:var(--slate-11)}
+.nm-opt{color:var(--slate-11);font-weight:400}
 
 /* ---- alert / messages ---- */
 .alert-error,.alert-warning,.alert-success,.alert-info,
@@ -166,6 +221,55 @@ a:hover{color:#b6a8ff}
 .pf-c-button.pf-m-primary,.btn-primary{background:var(--primary) !important;border-color:var(--primary-border) !important;
   color:#fff !important;border-radius:var(--r-btn)}
 #kc-form-buttons{margin-top:8px}
+
+/* ---- light mode: exact tokens from the designer's light variant, driven by the
+   browser's prefers-color-scheme. Neutrals flip to dark-on-light and the accent's
+   relative-colour direction inverts (links go darker, not lighter). */
+@media (prefers-color-scheme: light){
+  :root{
+    --slate-1:#fbfcfd;
+    --slate-11:#687076;
+    --slate-12:#11181c;
+    --slate-a4:rgba(2,28,55,.08);
+    --slate-a6:rgba(1,33,57,.13);
+    --slate-a7:rgba(1,33,57,.16);
+    --slate-a8:rgba(0,16,27,.42);
+    --slate-a10:rgba(0,16,27,.51);
+    --input-text:#11181c;
+    /* softer inner shadow on white inputs — the dark -e-10 reads as too much depth on light */
+    --inset-input:inset 0 1px 2px rgba(2,28,55,.07);
+    --accent-12:#20134b;
+    --logo-text:#11181c;
+    --check-bg:#ffffff;
+    --check-border:#c1c8cd;
+    --accent-wash:rgba(46,2,244,.16);
+    --accent-wash:oklch(from var(--primary) calc(l + .06) calc(c * 1.4) h / .16);
+    --link:#644fc1;
+    --link:oklch(from var(--primary) calc(l - .02) c h);
+    --link-hover:#4f3da0;
+    --link-hover:oklch(from var(--primary) calc(l - .12) c h);
+    --logo-light:#20134b;
+    --logo-light:oklch(from var(--primary) .3 calc(c * 1.1) h);
+    --bg-glow:rgba(46,2,244,.12);
+    --bg-glow:oklch(from var(--primary) l c h / .14);
+  }
+  body{background:
+    radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%),
+    #eef1f4 !important}
+  .card-pf{background:#ffffff;border-color:var(--slate-a6);
+    box-shadow:0 25px 56px rgba(2,28,55,.12),inset 0 1px 1px rgba(255,255,255,.7)}
+  .nm-tabs{background:#eceef0;border-color:var(--slate-a6)}
+  .nm-tab{color:var(--slate-11)}
+  .nm-tab.is-active{background:#ffffff;color:var(--slate-12);
+    box-shadow:0 1px 3px rgba(2,28,55,.12),inset 0 1px 0 rgba(255,255,255,.8)}
+  .nm-input,.nm-code__box{background:#ffffff;border-color:var(--slate-a6)}
+  /* social buttons in light: gray fill, gray label, stronger border (icons stay dark via --slate-12) */
+  .nm-sbtn{background:#f3f4f6;color:var(--slate-11);border-color:#d3d8dd}
+  /* darken the accent under white button text so it clears WCAG AA on white, and keep the top sheen */
+  .nm-btn-primary{
+    background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),oklch(from var(--primary) calc(l - .08) c h);
+    box-shadow:0 1px 2px rgba(16,24,40,.12),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.16)}
+}
 
 @media (max-width:480px){
   .card-pf{width:100%;padding:24px}

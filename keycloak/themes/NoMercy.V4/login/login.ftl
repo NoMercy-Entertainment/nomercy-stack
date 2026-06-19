@@ -1,24 +1,14 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=false; section>
     <#if section = "header">
-        <span class="nm-logo">
-            <svg class="nm-logo__mark" viewBox="2 4 44 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${msg("loginTitle",(realm.displayName!''))}">
-                <path fill="var(--logo-accent)" fill-rule="evenodd" clip-rule="evenodd" d="M19.377 32.271c-1.495 1.01-2.243 1.516-2.864 1.481a1.846 1.846 0 01-1.368-.726c-.376-.495-.376-1.398-.376-3.202V10.176c0-1.804 0-2.707.376-3.202a1.846 1.846 0 011.368-.726c.621-.035 1.369.47 2.864 1.48l14.54 9.824c1.212.82 1.819 1.23 2.031 1.745.185.45.185.956 0 1.406-.212.515-.819.925-2.032 1.745l-14.54 9.823zm23.392-25.81c.68 0 1.231.552 1.231 1.231v24.616c0 .68-.551 1.23-1.23 1.23h-2.924a1.23 1.23 0 01-1.23-1.23V7.692c0-.68.55-1.23 1.23-1.23h2.923z"/>
-                <path fill="var(--logo-accent-light)" fill-rule="evenodd" clip-rule="evenodd" d="M6.88 33.439c-1.226.828-2.88-.05-2.88-1.53V8.091c0-1.48 1.654-2.358 2.88-1.53l17.625 11.91a1.846 1.846 0 010 3.059L6.88 33.439zM32 6.462c.68 0 1.23.55 1.23 1.23v24.616c0 .68-.55 1.23-1.23 1.23h-2.923a1.23 1.23 0 01-1.23-1.23V7.692c0-.68.55-1.23 1.23-1.23H32z"/>
-            </svg>
-            <span class="nm-logo__text">
-                <span class="nm-logo__name">NoMercyTV</span>
-                <span class="nm-logo__tag">The Effortless Encoder</span>
-            </span>
-        </span>
+        <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
+        <div class="nm-tabs">
+            <span class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</span>
+            <a class="nm-tab" href="${url.registrationUrl}">${msg("doRegister")}</a>
+        </div>
+        </#if>
     <#elseif section = "form">
         <#if realm.password>
-            <#if realm.registrationAllowed && !registrationDisabled??>
-            <div class="nm-tabs">
-                <span class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</span>
-                <a class="nm-tab" href="${url.registrationUrl}">${msg("doRegister")}</a>
-            </div>
-            </#if>
             <form id="kc-form-login" class="nm-form" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">
                 <div class="nm-fields">
                     <#if !usernameHidden??>

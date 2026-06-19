@@ -1,55 +1,49 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('emailCode'); section>
     <#if section="header">
-        ${msg("doLogIn")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("nmOtpTitle")}</span>
+            <#if maskedEmail??>
+                <span class="nm-head__sub">${msg("nmOtpEmailSub")} <strong>${kcSanitize(maskedEmail)?no_esc}</strong></span>
+            <#else>
+                <span class="nm-head__sub">${msg("nmOtpEmailSubGeneric")}</span>
+            </#if>
+        </span>
     <#elseif section="form">
-        <form id="kc-otp-login-form" class="${properties.kcFormClass!}" action="${url.loginAction}"
-            method="post">
-            <#assign otpLength = (codeLength!6)>
-
-            <div class="${properties.kcFormGroupClass!}">
-                <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="emailCode" class="${properties.kcLabelClass!}">${msg("emailOtpForm", otpLength)}<#if maskedEmail??>: <strong>${kcSanitize(maskedEmail)?no_esc}</strong></#if></label>
-                </div>
-
-                <div class="${properties.kcInputWrapperClass!}">
-                    <input id="emailCode" name="emailCode" type="text"
-                           inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code"
-                           class="${properties.kcInputClass!}" autofocus
+        <form id="kc-otp-login-form" class="nm-form" action="${url.loginAction}" method="post">
+            <div class="nm-field">
+                <div class="nm-input">
+                    <input id="emailCode" name="emailCode" type="text" inputmode="numeric" pattern="[0-9]*"
+                           autocomplete="one-time-code" class="" autofocus
                            aria-invalid="<#if messagesPerField.existsError('emailCode')>true</#if>"
-                           aria-describedby="email-code-hint"
+                           aria-label="${msg("nmOtpTitle")}"
                            <#if maxAttemptsReached?? && maxAttemptsReached>disabled</#if>/>
-                    <span id="email-code-hint" class="${properties.kcInputHelperTextClass!}">${msg("emailCodeHint")}</span>
-                    <#if messagesPerField.existsError('emailCode')>
-                        <span id="input-error-email-code" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                            ${kcSanitize(messagesPerField.get('emailCode'))?no_esc}
-                        </span>
-                    </#if>
                 </div>
+                <#if !(maxAttemptsReached?? && maxAttemptsReached)>
+                    <div class="nm-code" data-nm-otp data-target="#emailCode" data-length="${(codeLength!6)}" data-dash="auto"></div>
+                </#if>
+                <#if messagesPerField.existsError('emailCode')>
+                    <span id="input-error-email-code" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('emailCode'))?no_esc}</span>
+                </#if>
             </div>
 
-            <div id="email-code-resend" role="status" aria-live="polite">
+            <div id="email-code-resend" class="nm-status" role="status" aria-live="polite">
                 <#if resendCooldownRemaining?? && (resendCooldownRemaining > 0)>
                     ${msg("email-authenticator-resend-cooldown", resendCooldownRemaining)}
                 </#if>
             </div>
 
-            <div class="${properties.kcFormGroupClass!}">
-                <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                    </div>
-                </div>
-
-                <div id="kc-form-buttons">
-                    <div class="${properties.kcFormButtonsWrapperClass!}">
-                        <#if !(maxAttemptsReached?? && maxAttemptsReached)>
-                            <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" name="login" type="submit" value="${msg("doLogIn")}"/>
-                        </#if>
-                        <input class="${properties.kcButtonClass!} <#if maxAttemptsReached?? && maxAttemptsReached>${properties.kcButtonPrimaryClass!}<#else>${properties.kcButtonSecondaryClass!}</#if> ${properties.kcButtonLargeClass!}" name="resend" type="submit" value="${msg("resendCode")}"/>
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!}" name="cancel" type="submit" value="${msg("doCancel")}"/>
-                    </div>
-                </div>
+            <div class="nm-row">
+                <button class="nm-btn nm-btn-ghost" name="cancel" type="submit">${msg("doCancel")}</button>
+                <#if !(maxAttemptsReached?? && maxAttemptsReached)>
+                    <button class="nm-btn nm-btn-primary" name="login" id="kc-login" type="submit">
+                        ${msg("doLogIn")}
+                        <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    </button>
+                </#if>
             </div>
+
+            <p class="nm-resend">${msg("nmDidntReceive")} <button name="resend" type="submit">${msg("nmSendNewCode")}</button></p>
         </form>
     </#if>
 </@layout.registrationLayout>

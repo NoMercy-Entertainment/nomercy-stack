@@ -1,30 +1,25 @@
-// Conditional-UI passkey autofill: surfaces a discoverable passkey in the email
-// field's autocomplete when the browser supports it. Native WebAuthn JSON API,
-// no external dependency. The explicit grey button (webauthnAuthenticate.js) is
-// the fallback, and aborts this pending request before its own ceremony.
-import { returnSuccess, conditional } from "./webauthnAuthenticate.js";
+// Conditional-mediation passkey autofill for the username screen. Surfaces
+// discoverable passkeys in the browser's autofill UI without a button press.
+// Shares doAuthenticate / the AbortController with webauthnAuthenticate.js, so
+// clicking the explicit passkey button cleanly aborts this background request.
+
+import { doAuthenticate, returnSuccess } from "./webauthnAuthenticate.js";
 
 export async function initAuthenticate(input) {
-    if (!window.PublicKeyCredential) return;
-
-    const conditionalAvailable = typeof PublicKeyCredential.isConditionalMediationAvailable === "function"
-        && await PublicKeyCredential.isConditionalMediationAvailable();
-    if (input.isUserIdentified || !conditionalAvailable) return;
-
+    if (!window.PublicKeyCredential || typeof PublicKeyCredential.isConditionalMediationAvailable === "undefined") {
+        return;
+    }
+    if (input.isUserIdentified) {
+        return;
+    }
+    if (!(await PublicKeyCredential.isConditionalMediationAvailable())) {
+        return;
+    }
     try {
-        const options = { challenge: input.challenge, rpId: input.rpId };
-        if (input.createTimeout !== 0) options.timeout = input.createTimeout * 1000;
-        if (input.userVerification !== "not specified") options.userVerification = input.userVerification;
-
-        const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options);
-        conditional.controller = new AbortController();
-        const credential = await navigator.credentials.get({
-            publicKey,
-            mediation: "conditional",
-            signal: conditional.controller.signal,
-        });
+        const credential = await doAuthenticate({ ...input, additionalOptions: { mediation: "conditional" } });
         returnSuccess(credential);
-    } catch {
-        // aborted by the button, or no discoverable passkey — best-effort either way
+    } catch (error) {
+        // Fail silently — conditional UI is best-effort and is routinely
+        // aborted when the user picks the explicit button or another method.
     }
 }

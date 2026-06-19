@@ -1,6 +1,7 @@
-<#-- Passkey integration for the username screen (Keycloak 26.3+ seamless conditional UI).
+<#-- Passkey integration for the username screen (Keycloak 26.4+ seamless conditional UI).
      Rendered only when the authenticator exposes enableWebAuthnConditionalUI. Uses our
-     native WebAuthn ceremony (no rfc4648), wired to the grey button in the form below. -->
+     native WebAuthn ceremony (no rfc4648): conditional-mediation autofill on page load,
+     plus the grey button below as the explicit trigger. Both share one AbortController. -->
 
 <#macro passkeyButton>
     <#if enableWebAuthnConditionalUI?has_content>
@@ -33,7 +34,7 @@
             import { authenticateByWebAuthn } from "${url.resourcesPath}/js/webauthnAuthenticate.js";
             import { initAuthenticate } from "${url.resourcesPath}/js/passkeysConditionalAuth.js";
 
-            const ceremony = {
+            const args = {
                 isUserIdentified : ${isUserIdentified},
                 challenge : ${challenge?c},
                 userVerification : ${userVerification?c},
@@ -42,13 +43,13 @@
                 errmsg : ${msg("webauthn-unsupported-browser-text")?c}
             };
 
-            document.addEventListener("DOMContentLoaded", () => initAuthenticate(ceremony));
+            document.addEventListener("DOMContentLoaded", () => initAuthenticate(args));
 
             const authButton = document.getElementById("authenticateWebAuthnButton");
             if (authButton) {
                 authButton.addEventListener("click", (event) => {
                     event.preventDefault();
-                    authenticateByWebAuthn(ceremony);
+                    authenticateByWebAuthn(args);
                 }, { once: true });
             }
             </#outputformat>

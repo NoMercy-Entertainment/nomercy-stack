@@ -1,4 +1,5 @@
 <#import "template.ftl" as layout>
+<#import "passkeys.ftl" as passkeys>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username') displayInfo=false; section>
     <#if section = "header">
         <#if realm.registrationAllowed && !registrationDisabled??>
@@ -14,7 +15,8 @@
                 <div class="nm-field">
                     <label for="username"><#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if> <span class="nm-req">*</span></label>
                     <div class="nm-input">
-                        <input id="username" name="username" value="${(login.username!'')}" type="text" autofocus autocomplete="email"
+                        <input id="username" name="username" value="${(login.username!'')}" type="text" autofocus
+                               autocomplete="${(enableWebAuthnConditionalUI?has_content)?then('username webauthn', 'email')}"
                                aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"/>
                     </div>
                     <#if messagesPerField.existsError('username')>
@@ -23,11 +25,15 @@
                 </div>
                 </#if>
             </div>
-            <button class="nm-btn nm-btn-primary" name="login" id="kc-login" type="submit">
-                ${msg("doLogIn")}
-                <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            </button>
+            <div class="nm-btn-stack">
+                <button class="nm-btn nm-btn-primary" name="login" id="kc-login" type="submit">
+                    ${msg("doLogIn")}
+                    <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                </button>
+                <@passkeys.passkeyButton />
+            </div>
         </form>
+        <@passkeys.conditionalUIData />
     <#elseif section = "socialProviders">
         <#if social?? && social.providers?has_content>
             <div class="nm-divider"><span class="line"></span><span>${msg("identity-provider-login-label")}</span><span class="line"></span></div>

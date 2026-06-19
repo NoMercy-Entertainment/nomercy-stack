@@ -4,10 +4,19 @@
 // Keycloak hands us base64url strings and expects base64url back, exactly what the
 // native JSON helpers produce, so there is no manual encoding to do.
 
+// Shared with passkeysConditionalAuth.js: the conditional-mediation get() it starts
+// stays pending, and WebAuthn forbids a second concurrent get(). The button aborts
+// that pending request before starting its own modal ceremony.
+export const conditional = { controller: null };
+
 export async function authenticateByWebAuthn(input) {
     if (!window.PublicKeyCredential) {
         returnFailure(input.errmsg);
         return;
+    }
+    if (conditional.controller) {
+        conditional.controller.abort();
+        conditional.controller = null;
     }
     try {
         const options = { challenge: input.challenge, rpId: input.rpId };

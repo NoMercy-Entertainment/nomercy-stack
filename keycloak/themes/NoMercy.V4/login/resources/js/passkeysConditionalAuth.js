@@ -1,8 +1,8 @@
 // Conditional-UI passkey autofill: surfaces a discoverable passkey in the email
 // field's autocomplete when the browser supports it. Native WebAuthn JSON API,
 // no external dependency. The explicit grey button (webauthnAuthenticate.js) is
-// the fallback for browsers without conditional mediation.
-import { returnSuccess } from "./webauthnAuthenticate.js";
+// the fallback, and aborts this pending request before its own ceremony.
+import { returnSuccess, conditional } from "./webauthnAuthenticate.js";
 
 export async function initAuthenticate(input) {
     if (!window.PublicKeyCredential) return;
@@ -17,9 +17,14 @@ export async function initAuthenticate(input) {
         if (input.userVerification !== "not specified") options.userVerification = input.userVerification;
 
         const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options);
-        const credential = await navigator.credentials.get({ publicKey, mediation: "conditional" });
+        conditional.controller = new AbortController();
+        const credential = await navigator.credentials.get({
+            publicKey,
+            mediation: "conditional",
+            signal: conditional.controller.signal,
+        });
         returnSuccess(credential);
     } catch {
-        // conditional UI is best-effort — the user can still use the button or another method
+        // aborted by the button, or no discoverable passkey — best-effort either way
     }
 }

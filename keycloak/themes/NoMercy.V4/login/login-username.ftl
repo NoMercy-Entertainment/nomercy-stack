@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username') displayInfo=(realm.registrationAllowed && !registrationDisabled??); section>
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username') displayInfo=false; section>
     <#if section = "header">
         <#if realm.registrationAllowed && !registrationDisabled??>
         <div class="nm-tabs">

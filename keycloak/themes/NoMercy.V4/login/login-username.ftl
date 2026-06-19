@@ -1,87 +1,50 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username') displayInfo=(realm.password && realm.registrationAllowed && !registrationDisabled??); section>
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username') displayInfo=(realm.registrationAllowed && !registrationDisabled??); section>
     <#if section = "header">
-        ${msg("loginAccountTitle")}
+        <#if realm.registrationAllowed && !registrationDisabled??>
+        <div class="nm-tabs">
+            <span class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</span>
+            <a class="nm-tab" href="${url.registrationUrl}">${msg("doRegister")}</a>
+        </div>
+        </#if>
     <#elseif section = "form">
-        <div id="kc-form">
-            <div id="kc-form-wrapper">
-                <#if realm.password>
-                    <form id="kc-form-login" onsubmit="login.disabled = true; return true;" action="${url.loginAction}"
-                          method="post">
-                        <#if !usernameHidden??>
-                            <div class="${properties.kcFormGroupClass!}">
-                                <label for="username"
-                                       class="${properties.kcLabelClass!}"><#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if></label>
-
-                                <input tabindex="1" id="username"
-                                       aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"
-                                       class="${properties.kcInputClass!}" name="username"
-                                       value="${(login.username!'')}"
-                                       type="text" autofocus autocomplete="off"/>
-
-                                <#if messagesPerField.existsError('username')>
-                                    <span id="input-error-username" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                                        ${kcSanitize(messagesPerField.get('username'))?no_esc}
-                                    </span>
-                                </#if>
-                            </div>
-                        </#if>
-
-                        <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!}">
-                            <div id="kc-form-options">
-                                <#if realm.rememberMe && !usernameHidden??>
-                                    <div class="checkbox">
-                                        <label>
-                                            <#if login.rememberMe??>
-                                                <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox"
-                                                       checked> ${msg("rememberMe")}
-                                            <#else>
-                                                <input tabindex="3" id="rememberMe" name="rememberMe"
-                                                       type="checkbox" checked> ${msg("rememberMe")}
-                                            </#if>
-                                        </label>
-                                    </div>
-                                </#if>
-                            </div>
-                        </div>
-
-                        <div id="kc-form-buttons" class="${properties.kcFormGroupClass!}">
-                            <input tabindex="4"
-                                   class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
-                                   name="login" id="kc-login" type="submit" value="${msg("doLogIn")}"/>
-                        </div>
-                    </form>
+        <form id="kc-form-login" class="nm-form" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">
+            <div class="nm-fields">
+                <#if !usernameHidden??>
+                <div class="nm-field">
+                    <label for="username"><#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if> <span class="nm-req">*</span></label>
+                    <div class="nm-input">
+                        <input id="username" name="username" value="${(login.username!'')}" type="text" autofocus autocomplete="email"
+                               aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"/>
+                    </div>
+                    <#if messagesPerField.existsError('username')>
+                        <span id="input-error-username" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('username'))?no_esc}</span>
+                    </#if>
+                </div>
                 </#if>
             </div>
-        </div>
-
-    <#elseif section = "info" >
-        <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
-            <div id="kc-registration">
-                <span>${msg("noAccount")} <a tabindex="6" href="${url.registrationUrl}">${msg("doRegister")}</a></span>
-            </div>
-        </#if>
-    <#elseif section = "socialProviders" >
-        <#if realm.password && social.providers??>
-            <div id="kc-social-providers" class="${properties.kcFormSocialAccountSectionClass!}">
-                <hr/>
-                <h4>${msg("identity-provider-login-label")}</h4>
-
-                <ul class="${properties.kcFormSocialAccountListClass!} <#if social.providers?size gt 3>${properties.kcFormSocialAccountListGridClass!}</#if>">
-                    <#list social.providers as p>
-                        <a id="social-${p.alias}" class="${properties.kcFormSocialAccountListButtonClass!} <#if social.providers?size gt 3>${properties.kcFormSocialAccountGridItem!}</#if>"
-                                type="button" href="${p.loginUrl}">
+            <button class="nm-btn nm-btn-primary" name="login" id="kc-login" type="submit">
+                ${msg("doLogIn")}
+                <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </button>
+        </form>
+    <#elseif section = "socialProviders">
+        <#if social?? && social.providers?has_content>
+            <div class="nm-divider"><span class="line"></span><span>${msg("identity-provider-login-label")}</span><span class="line"></span></div>
+            <div class="nm-social">
+                <#list social.providers as p>
+                    <a id="social-${p.alias}" class="nm-sbtn" href="${p.loginUrl}" title="${p.displayName!}">
+                        <span class="nm-sicon">
                             <#if p.iconClasses?has_content>
-                                <i class="${properties.kcCommonLogoIdP!} ${p.iconClasses!}" aria-hidden="true"></i>
-                                <span class="${properties.kcFormSocialAccountNameClass!} kc-social-icon-text">${p.displayName!}</span>
+                                <i class="${p.iconClasses}" aria-hidden="true"></i>
                             <#else>
-                                <span class="${properties.kcFormSocialAccountNameClass!}">${p.displayName!}</span>
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20Zm0 1.8a8.2 8.2 0 016.36 13.38L6.62 5.46A8.16 8.16 0 0112 3.8Zm0 16.4a8.2 8.2 0 01-6.36-13.38l11.74 11.72A8.16 8.16 0 0112 20.2Z"/></svg>
                             </#if>
-                        </a>
-                    </#list>
-                </ul>
+                        </span>
+                        <span>${p.displayName!}</span>
+                    </a>
+                </#list>
             </div>
         </#if>
     </#if>
-
 </@layout.registrationLayout>

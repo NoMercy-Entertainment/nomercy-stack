@@ -140,9 +140,12 @@ body,
 }
 
 /* ---- forms ---- */
+/* Let the form grid fill the content width so its "jump to section" rail is pushed
+   to the far right instead of crammed beside narrow fields. */
 .pf-v5-c-form {
     --pf-v5-c-form--Gap: 22px;
-    max-width: 640px;
+    max-width: none;
+    width: 100%;
 }
 
 /* The account-ui renders Personal Info as a horizontal form (label beside the
@@ -183,12 +186,61 @@ body,
 }
 
 /* inputs — the login nm-input: inset dark fill, full border, rounded, Inter */
-.pf-v5-c-form-control {
+.pf-v5-c-form-control,
+.pf-v5-c-menu-toggle {
     background-color: var(--slate-a4);
     border: 1px solid var(--slate-a4);
     border-radius: var(--r-input);
     box-shadow: var(--inset-input);
     min-height: 40px;
+}
+
+/* selects/dropdowns render as a menu-toggle — give them the same field look + accent */
+.pf-v5-c-menu-toggle {
+    color: var(--input-text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+}
+
+.pf-v5-c-menu-toggle.pf-m-expanded,
+.pf-v5-c-menu-toggle:focus-within {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* input + button as one joined unit: the group is the bordered field, the input is
+   bare inside it, and the trailing button shares the fill with a hairline divider. */
+.pf-v5-c-input-group {
+    background-color: var(--slate-a4);
+    border: 1px solid var(--slate-a4);
+    border-radius: var(--r-input);
+    box-shadow: var(--inset-input);
+    overflow: hidden;
+}
+
+.pf-v5-c-input-group:focus-within {
+    border-color: var(--primary);
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control,
+.pf-v5-c-input-group .pf-v5-c-input-group__text,
+.pf-v5-c-input-group__item {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button {
+    border: 0;
+    border-radius: 0;
+    border-left: 1px solid var(--slate-a4);
+    background: var(--slate-a6);
+    color: var(--slate-12);
+}
+
+.pf-v5-c-input-group .pf-v5-c-button:hover {
+    background: var(--slate-a7);
 }
 
 .pf-v5-c-form-control::after {
@@ -286,19 +338,42 @@ body,
     width: auto;
 }
 
-/* ---- left navigation ---- */
+/* ---- left navigation — the app's Menu Option pill (exact Figma tokens) ---- */
+.pf-v5-c-nav__list {
+    padding: 4px;
+}
+
 .pf-v5-c-nav__link {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
+    color: var(--slate-12);
+    border: 1px solid transparent;
     border-radius: 8px;
+}
+
+/* PatternFly marks the current item with a left accent bar; the app uses a filled
+   pill instead, so neutralise the bar and fill the link. */
+.pf-v5-c-nav__link::before,
+.pf-v5-c-nav__link::after {
+    border: 0 !important;
+}
+
+.pf-v5-c-nav__link:hover {
+    background-color: #7650ff38;
+    border-color: #e2f0fd14;
+    color: var(--slate-12);
 }
 
 .pf-v5-c-nav__link.pf-m-current,
 .pf-v5-c-nav__item .pf-v5-c-nav__link.pf-m-current {
-    --pf-v5-c-nav__link--m-current--BackgroundColor: var(--accent-wash);
-    --pf-v5-c-nav__link--before--BorderColor: var(--primary);
-    --pf-v5-c-nav__link--after--BorderColor: var(--primary);
+    background-color: #7253ff5e;
+    border-color: #e2f0fd14;
     color: var(--slate-12);
+}
+
+.pf-v5-c-page__sidebar {
+    background-color: var(--page-bg);
+    border-right: 1px solid var(--slate-a4);
 }
 
 /* ---- controls inherit the accent ---- */

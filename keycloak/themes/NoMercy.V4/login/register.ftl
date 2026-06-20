@@ -37,6 +37,7 @@
                     <label for="password">${msg("password")} <span class="nm-req">*</span></label>
                     <div class="nm-input">
                         <input type="password" id="password" name="password" autocomplete="new-password"
+                               data-pw-length="8" data-pw-digits="1" data-pw-special="1"
                                aria-invalid="<#if messagesPerField.existsError('password','password-confirm')>true</#if>"/>
                     </div>
                     <#if messagesPerField.existsError('password')>
@@ -72,7 +73,7 @@
                 <div class="g-recaptcha" data-size="compact" data-sitekey="${recaptchaSiteKey}"></div>
             </#if>
 
-            <button class="nm-btn nm-btn-primary" type="submit">
+            <button class="nm-btn nm-btn-primary" id="kc-register" type="submit">
                 ${msg("doRegister")}
                 <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
             </button>

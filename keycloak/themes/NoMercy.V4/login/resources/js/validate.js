@@ -1,28 +1,42 @@
-// Greys out the login button until the field satisfies its rule set, so the
-// user gets immediate feedback before submitting. The password rules mirror the
-// realm password policy; they are passed in as data attributes on the field so
-// the policy lives in one place (the template) rather than being duplicated here.
+// Greys out + disables the submit button until every field on the form is valid,
+// so the user gets immediate feedback before submitting. Password rules mirror
+// the realm password policy and are passed in as data attributes on the field,
+// so the policy lives in one place (the template) rather than duplicated here.
 
-function gateLoginButton() {
-    const button = document.getElementById("kc-login");
+function gateSubmitButton() {
+    const button = document.getElementById("kc-login") || document.getElementById("kc-register");
     if (!button) {
         return;
     }
+
+    const email = document.getElementById("email") || document.querySelector('#username[data-validate="email"]');
     const password = document.getElementById("password");
-    const email = document.querySelector('#username[data-validate="email"]');
-    const field = password || email;
-    if (!field) {
+    const confirm = document.getElementById("password-confirm");
+    const fields = [email, password, confirm].filter(Boolean);
+    if (fields.length === 0) {
         return;
     }
 
-    const isValid = () => (password ? passwordMeetsPolicy(password) : isEmail(email.value));
+    const isValid = () => {
+        if (email && !isEmail(email.value)) {
+            return false;
+        }
+        if (password && !passwordMeetsPolicy(password)) {
+            return false;
+        }
+        if (confirm && confirm.value !== (password ? password.value : "")) {
+            return false;
+        }
+        return true;
+    };
+
     const apply = () => {
         const valid = isValid();
         button.classList.toggle("is-disabled", !valid);
         button.disabled = !valid;
     };
 
-    field.addEventListener("input", apply);
+    fields.forEach((field) => field.addEventListener("input", apply));
     apply();
 }
 
@@ -40,4 +54,4 @@ function isEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
-document.addEventListener("DOMContentLoaded", gateLoginButton);
+document.addEventListener("DOMContentLoaded", gateSubmitButton);

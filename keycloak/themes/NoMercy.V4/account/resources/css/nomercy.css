@@ -87,13 +87,24 @@ body,
 .pf-v5-c-page__main-section,
 .pf-v5-c-page__main-section.pf-m-light {
     --pf-v5-c-page__main-section--BackgroundColor: transparent;
-    --pf-v5-c-page__main-section--PaddingTop: 40px;
-    --pf-v5-c-page__main-section--PaddingBottom: 56px;
-    --pf-v5-c-page__main-section--PaddingLeft: 40px;
-    --pf-v5-c-page__main-section--PaddingRight: 40px;
-    --pf-v5-c-page__main-section--xl--PaddingLeft: 40px;
-    --pf-v5-c-page__main-section--xl--PaddingRight: 40px;
+    --pf-v5-c-page__main-section--PaddingTop: 28px;
+    --pf-v5-c-page__main-section--PaddingBottom: 40px;
+    --pf-v5-c-page__main-section--PaddingLeft: 36px;
+    --pf-v5-c-page__main-section--PaddingRight: 36px;
+    --pf-v5-c-page__main-section--xl--PaddingLeft: 36px;
+    --pf-v5-c-page__main-section--xl--PaddingRight: 36px;
     color: var(--slate-12);
+}
+
+/* tighten the account-ui's generous vertical rhythm between the title block,
+   form sections and section headings */
+.pf-v5-c-page__main-section .pf-v5-l-grid.pf-m-gutter {
+    --pf-v5-l-grid--m-gutter--GridGap: 16px;
+}
+
+.pf-v5-c-form__section {
+    --pf-v5-c-form__section--m-horizontal--GridRowGap: 18px;
+    margin-top: 8px;
 }
 
 /* cap the reading width so the form isn't edge-to-edge, like the app's dashboard */
@@ -140,11 +151,11 @@ body,
 }
 
 /* ---- forms ---- */
-/* Let the form grid fill the content width so its "jump to section" rail is pushed
-   to the far right instead of crammed beside narrow fields. */
+/* Keep the form + its "jump to section" rail as one cohesive, left-aligned block:
+   comfortable field width, rail tucked beside it (not stranded at the viewport edge). */
 .pf-v5-c-form {
-    --pf-v5-c-form--Gap: 22px;
-    max-width: none;
+    --pf-v5-c-form--Gap: 18px;
+    max-width: 860px;
     width: 100%;
 }
 
@@ -316,11 +327,34 @@ body,
     border-radius: var(--r-card);
 }
 
-/* list-ish rows on the security page get the login's soft chip treatment */
-.pf-v5-c-data-list,
-.pf-v5-c-data-list__item {
+/* device-activity / session rows: each item is its own segmented card instead of
+   an unbounded run of text. */
+.pf-v5-c-data-list {
     background-color: transparent;
-    border-color: var(--slate-a4);
+    border: 0;
+}
+
+/* The device list is one __item holding a __item-row per device, so the per-device
+   card is the ROW. Darker fill + visible border + shadow read clearly on the page;
+   !important + specificity beat the DeviceActivity route chunk that loads later. */
+.pf-v5-c-page__main-section .pf-v5-c-data-list__item {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.pf-v5-c-page__main-section .pf-v5-c-data-list__item-row {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--slate-a7) !important;
+    border-radius: var(--r-card);
+    margin-bottom: 12px;
+    padding: 10px 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .28);
+}
+
+/* drop PatternFly's per-row bottom divider — the card border is the separator now */
+.pf-v5-c-data-list__item::after,
+.pf-v5-c-data-list__item-row::after {
+    display: none !important;
 }
 
 /* ---- masthead ---- */
@@ -339,8 +373,11 @@ body,
 }
 
 /* ---- left navigation — the app's Menu Option pill (exact Figma tokens) ---- */
+/* Horizontal list padding insets the links so the current item is a contained pill
+   with margin, not a full-width bar flush to the sidebar edge. */
 .pf-v5-c-nav__list {
-    padding: 4px;
+    padding: 6px 12px;
+    gap: 2px;
 }
 
 .pf-v5-c-nav__link {

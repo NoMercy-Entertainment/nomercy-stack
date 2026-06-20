@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
+
+/* NoMercy account console — mirrors the login theme palette. The account console
+   is a compiled React + PatternFly v5 SPA, so we re-skin it by remapping PatternFly
+   global tokens to NoMercy values; everything that derives from them follows. */
+
+:root {
+    --nm-bg: #16181b;
+    --nm-surface: #1c1e22;
+    --nm-surface-2: #212429;
+    --nm-elevated: #26292e;
+    --nm-border: rgba(226, 240, 253, .10);
+    --nm-border-strong: rgba(224, 243, 255, .18);
+    --nm-text: #eeecec;
+    --nm-text-dim: #9ba1a6;
+    --nm-primary: #6e56cf;
+    --nm-primary-hover: oklch(from var(--nm-primary) calc(l + .08) c h);
+    --nm-link: #9e8cfc;
+    --nm-link-hover: #b6a8ff;
+}
+
+/* Force-dark (force-dark.js) means a single palette to override. PatternFly defines
+   its dark tokens on :where(.pf-v5-theme-dark):root (zero-specificity :where), so a
+   plain .pf-v5-theme-dark block loaded after PatternFly wins on every token. */
+.pf-v5-theme-dark {
+    --pf-v5-global--BackgroundColor--100: var(--nm-surface);
+    --pf-v5-global--BackgroundColor--150: var(--nm-surface-2);
+    --pf-v5-global--BackgroundColor--200: var(--nm-bg);
+    --pf-v5-global--BackgroundColor--300: var(--nm-elevated);
+    --pf-v5-global--BackgroundColor--400: #2e3137;
+    --pf-v5-global--BackgroundColor--dark-100: var(--nm-surface);
+    --pf-v5-global--BackgroundColor--dark-200: var(--nm-bg);
+    --pf-v5-global--BackgroundColor--dark-300: var(--nm-surface-2);
+    --pf-v5-global--BackgroundColor--dark-400: var(--nm-elevated);
+
+    --pf-v5-global--Color--100: var(--nm-text);
+    --pf-v5-global--Color--200: var(--nm-text-dim);
+
+    --pf-v5-global--BorderColor--100: var(--nm-border);
+    --pf-v5-global--BorderColor--200: var(--nm-border-strong);
+    --pf-v5-global--BorderColor--300: var(--nm-border);
+
+    --pf-v5-global--primary-color--100: var(--nm-primary);
+    --pf-v5-global--primary-color--200: var(--nm-primary-hover);
+    --pf-v5-global--primary-color--300: var(--nm-primary);
+    --pf-v5-global--primary-color--dark-100: var(--nm-primary);
+    --pf-v5-global--primary-color--dark-200: var(--nm-primary-hover);
+
+    --pf-v5-global--link--Color: var(--nm-link);
+    --pf-v5-global--link--Color--dark: var(--nm-link);
+    --pf-v5-global--link--Color--hover: var(--nm-link-hover);
+    --pf-v5-global--link--Color--dark--hover: var(--nm-link-hover);
+    --pf-v5-global--link--Color--light: var(--nm-link);
+    --pf-v5-global--link--Color--light--hover: var(--nm-link-hover);
+
+    --pf-v5-global--active-color--100: var(--nm-primary);
+    --pf-v5-global--active-color--200: var(--nm-primary-hover);
+
+    /* Masthead background derives from palette--black-1000 in the dark theme. */
+    --pf-v5-global--palette--black-1000: var(--nm-bg);
+
+    --pf-v5-global--BorderRadius--sm: 6px;
+}
+
+/* Page: deep slate with a soft NoMercy glow at the top, echoing the login card. */
+body,
+.pf-v5-c-page {
+    background-color: var(--nm-bg);
+}
+
+.pf-v5-c-page {
+    background-image:
+        radial-gradient(900px 380px at 50% -140px,
+            oklch(from var(--nm-primary) l c h / .16) 0%,
+            transparent 70%);
+    background-repeat: no-repeat;
+}
+
+.pf-v5-c-page__main-section {
+    --pf-v5-c-page__main-section--BackgroundColor: transparent;
+}
+
+/* Masthead: translucent slate with a hairline divider, like the login header. */
+.pf-v5-c-masthead {
+    background-color: color-mix(in srgb, var(--nm-bg) 86%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--nm-border);
+}
+
+.pf-v5-c-masthead__brand .pf-v5-c-brand,
+.pf-v5-c-brand {
+    height: 34px;
+    max-height: 34px;
+    width: auto;
+}
+
+/* Cards: NoMercy surface, soft border, generous rounding to match the login card. */
+.pf-v5-c-card {
+    background-color: var(--nm-surface);
+    border: 1px solid var(--nm-border);
+    border-radius: 16px;
+}
+
+/* Left navigation: current item gets the NoMercy accent bar and wash. */
+.pf-v5-c-nav__link.pf-m-current,
+.pf-v5-c-nav__item .pf-v5-c-nav__link.pf-m-current {
+    --pf-v5-c-nav__link--m-current--BackgroundColor: color-mix(in srgb, var(--nm-primary) 18%, transparent);
+    --pf-v5-c-nav__link--before--BorderColor: var(--nm-primary);
+}
+
+/* Primary buttons: NoMercy purple with a lift on hover, matching the login CTA. */
+.pf-v5-c-button.pf-m-primary {
+    --pf-v5-c-button--m-primary--BackgroundColor: var(--nm-primary);
+    --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--nm-primary-hover);
+    --pf-v5-c-button--m-primary--active--BackgroundColor: var(--nm-primary-hover);
+    --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--nm-primary-hover);
+    border-radius: 10px;
+}
+
+.pf-v5-c-button {
+    border-radius: 8px;
+}
+
+.pf-v5-c-button.pf-m-link {
+    --pf-v5-c-button--m-link--Color: var(--nm-link);
+    --pf-v5-c-button--m-link--hover--Color: var(--nm-link-hover);
+}
+
+/* Inputs: dark inset field, rounded, with a NoMercy focus ring like nm-input. */
+.pf-v5-c-form-control {
+    --pf-v5-c-form-control--BackgroundColor: rgba(0, 0, 0, .22);
+    --pf-v5-c-form-control--BorderTopColor: var(--nm-border-strong);
+    --pf-v5-c-form-control--BorderRightColor: var(--nm-border-strong);
+    --pf-v5-c-form-control--BorderLeftColor: var(--nm-border-strong);
+    --pf-v5-c-form-control--BorderBottomColor: var(--nm-border-strong);
+    --pf-v5-c-form-control--focus--BorderBottomColor: var(--nm-primary);
+    --pf-v5-c-form-control--hover--BorderBottomColor: var(--nm-primary);
+    border-radius: 8px;
+}
+
+/* Focus rings and toggles inherit the NoMercy accent. */
+.pf-v5-c-switch {
+    --pf-v5-c-switch--checked__toggle--BackgroundColor: var(--nm-primary);
+}

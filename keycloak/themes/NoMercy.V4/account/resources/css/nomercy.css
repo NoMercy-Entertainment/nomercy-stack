@@ -1,91 +1,282 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
 
-/* NoMercy account console — mirrors the login theme palette. The account console
-   is a compiled React + PatternFly v5 SPA, so we re-skin it by remapping PatternFly
-   global tokens to NoMercy values; everything that derives from them follows. */
+/* NoMercy account console. The console is a compiled React + PatternFly v5 SPA, so
+   we re-skin it two ways: remap PatternFly global tokens (cascades everywhere) and
+   then restyle the components users actually look at to the login theme's nm-* values
+   — same inputs, type, spacing, buttons and surfaces as the rest of the auth flow. */
 
 :root {
-    --nm-bg: #16181b;
-    --nm-surface: #1c1e22;
-    --nm-surface-2: #212429;
-    --nm-elevated: #26292e;
-    --nm-border: rgba(226, 240, 253, .10);
-    --nm-border-strong: rgba(224, 243, 255, .18);
-    --nm-text: #eeecec;
-    --nm-text-dim: #9ba1a6;
-    --nm-primary: #6e56cf;
-    --nm-primary-hover: oklch(from var(--nm-primary) calc(l + .08) c h);
-    --nm-link: #9e8cfc;
-    --nm-link-hover: #b6a8ff;
+    --slate-1: #151718;
+    --slate-11: #9ba1a6;
+    --slate-12: #eeecec;
+    --slate-a3: rgba(220, 237, 254, .05);
+    --slate-a4: rgba(226, 240, 253, .08);
+    --slate-a6: rgba(223, 239, 254, .14);
+    --slate-a7: rgba(224, 243, 255, .18);
+    --slate-a8: rgba(229, 242, 254, .26);
+    --accent-12: #f1eefe;
+    --input-text: #ffffff;
+    --primary: #6e56cf;
+    --primary-hover: oklch(from var(--primary) calc(l + .07) c h);
+    --primary-border: oklch(from var(--primary) calc(l - 0.28) calc(c * 0.5) h);
+    --link: oklch(from var(--primary) calc(l + 0.18) c h);
+    --link-hover: oklch(from var(--primary) calc(l + 0.26) calc(c * 0.85) h);
+    --bg-glow: oklch(from var(--primary) l c h / 0.22);
+    --accent-wash: oklch(from var(--primary) l c h / 0.18);
+
+    --page-bg: #1c1e22;
+    --surface: var(--slate-1);
+    --surface-2: #1a1d1e;
+
+    --r-input: 8px;
+    --r-btn: 10px;
+    --r-card: 16px;
+    --inset-input: inset 0 1px 0 rgba(0, 0, 0, .16), inset 0 -1px 0 rgba(255, 255, 255, .08), inset 0 2px 2px rgba(0, 0, 0, .16);
 }
 
-/* Force-dark (force-dark.js) means a single palette to override. PatternFly defines
-   its dark tokens on :where(.pf-v5-theme-dark):root (zero-specificity :where), so a
-   plain .pf-v5-theme-dark block loaded after PatternFly wins on every token. */
+/* ---- PatternFly global token remap (force-dark gives one palette to override) ---- */
 .pf-v5-theme-dark {
-    --pf-v5-global--BackgroundColor--100: var(--nm-surface);
-    --pf-v5-global--BackgroundColor--150: var(--nm-surface-2);
-    --pf-v5-global--BackgroundColor--200: var(--nm-bg);
-    --pf-v5-global--BackgroundColor--300: var(--nm-elevated);
-    --pf-v5-global--BackgroundColor--400: #2e3137;
-    --pf-v5-global--BackgroundColor--dark-100: var(--nm-surface);
-    --pf-v5-global--BackgroundColor--dark-200: var(--nm-bg);
-    --pf-v5-global--BackgroundColor--dark-300: var(--nm-surface-2);
-    --pf-v5-global--BackgroundColor--dark-400: var(--nm-elevated);
+    --pf-v5-global--BackgroundColor--100: var(--surface);
+    --pf-v5-global--BackgroundColor--150: var(--surface-2);
+    --pf-v5-global--BackgroundColor--200: var(--page-bg);
+    --pf-v5-global--BackgroundColor--300: var(--surface-2);
+    --pf-v5-global--BackgroundColor--dark-100: var(--surface);
+    --pf-v5-global--BackgroundColor--dark-200: var(--page-bg);
+    --pf-v5-global--BackgroundColor--dark-300: var(--surface-2);
 
-    --pf-v5-global--Color--100: var(--nm-text);
-    --pf-v5-global--Color--200: var(--nm-text-dim);
+    --pf-v5-global--Color--100: var(--slate-12);
+    --pf-v5-global--Color--200: var(--slate-11);
 
-    --pf-v5-global--BorderColor--100: var(--nm-border);
-    --pf-v5-global--BorderColor--200: var(--nm-border-strong);
-    --pf-v5-global--BorderColor--300: var(--nm-border);
+    --pf-v5-global--BorderColor--100: var(--slate-a4);
+    --pf-v5-global--BorderColor--200: var(--slate-a7);
+    --pf-v5-global--BorderColor--300: var(--slate-a4);
 
-    --pf-v5-global--primary-color--100: var(--nm-primary);
-    --pf-v5-global--primary-color--200: var(--nm-primary-hover);
-    --pf-v5-global--primary-color--300: var(--nm-primary);
-    --pf-v5-global--primary-color--dark-100: var(--nm-primary);
-    --pf-v5-global--primary-color--dark-200: var(--nm-primary-hover);
+    --pf-v5-global--primary-color--100: var(--primary);
+    --pf-v5-global--primary-color--200: var(--primary-hover);
+    --pf-v5-global--primary-color--dark-100: var(--primary);
 
-    --pf-v5-global--link--Color: var(--nm-link);
-    --pf-v5-global--link--Color--dark: var(--nm-link);
-    --pf-v5-global--link--Color--hover: var(--nm-link-hover);
-    --pf-v5-global--link--Color--dark--hover: var(--nm-link-hover);
-    --pf-v5-global--link--Color--light: var(--nm-link);
-    --pf-v5-global--link--Color--light--hover: var(--nm-link-hover);
+    --pf-v5-global--link--Color: var(--link);
+    --pf-v5-global--link--Color--dark: var(--link);
+    --pf-v5-global--link--Color--hover: var(--link-hover);
+    --pf-v5-global--link--Color--dark--hover: var(--link-hover);
+    --pf-v5-global--link--Color--light: var(--link);
 
-    --pf-v5-global--active-color--100: var(--nm-primary);
-    --pf-v5-global--active-color--200: var(--nm-primary-hover);
+    --pf-v5-global--active-color--100: var(--primary);
+    --pf-v5-global--palette--black-1000: var(--page-bg);
+    --pf-v5-global--BorderRadius--sm: var(--r-input);
 
-    /* Masthead background derives from palette--black-1000 in the dark theme. */
-    --pf-v5-global--palette--black-1000: var(--nm-bg);
-
-    --pf-v5-global--BorderRadius--sm: 6px;
+    --pf-v5-global--FontFamily--text: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --pf-v5-global--FontFamily--heading: 'Outfit', sans-serif;
 }
 
-/* Page: deep slate with a soft NoMercy glow at the top, echoing the login card. */
+/* ---- page + background (matches the login body glow) ---- */
 body,
 .pf-v5-c-page {
-    background-color: var(--nm-bg);
+    background-color: var(--page-bg);
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 .pf-v5-c-page {
-    background-image:
-        radial-gradient(900px 380px at 50% -140px,
-            oklch(from var(--nm-primary) l c h / .16) 0%,
-            transparent 70%);
+    background-image: radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%);
     background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
-.pf-v5-c-page__main-section {
+/* The account-ui tags the content region pf-m-light; force it transparent so the
+   page glow shows through and nothing reverts to PatternFly's light surface. */
+.pf-v5-c-page__main-section,
+.pf-v5-c-page__main-section.pf-m-light {
     --pf-v5-c-page__main-section--BackgroundColor: transparent;
+    --pf-v5-c-page__main-section--PaddingTop: 40px;
+    --pf-v5-c-page__main-section--PaddingBottom: 56px;
+    --pf-v5-c-page__main-section--PaddingLeft: 40px;
+    --pf-v5-c-page__main-section--PaddingRight: 40px;
+    --pf-v5-c-page__main-section--xl--PaddingLeft: 40px;
+    --pf-v5-c-page__main-section--xl--PaddingRight: 40px;
+    color: var(--slate-12);
 }
 
-/* Masthead: translucent slate with a hairline divider, like the login header. */
+/* cap the reading width so the form isn't edge-to-edge, like the app's dashboard */
+.pf-v5-c-page__main-section > .pf-v5-l-grid,
+.pf-v5-c-page__main-section > .pf-v5-c-content {
+    max-width: 1080px;
+}
+
+/* ---- typography ---- */
+.pf-v5-c-content h1,
+.pf-v5-c-content h2,
+.pf-v5-c-content h3,
+.pf-v5-c-title {
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -.3px;
+    color: var(--accent-12);
+}
+
+.pf-v5-c-title.pf-m-2xl {
+    font-size: 28px;
+    line-height: 1.15;
+    font-weight: 600;
+}
+
+.pf-v5-c-title.pf-m-xl {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.pf-v5-c-title.pf-m-lg,
+.pf-v5-c-title.pf-m-md {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* section descriptions ("Beheer uw basisinformatie", helper copy) */
+.pf-v5-c-content p,
+.pf-v5-c-content small,
+.pf-v5-c-form__helper-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--slate-11);
+}
+
+/* ---- forms ---- */
+.pf-v5-c-form {
+    --pf-v5-c-form--Gap: 22px;
+    max-width: 640px;
+}
+
+/* The account-ui renders Personal Info as a horizontal form (label beside the
+   field). The app and login stack the label above a full-width field. The route's
+   CSS chunk is injected at runtime after this sheet, so !important is needed to
+   beat its grid on equal specificity. */
+.pf-v5-c-form.pf-m-horizontal .pf-v5-c-form__group {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.pf-v5-c-form.pf-m-horizontal .pf-v5-c-form__group-label {
+    text-align: left;
+    padding-bottom: 0;
+}
+
+.pf-v5-c-form__group-control {
+    width: 100%;
+}
+
+.pf-v5-c-form__group-label,
+.pf-v5-c-form__label {
+    --pf-v5-c-form__label--PaddingBottom: 6px;
+}
+
+.pf-v5-c-form__label-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--slate-12);
+}
+
+.pf-v5-c-form__label-required {
+    color: var(--link);
+}
+
+/* inputs — the login nm-input: inset dark fill, full border, rounded, Inter */
+.pf-v5-c-form-control {
+    background-color: var(--slate-a4);
+    border: 1px solid var(--slate-a4);
+    border-radius: var(--r-input);
+    box-shadow: var(--inset-input);
+    min-height: 40px;
+}
+
+.pf-v5-c-form-control::after {
+    border: 0 !important;
+}
+
+.pf-v5-c-form-control > input,
+.pf-v5-c-form-control > select,
+.pf-v5-c-form-control > textarea,
+.pf-v5-c-form-control input,
+.pf-v5-c-form-control select {
+    background: transparent;
+    color: var(--input-text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.pf-v5-c-form-control:focus-within {
+    border-color: var(--primary);
+}
+
+.pf-v5-c-form-control input::placeholder {
+    color: #7e858b;
+}
+
+.pf-v5-c-form-control.pf-m-disabled,
+.pf-v5-c-form-control[disabled] {
+    opacity: .6;
+}
+
+/* ---- buttons — login nm-btn-primary: sheen gradient over primary, inset depth ---- */
+.pf-v5-c-button {
+    border-radius: var(--r-btn);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+}
+
+.pf-v5-c-button.pf-m-primary {
+    color: #fff;
+    border: 1px solid var(--primary-border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0)), var(--primary);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .05), inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -2px 0 rgba(0, 0, 0, .28);
+}
+
+.pf-v5-c-button.pf-m-primary:hover {
+    filter: brightness(1.06);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0)), var(--primary);
+}
+
+.pf-v5-c-button.pf-m-secondary {
+    color: var(--slate-12);
+    border: 1px solid var(--slate-a6);
+    background: transparent;
+}
+
+.pf-v5-c-button.pf-m-secondary:hover {
+    border-color: var(--primary);
+}
+
+.pf-v5-c-button.pf-m-link {
+    color: var(--link);
+}
+
+.pf-v5-c-button.pf-m-link:hover {
+    color: var(--link-hover);
+}
+
+/* ---- cards / surfaces ---- */
+.pf-v5-c-card {
+    background-color: var(--surface);
+    border: 1px solid var(--slate-a4);
+    border-radius: var(--r-card);
+}
+
+/* list-ish rows on the security page get the login's soft chip treatment */
+.pf-v5-c-data-list,
+.pf-v5-c-data-list__item {
+    background-color: transparent;
+    border-color: var(--slate-a4);
+}
+
+/* ---- masthead ---- */
 .pf-v5-c-masthead {
-    background-color: color-mix(in srgb, var(--nm-bg) 86%, transparent);
+    background-color: color-mix(in srgb, var(--page-bg) 86%, transparent);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--nm-border);
+    border-bottom: 1px solid var(--slate-a4);
 }
 
 .pf-v5-c-masthead__brand .pf-v5-c-brand,
@@ -95,51 +286,31 @@ body,
     width: auto;
 }
 
-/* Cards: NoMercy surface, soft border, generous rounding to match the login card. */
-.pf-v5-c-card {
-    background-color: var(--nm-surface);
-    border: 1px solid var(--nm-border);
-    border-radius: 16px;
+/* ---- left navigation ---- */
+.pf-v5-c-nav__link {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    border-radius: 8px;
 }
 
-/* Left navigation: current item gets the NoMercy accent bar and wash. */
 .pf-v5-c-nav__link.pf-m-current,
 .pf-v5-c-nav__item .pf-v5-c-nav__link.pf-m-current {
-    --pf-v5-c-nav__link--m-current--BackgroundColor: color-mix(in srgb, var(--nm-primary) 18%, transparent);
-    --pf-v5-c-nav__link--before--BorderColor: var(--nm-primary);
+    --pf-v5-c-nav__link--m-current--BackgroundColor: var(--accent-wash);
+    --pf-v5-c-nav__link--before--BorderColor: var(--primary);
+    --pf-v5-c-nav__link--after--BorderColor: var(--primary);
+    color: var(--slate-12);
 }
 
-/* Primary buttons: NoMercy purple with a lift on hover, matching the login CTA. */
-.pf-v5-c-button.pf-m-primary {
-    --pf-v5-c-button--m-primary--BackgroundColor: var(--nm-primary);
-    --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--nm-primary-hover);
-    --pf-v5-c-button--m-primary--active--BackgroundColor: var(--nm-primary-hover);
-    --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--nm-primary-hover);
-    border-radius: 10px;
-}
-
-.pf-v5-c-button {
-    border-radius: 8px;
-}
-
-.pf-v5-c-button.pf-m-link {
-    --pf-v5-c-button--m-link--Color: var(--nm-link);
-    --pf-v5-c-button--m-link--hover--Color: var(--nm-link-hover);
-}
-
-/* Inputs: dark inset field, rounded, with a NoMercy focus ring like nm-input. */
-.pf-v5-c-form-control {
-    --pf-v5-c-form-control--BackgroundColor: rgba(0, 0, 0, .22);
-    --pf-v5-c-form-control--BorderTopColor: var(--nm-border-strong);
-    --pf-v5-c-form-control--BorderRightColor: var(--nm-border-strong);
-    --pf-v5-c-form-control--BorderLeftColor: var(--nm-border-strong);
-    --pf-v5-c-form-control--BorderBottomColor: var(--nm-border-strong);
-    --pf-v5-c-form-control--focus--BorderBottomColor: var(--nm-primary);
-    --pf-v5-c-form-control--hover--BorderBottomColor: var(--nm-primary);
-    border-radius: 8px;
-}
-
-/* Focus rings and toggles inherit the NoMercy accent. */
+/* ---- controls inherit the accent ---- */
 .pf-v5-c-switch {
-    --pf-v5-c-switch--checked__toggle--BackgroundColor: var(--nm-primary);
+    --pf-v5-c-switch--checked__toggle--BackgroundColor: var(--primary);
+}
+
+.pf-v5-c-menu-toggle {
+    border-radius: var(--r-input);
+}
+
+/* dividers between sections */
+.pf-v5-c-divider {
+    --pf-v5-c-divider--BackgroundColor: var(--slate-a4);
 }

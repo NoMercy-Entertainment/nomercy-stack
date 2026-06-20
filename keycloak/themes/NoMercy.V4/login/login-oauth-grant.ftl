@@ -1,20 +1,22 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout bodyClass="oauth"; section>
     <#if section = "header">
-        <#if client.attributes.logoUri??>
-            <img src="${client.attributes.logoUri}"/>
-        </#if>
-        <p>
-        <#if client.name?has_content>
-            ${msg("oauthGrantTitle",advancedMsg(client.name))}
-        <#else>
-            ${msg("oauthGrantTitle",client.clientId)}
-        </#if>
-        </p>
+        <span class="nm-head">
+            <#if client.attributes.logoUri??>
+                <img src="${client.attributes.logoUri}"/>
+            </#if>
+            <span class="nm-head__title">
+                <#if client.name?has_content>
+                    ${msg("oauthGrantTitle",advancedMsg(client.name))}
+                <#else>
+                    ${msg("oauthGrantTitle",client.clientId)}
+                </#if>
+            </span>
+        </span>
     <#elseif section = "form">
-        <div id="kc-oauth" class="content-area">
+        <div id="kc-oauth" class="nm-prose">
             <h3>${msg("oauthGrantRequest")}</h3>
-            <ul>
+            <ul class="nm-list">
                 <#if oauth.clientScopesRequested??>
                     <#list oauth.clientScopesRequested as clientScope>
                         <li>
@@ -46,23 +48,13 @@
                 </h3>
             </#if>
 
-            <form class="form-actions" action="${url.oauthAction}" method="POST">
+            <form class="nm-form" action="${url.oauthAction}" method="POST">
                 <input type="hidden" name="code" value="${oauth.code}">
-                <div class="${properties.kcFormGroupClass!}">
-                    <div id="kc-form-options">
-                        <div class="${properties.kcFormOptionsWrapperClass!}">
-                        </div>
-                    </div>
-
-                    <div id="kc-form-buttons">
-                        <div class="${properties.kcFormButtonsWrapperClass!}">
-                            <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" name="accept" id="kc-login" type="submit" value="${msg("doYes")}"/>
-                            <input class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!}" name="cancel" id="kc-cancel" type="submit" value="${msg("doNo")}"/>
-                        </div>
-                    </div>
+                <div class="nm-btn-stack">
+                    <button class="nm-btn nm-btn-primary" name="accept" id="kc-login" type="submit">${msg("doYes")}</button>
+                    <button class="nm-btn nm-btn-ghost" name="cancel" id="kc-cancel" type="submit">${msg("doNo")}</button>
                 </div>
             </form>
-            <div class="clearfix"></div>
         </div>
     </#if>
 </@layout.registrationLayout>

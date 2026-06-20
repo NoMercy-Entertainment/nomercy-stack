@@ -3,20 +3,22 @@
 <@layout.registrationLayout displayRequiredFields=false displayMessage=!messagesPerField.existsError('totp','userLabel'); section>
 
     <#if section = "header">
-        ${msg("loginTotpTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("loginTotpTitle")}</span>
+        </span>
     <#elseif section = "form">
         <div style="display:flex;gap:3rem;">
             <ol id="kc-totp-settings">
                 <li>
                     <p>${msg("loginTotpStep1")}</p>
-    
+
                     <ul id="kc-totp-supported-apps">
                         <#list totp.supportedApplications as app>
                             <li>${msg(app)}</li>
                         </#list>
                     </ul>
                 </li>
-    
+
                 <#if mode?? && mode = "manual">
                     <li>
                         <p>${msg("loginTotpManualStep2")}</p>
@@ -46,72 +48,57 @@
                     </li>
                 </#if>
             </ol>
-    
-            <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="kc-totp-settings-form" method="post">
+
+            <form action="${url.loginAction}" class="nm-form" id="kc-totp-settings-form" method="post">
                 <ol>
                     <li>
                         <p>${msg("loginTotpStep3")}</p>
                         <p>${msg("loginTotpStep3DeviceName")}</p>
                     </li>
                 </ol>
-                
-                <div class="${properties.kcFormGroupClass!}">
-                    <div class="${properties.kcInputWrapperClass!}">
-                        <label for="totp" class="control-label">${msg("authenticatorCode")}</label> <span class="required">*</span>
-                    </div>
-                    <div class="${properties.kcInputWrapperClass!}">
-                        <input type="text" id="totp" name="totp" autocomplete="off" class="${properties.kcInputClass!}"
-                               aria-invalid="<#if messagesPerField.existsError('totp')>true</#if>"
-                        />
-    
+
+                <div class="nm-fields">
+                    <div class="nm-field">
+                        <label for="totp">${msg("authenticatorCode")} <span class="nm-req">*</span></label>
+                        <div class="nm-input">
+                            <input type="text" id="totp" name="totp" autocomplete="off"
+                                   aria-invalid="<#if messagesPerField.existsError('totp')>true</#if>"/>
+                        </div>
                         <#if messagesPerField.existsError('totp')>
-                            <span id="input-error-otp-code" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                                ${kcSanitize(messagesPerField.get('totp'))?no_esc}
-                            </span>
+                            <span id="input-error-otp-code" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('totp'))?no_esc}</span>
                         </#if>
-    
+                        <input type="hidden" id="totpSecret" name="totpSecret" value="${totp.totpSecret}" />
+                        <#if mode??><input type="hidden" id="mode" name="mode" value="${mode}"/></#if>
                     </div>
-                    <input type="hidden" id="totpSecret" name="totpSecret" value="${totp.totpSecret}" />
-                    <#if mode??><input type="hidden" id="mode" name="mode" value="${mode}"/></#if>
-                </div>
-    
-                <div class="${properties.kcFormGroupClass!}">
-                    <div class="${properties.kcInputWrapperClass!}">
-                        <label for="userLabel" class="control-label">${msg("loginTotpDeviceName")}</label> <#if totp.otpCredentials?size gte 1><span class="required">*</span></#if>
-                    </div>
-    
-                    <div class="${properties.kcInputWrapperClass!}">
-                        <input type="text" class="${properties.kcInputClass!}" id="userLabel" name="userLabel" autocomplete="off"
-                               aria-invalid="<#if messagesPerField.existsError('userLabel')>true</#if>"
-                        />
-    
+
+                    <div class="nm-field">
+                        <label for="userLabel">${msg("loginTotpDeviceName")} <#if totp.otpCredentials?size gte 1><span class="nm-req">*</span></#if></label>
+                        <div class="nm-input">
+                            <input type="text" id="userLabel" name="userLabel" autocomplete="off"
+                                   aria-invalid="<#if messagesPerField.existsError('userLabel')>true</#if>"/>
+                        </div>
                         <#if messagesPerField.existsError('userLabel')>
-                            <span id="input-error-otp-label" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                                ${kcSanitize(messagesPerField.get('userLabel'))?no_esc}
-                            </span>
+                            <span id="input-error-otp-label" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('userLabel'))?no_esc}</span>
                         </#if>
                     </div>
                 </div>
-    
-                <div class="${properties.kcFormGroupClass!}">
-                    <@passwordCommons.logoutOtherSessions/>
+
+                <@passwordCommons.logoutOtherSessions/>
+
+                <div class="nm-btn-stack">
+                    <#if isAppInitiatedAction??>
+                        <button type="submit" class="nm-btn nm-btn-primary" id="saveTOTPBtn">
+                            ${msg("doSubmit")}
+                            <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                        </button>
+                        <button type="submit" class="nm-btn nm-btn-ghost" id="cancelTOTPBtn" name="cancel-aia" value="true">${msg("doCancel")}</button>
+                    <#else>
+                        <button type="submit" class="nm-btn nm-btn-primary" id="saveTOTPBtn">
+                            ${msg("doSubmit")}
+                            <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                        </button>
+                    </#if>
                 </div>
-    
-                <#if isAppInitiatedAction??>
-                    <input type="submit"
-                           class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
-                           id="saveTOTPBtn" value="${msg("doSubmit")}"
-                    />
-                    <button type="submit"
-                            class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!} ${properties.kcButtonLargeClass!}"
-                            id="cancelTOTPBtn" name="cancel-aia" value="true" />${msg("doCancel")}
-                    </button>
-                <#else>
-                    <input type="submit"
-                           class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
-                           id="saveTOTPBtn" value="${msg("doSubmit")}"
-                    />
-                </#if>
             </form>
         </div>
     </#if>

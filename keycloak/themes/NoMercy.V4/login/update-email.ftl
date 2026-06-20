@@ -2,43 +2,39 @@
 <#import "password-commons.ftl" as passwordCommons>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('email'); section>
     <#if section = "header">
-        ${msg("updateEmailTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("updateEmailTitle")}</span>
+        </span>
     <#elseif section = "form">
-        <form id="kc-update-email-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
-            <div class="${properties.kcFormGroupClass!}">
-                <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="email" class="${properties.kcLabelClass!}">${msg("email")}</label>
-                </div>
-                <div class="${properties.kcInputWrapperClass!}">
-                    <input type="text" id="email" name="email" value="${(email.value!'')}"
-                           class="${properties.kcInputClass!}"
-                           aria-invalid="<#if messagesPerField.existsError('email')>true</#if>"
-                    />
-
+        <form id="kc-update-email-form" class="nm-form" action="${url.loginAction}" method="post">
+            <div class="nm-fields">
+                <div class="nm-field">
+                    <label for="email">${msg("email")} <span class="nm-req">*</span></label>
+                    <div class="nm-input">
+                        <input type="text" id="email" name="email" value="${(email.value!'')}"
+                               aria-invalid="<#if messagesPerField.existsError('email')>true</#if>"/>
+                    </div>
                     <#if messagesPerField.existsError('email')>
-                        <span id="input-error-email" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                            ${kcSanitize(messagesPerField.get('email'))?no_esc}
-                        </span>
+                        <span id="input-error-email" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('email'))?no_esc}</span>
                     </#if>
                 </div>
             </div>
 
-            <div class="${properties.kcFormGroupClass!}">
-                <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                    </div>
-                </div>
+            <@passwordCommons.logoutOtherSessions/>
 
-                <@passwordCommons.logoutOtherSessions/>
-
-                <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <#if isAppInitiatedAction??>
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" />
-                        <button class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!}" type="submit" name="cancel-aia" value="true" />${msg("doCancel")}</button>
-                    <#else>
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" />
-                    </#if>
-                </div>
+            <div class="nm-btn-stack">
+                <#if isAppInitiatedAction??>
+                    <button class="nm-btn nm-btn-primary" type="submit">
+                        ${msg("doSubmit")}
+                        <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    </button>
+                    <button class="nm-btn nm-btn-ghost" type="submit" name="cancel-aia" value="true">${msg("doCancel")}</button>
+                <#else>
+                    <button class="nm-btn nm-btn-primary" type="submit">
+                        ${msg("doSubmit")}
+                        <svg class="nm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    </button>
+                </#if>
             </div>
         </form>
     </#if>

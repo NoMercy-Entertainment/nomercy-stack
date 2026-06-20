@@ -1,14 +1,18 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=false; section>
     <#if section = "header">
-        ${kcSanitize(msg("errorTitle"))?no_esc}
+        <span class="nm-head">
+            <span class="nm-head__title">${kcSanitize(msg("errorTitle"))?no_esc}</span>
+        </span>
     <#elseif section = "form">
         <div id="kc-error-message">
-            <p class="instruction">${kcSanitize(message.summary)?no_esc}</p>
+            <p>${kcSanitize(message.summary)?no_esc}</p>
             <#if skipLink??>
             <#else>
                 <#if client?? && client.baseUrl?has_content>
-                    <p><a id="backToApplication" href="${client.baseUrl}">${kcSanitize(msg("backToApplication"))?no_esc}</a></p>
+                    <div class="nm-btn-stack">
+                        <a id="backToApplication" class="nm-btn nm-btn-primary" href="${client.baseUrl}">${kcSanitize(msg("backToApplication"))?no_esc}</a>
+                    </div>
                 </#if>
             </#if>
         </div>

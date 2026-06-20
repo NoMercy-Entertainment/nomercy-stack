@@ -1,25 +1,18 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout; section>
     <#if section = "header">
-        ${msg("logoutConfirmTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("logoutConfirmTitle")}</span>
+        </span>
     <#elseif section = "form">
-        <div id="kc-logout-confirm" class="content-area">
-            <p class="instruction">${msg("logoutConfirmHeader")}</p>
+        <div id="kc-logout-confirm">
+            <p>${msg("logoutConfirmHeader")}</p>
 
-            <form class="form-actions" action="${url.logoutConfirmAction}" method="POST">
+            <form class="nm-form" action="${url.logoutConfirmAction}" method="POST">
                 <input type="hidden" name="session_code" value="${logoutConfirm.code}">
-                <div class="${properties.kcFormGroupClass!}">
-                    <div id="kc-form-options">
-                        <div class="${properties.kcFormOptionsWrapperClass!}">
-                        </div>
-                    </div>
-
-                    <div id="kc-form-buttons" class="${properties.kcFormGroupClass!}">
-                        <input tabindex="4"
-                               class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
-                               name="confirmLogout" id="kc-logout" type="submit" value="${msg("doLogout")}"/>
-                    </div>
-
+                <div class="nm-btn-stack">
+                    <input class="nm-btn nm-btn-primary"
+                           name="confirmLogout" id="kc-logout" type="submit" value="${msg("doLogout")}"/>
                 </div>
             </form>
 
@@ -27,12 +20,12 @@
                 <#if logoutConfirm.skipLink>
                 <#else>
                     <#if (client.baseUrl)?has_content>
-                        <p><a href="${client.baseUrl}">${kcSanitize(msg("backToApplication"))?no_esc}</a></p>
+                        <div class="nm-btn-stack">
+                            <a class="nm-btn nm-btn-ghost" href="${client.baseUrl}">${kcSanitize(msg("backToApplication"))?no_esc}</a>
+                        </div>
                     </#if>
                 </#if>
             </div>
-
-            <div class="clearfix"></div>
         </div>
     </#if>
 </@layout.registrationLayout>

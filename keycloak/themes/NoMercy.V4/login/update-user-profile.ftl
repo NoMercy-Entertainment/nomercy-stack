@@ -2,26 +2,21 @@
 <#import "user-profile-commons.ftl" as userProfileCommons>
 <@layout.registrationLayout displayMessage=messagesPerField.exists('global') displayRequiredFields=true; section>
     <#if section = "header">
-        ${msg("loginProfileTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("loginProfileTitle")}</span>
+        </span>
     <#elseif section = "form">
-        <form id="kc-update-profile-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
+        <form id="kc-update-profile-form" class="nm-form" action="${url.loginAction}" method="post">
 
             <@userProfileCommons.userProfileFormFields/>
 
-            <div class="${properties.kcFormGroupClass!}">
-                <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                    </div>
-                </div>
-
-                <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <#if isAppInitiatedAction??>
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" />
-                        <button class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!}" type="submit" name="cancel-aia" value="true" formnovalidate/>${msg("doCancel")}</button>
-                    <#else>
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" />
-                    </#if>
-                </div>
+            <div class="nm-btn-stack">
+                <#if isAppInitiatedAction??>
+                    <button class="nm-btn nm-btn-primary" type="submit">${msg("doSubmit")}</button>
+                    <button class="nm-btn nm-btn-ghost" type="submit" name="cancel-aia" value="true" formnovalidate>${msg("doCancel")}</button>
+                <#else>
+                    <button class="nm-btn nm-btn-primary" type="submit">${msg("doSubmit")}</button>
+                </#if>
             </div>
         </form>
     </#if>

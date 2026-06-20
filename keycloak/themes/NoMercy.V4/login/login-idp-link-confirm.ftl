@@ -1,12 +1,14 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout; section>
     <#if section = "header">
-        ${msg("confirmLinkIdpTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("confirmLinkIdpTitle")}</span>
+        </span>
     <#elseif section = "form">
-        <form id="kc-register-form" action="${url.loginAction}" method="post">
-            <div class="${properties.kcFormGroupClass!}">
-                <button type="submit" class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" name="submitAction" id="updateProfile" value="updateProfile">${msg("confirmLinkIdpReviewProfile")}</button>
-                <button type="submit" class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" name="submitAction" id="linkAccount" value="linkAccount">${msg("confirmLinkIdpContinue", idpDisplayName)}</button>
+        <form id="kc-register-form" class="nm-form" action="${url.loginAction}" method="post">
+            <div class="nm-btn-stack">
+                <button type="submit" class="nm-btn nm-btn-ghost" name="submitAction" id="updateProfile" value="updateProfile">${msg("confirmLinkIdpReviewProfile")}</button>
+                <button type="submit" class="nm-btn nm-btn-primary" name="submitAction" id="linkAccount" value="linkAccount">${msg("confirmLinkIdpContinue", idpDisplayName)}</button>
             </div>
         </form>
     </#if>

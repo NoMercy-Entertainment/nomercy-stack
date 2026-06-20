@@ -1,55 +1,42 @@
 <#macro userProfileFormFields>
 	<#assign currentGroup="">
-	
+
 	<#list profile.attributes as attribute>
 
 		<#assign groupName = attribute.group!"">
 		<#if groupName != currentGroup>
 			<#assign currentGroup=groupName>
 			<#if currentGroup != "" >
-				<div class="${properties.kcFormGroupClass!}">
-	
-					<#assign groupDisplayHeader=attribute.groupDisplayHeader!"">
-					<#if groupDisplayHeader != "">
-						<#assign groupHeaderText=advancedMsg(attribute.groupDisplayHeader)!groupName>
-					<#else>
-						<#assign groupHeaderText=groupName>
-					</#if>
-					<div class="${properties.kcContentWrapperClass!}">
-						<label id="header-${groupName}" class="${kcFormGroupHeader!}">${groupHeaderText}</label>
-					</div>
-	
+				<#assign groupDisplayHeader=attribute.groupDisplayHeader!"">
+				<#if groupDisplayHeader != "">
+					<#assign groupHeaderText=advancedMsg(attribute.groupDisplayHeader)!groupName>
+				<#else>
+					<#assign groupHeaderText=groupName>
+				</#if>
+				<div class="nm-group">
+					<label id="header-${groupName}" class="nm-group__title">${groupHeaderText}</label>
 					<#assign groupDisplayDescription=attribute.groupDisplayDescription!"">
 					<#if groupDisplayDescription != "">
 						<#assign groupDescriptionText=advancedMsg(attribute.groupDisplayDescription)!"">
-						<div class="${properties.kcLabelWrapperClass!}">
-							<label id="description-${groupName}" class="${properties.kcLabelClass!}">${groupDescriptionText}</label>
-						</div>
+						<label id="description-${groupName}" class="nm-group__desc">${groupDescriptionText}</label>
 					</#if>
 				</div>
 			</#if>
 		</#if>
 
 		<#nested "beforeField" attribute>
-		<div class="${properties.kcFormGroupClass!}">
-			<div class="${properties.kcLabelWrapperClass!}">
-				<label for="${attribute.name}" class="${properties.kcLabelClass!}">${advancedMsg(attribute.displayName!'')}</label>
-				<#if attribute.required>*</#if>
-			</div>
-			<div class="${properties.kcInputWrapperClass!}">
-				<#if attribute.annotations.inputHelperTextBefore??>
-					<div class="${properties.kcInputHelperTextBeforeClass!}" id="form-help-text-before-${attribute.name}" aria-live="polite">${kcSanitize(advancedMsg(attribute.annotations.inputHelperTextBefore))?no_esc}</div>
-				</#if>
-				<@inputFieldByType attribute=attribute/>
-				<#if messagesPerField.existsError('${attribute.name}')>
-					<span id="input-error-${attribute.name}" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-						${kcSanitize(messagesPerField.get('${attribute.name}'))?no_esc}
-					</span>
-				</#if>
-				<#if attribute.annotations.inputHelperTextAfter??>
-					<div class="${properties.kcInputHelperTextAfterClass!}" id="form-help-text-after-${attribute.name}" aria-live="polite">${kcSanitize(advancedMsg(attribute.annotations.inputHelperTextAfter))?no_esc}</div>
-				</#if>
-			</div>
+		<div class="nm-field">
+			<label for="${attribute.name}">${advancedMsg(attribute.displayName!'')}<#if attribute.required> <span class="nm-req">*</span></#if></label>
+			<#if attribute.annotations.inputHelperTextBefore??>
+				<div class="nm-field-help" id="form-help-text-before-${attribute.name}" aria-live="polite">${kcSanitize(advancedMsg(attribute.annotations.inputHelperTextBefore))?no_esc}</div>
+			</#if>
+			<@inputFieldByType attribute=attribute/>
+			<#if messagesPerField.existsError('${attribute.name}')>
+				<span id="input-error-${attribute.name}" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('${attribute.name}'))?no_esc}</span>
+			</#if>
+			<#if attribute.annotations.inputHelperTextAfter??>
+				<div class="nm-field-help" id="form-help-text-after-${attribute.name}" aria-live="polite">${kcSanitize(advancedMsg(attribute.annotations.inputHelperTextAfter))?no_esc}</div>
+			</#if>
 		</div>
 		<#nested "afterField" attribute>
 	</#list>
@@ -58,23 +45,23 @@
 <#macro inputFieldByType attribute>
 	<#switch attribute.annotations.inputType!''>
 	<#case 'textarea'>
-		<@textareaTag attribute=attribute/>
+		<div class="nm-input nm-input--area"><@textareaTag attribute=attribute/></div>
 		<#break>
 	<#case 'select'>
 	<#case 'multiselect'>
-		<@selectTag attribute=attribute/>
+		<div class="nm-input"><@selectTag attribute=attribute/></div>
 		<#break>
 	<#case 'select-radiobuttons'>
 	<#case 'multiselect-checkboxes'>
 		<@inputTagSelects attribute=attribute/>
 		<#break>
 	<#default>
-		<@inputTag attribute=attribute/>
+		<div class="nm-input"><@inputTag attribute=attribute/></div>
 	</#switch>
 </#macro>
 
 <#macro inputTag attribute>
-	<input type="<@inputTagType attribute=attribute/>" id="${attribute.name}" name="${attribute.name}" value="${(attribute.value!'')}" class="${properties.kcInputClass!}"
+	<input type="<@inputTagType attribute=attribute/>" id="${attribute.name}" name="${attribute.name}" value="${(attribute.value!'')}"
 		aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
 		<#if attribute.readOnly>disabled</#if>
 		<#if attribute.autocomplete??>autocomplete="${attribute.autocomplete}"</#if>
@@ -104,7 +91,7 @@
 </#macro>
 
 <#macro textareaTag attribute>
-	<textarea id="${attribute.name}" name="${attribute.name}" class="${properties.kcInputClass!}"
+	<textarea id="${attribute.name}" name="${attribute.name}"
 		aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
 		<#if attribute.readOnly>disabled</#if>
 		<#if attribute.annotations.inputTypeCols??>cols="${attribute.annotations.inputTypeCols}"</#if>
@@ -114,7 +101,7 @@
 </#macro>
 
 <#macro selectTag attribute>
-	<select id="${attribute.name}" name="${attribute.name}" class="${properties.kcInputClass!}"
+	<select id="${attribute.name}" name="${attribute.name}"
 		aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
 		<#if attribute.readOnly>disabled</#if>
 		<#if attribute.annotations.inputType=='multiselect'>multiple</#if>
@@ -134,23 +121,17 @@
 		<#list options as option>
 		<option value="${option}" <#if attribute.values?seq_contains(option)>selected</#if>><@selectOptionLabelText attribute=attribute option=option/></option>
 		</#list>
-	</#if>	
+	</#if>
 	</select>
 </#macro>
 
 <#macro inputTagSelects attribute>
 	<#if attribute.annotations.inputType=='select-radiobuttons'>
 		<#assign inputType='radio'>
-		<#assign classDiv=properties.kcInputClassRadio!>
-		<#assign classInput=properties.kcInputClassRadioInput!>
-		<#assign classLabel=properties.kcInputClassRadioLabel!>
-	<#else>	
+	<#else>
 		<#assign inputType='checkbox'>
-		<#assign classDiv=properties.kcInputClassCheckbox!>
-		<#assign classInput=properties.kcInputClassCheckboxInput!>
-		<#assign classLabel=properties.kcInputClassCheckboxLabel!>
 	</#if>
-	
+
 	<#if attribute.annotations.inputOptionsFromValidation?? && attribute.validators[attribute.annotations.inputOptionsFromValidation]?? && attribute.validators[attribute.annotations.inputOptionsFromValidation].options??>
 		<#assign options=attribute.validators[attribute.annotations.inputOptionsFromValidation].options>
 	<#elseif attribute.validators.options?? && attribute.validators.options.options??>
@@ -158,18 +139,19 @@
 	</#if>
 
 	<#if options??>
+		<div class="nm-otp-creds">
 		<#list options as option>
-		<div class="${classDiv}">
-			<input type="${inputType}" id="${attribute.name}-${option}" name="${attribute.name}" value="${option}" class="${classInput}"
-				aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
-				<#if attribute.readOnly>disabled</#if>
-				<#if attribute.values?seq_contains(option)>checked</#if>
-			/>
-			<label for="${attribute.name}-${option}" class="${classLabel}<#if attribute.readOnly> ${properties.kcInputClassRadioCheckboxLabelDisabled!}</#if>"><@selectOptionLabelText attribute=attribute option=option/></label>
-		</div>
+			<label class="nm-check" for="${attribute.name}-${option}">
+				<input type="${inputType}" id="${attribute.name}-${option}" name="${attribute.name}" value="${option}"
+					aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
+					<#if attribute.readOnly>disabled</#if>
+					<#if attribute.values?seq_contains(option)>checked</#if>
+				/>
+				<span><@selectOptionLabelText attribute=attribute option=option/></span>
+			</label>
 		</#list>
-	</#if>	
-	</select>
+		</div>
+	</#if>
 </#macro>
 
 <#macro selectOptionLabelText attribute option>

@@ -117,6 +117,13 @@ body{
   font-family:Inter;font-size:16px;line-height:24px}
 .nm-input input::placeholder{color:#7e858b}
 .nm-input:focus-within{border-color:var(--primary)}
+.nm-input select,.nm-input textarea{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--input-text);font-family:Inter;font-size:16px;line-height:24px}
+.nm-input--area{height:auto;align-items:stretch;padding:8px 10px}
+.nm-input--area textarea{resize:vertical;min-height:80px}
+.nm-field-help{font-family:Inter;font-size:13px;line-height:18px;color:var(--slate-11)}
+.nm-group{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.nm-group__title{font-family:Outfit,sans-serif;font-weight:600;font-size:16px;color:var(--accent-12)}
+.nm-group__desc{font-family:Inter;font-size:13px;color:var(--slate-11)}
 /* keep browser autofill on-theme: clip the white fill to the glyphs so the field's own
    background shows through, and force text/caret to the themed colour (works in both modes) */
 .nm-input input:-webkit-autofill,
@@ -195,6 +202,30 @@ a:hover{color:var(--link-hover)}
 .nm-code__box:focus{border-color:var(--primary)}
 .nm-code__dash{flex:0 0 auto;width:12px;height:2px;border-radius:2px;background:var(--slate-11)}
 .nm-row{display:flex;gap:12px;align-items:center}
+
+/* ---- otp credential chooser (reset-otp) ---- */
+.nm-otp-creds{display:flex;flex-direction:column;gap:10px;width:100%}
+
+/* ---- static text blocks (terms, idp link, consent) ---- */
+.nm-prose{font-family:Inter;font-size:14px;line-height:1.6;color:var(--slate-11);max-height:320px;overflow:auto}
+.nm-prose p{margin:0 0 12px}
+.nm-prose a{color:var(--link)}
+
+/* ---- plain list (oauth scopes) ---- */
+.nm-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
+.nm-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  border:1px solid var(--slate-a6);background:var(--slate-a3);font-family:Inter;font-size:14px;color:var(--slate-12)}
+
+/* ---- recovery codes ---- */
+.nm-codes{list-style:decimal inside;margin:0;padding:14px 16px;border-radius:12px;border:1px solid var(--slate-a6);
+  background:var(--slate-a3);display:grid;grid-template-columns:repeat(2,1fr);gap:6px 20px;width:100%;
+  font-family:"Roboto Mono",ui-monospace,monospace;font-size:13px;color:var(--slate-12)}
+.nm-codes li::marker{color:var(--slate-a8)}
+
+/* ---- inline alert / warning panel ---- */
+.nm-alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.4;
+  border:1px solid var(--slate-a6);background:var(--slate-a4);color:var(--slate-12)}
+.nm-alert--warning{border-color:rgba(255,184,108,.35);background:rgba(255,184,108,.10)}
 .nm-row .nm-btn{flex:1}
 .nm-btn-ghost{background:transparent;border:1px solid transparent;color:var(--slate-12);font-weight:600}
 .nm-btn-ghost:hover{color:var(--slate-12)}

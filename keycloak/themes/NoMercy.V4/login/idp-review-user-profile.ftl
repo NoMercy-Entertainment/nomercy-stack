@@ -2,21 +2,16 @@
 <#import "user-profile-commons.ftl" as userProfileCommons>
 <@layout.registrationLayout displayMessage=messagesPerField.exists('global') displayRequiredFields=true; section>
     <#if section = "header">
-        ${msg("loginIdpReviewProfileTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("loginIdpReviewProfileTitle")}</span>
+        </span>
     <#elseif section = "form">
-        <form id="kc-idp-review-profile-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
+        <form id="kc-idp-review-profile-form" class="nm-form" action="${url.loginAction}" method="post">
 
             <@userProfileCommons.userProfileFormFields/>
 
-            <div class="${properties.kcFormGroupClass!}">
-                <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                    </div>
-                </div>
-
-                <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" />
-                </div>
+            <div class="nm-btn-stack">
+                <button class="nm-btn nm-btn-primary" type="submit">${msg("doSubmit")}</button>
             </div>
         </form>
     </#if>

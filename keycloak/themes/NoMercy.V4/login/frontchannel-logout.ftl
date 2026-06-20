@@ -4,7 +4,9 @@
         <script>
             document.title =  "${msg("frontchannel-logout.title")}";
         </script>
-        ${msg("frontchannel-logout.title")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("frontchannel-logout.title")}</span>
+        </span>
     <#elseif section = "form">
         <p>${msg("frontchannel-logout.message")}</p>
         <ul>
@@ -24,7 +26,9 @@
                 }
                 document.addEventListener('readystatechange', readystatechange);
             </script>
-            <a id="continue" class="btn btn-primary" href="${logout.logoutRedirectUri}">${msg("doContinue")}</a>
+            <div class="nm-btn-stack">
+                <a id="continue" class="nm-btn nm-btn-primary" href="${logout.logoutRedirectUri}">${msg("doContinue")}</a>
+            </div>
         </#if>
     </#if>
 </@layout.registrationLayout>

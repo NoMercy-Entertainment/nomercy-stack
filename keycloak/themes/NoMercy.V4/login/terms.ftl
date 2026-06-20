@@ -1,15 +1,18 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=false; section>
     <#if section = "header">
-        ${msg("termsTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("termsTitle")}</span>
+        </span>
     <#elseif section = "form">
-    <div id="kc-terms-text">
-        ${kcSanitize(msg("termsText"))?no_esc}
-    </div>
-    <form class="form-actions" action="${url.loginAction}" method="POST">
-        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" name="accept" id="kc-accept" type="submit" value="${msg("doAccept")}"/>
-        <input class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!}" name="cancel" id="kc-decline" type="submit" value="${msg("doDecline")}"/>
-    </form>
-    <div class="clearfix"></div>
+        <div id="kc-terms-text" class="nm-prose">
+            ${kcSanitize(msg("termsText"))?no_esc}
+        </div>
+        <form class="nm-form" action="${url.loginAction}" method="POST">
+            <div class="nm-btn-stack">
+                <button class="nm-btn nm-btn-primary" name="accept" id="kc-accept" type="submit">${msg("doAccept")}</button>
+                <button class="nm-btn nm-btn-ghost" name="cancel" id="kc-decline" type="submit">${msg("doDecline")}</button>
+            </div>
+        </form>
     </#if>
 </@layout.registrationLayout>

@@ -1,7 +1,9 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=true; section>
     <#if section = "header">
-        ${kcSanitize(msg("webauthn-error-title"))?no_esc}
+        <span class="nm-head">
+            <span class="nm-head__title">${kcSanitize(msg("webauthn-error-title"))?no_esc}</span>
+        </span>
     <#elseif section = "form">
 
         <script type="text/javascript">
@@ -12,25 +14,27 @@
             }
         </script>
 
-        <form id="kc-error-credential-form" class="${properties.kcFormClass!}" action="${url.loginAction}"
+        <form id="kc-error-credential-form" class="nm-form" action="${url.loginAction}"
               method="post">
             <input type="hidden" id="executionValue" name="authenticationExecution"/>
             <input type="hidden" id="isSetRetry" name="isSetRetry"/>
         </form>
 
-        <input tabindex="4" onclick="refreshPage()" type="button"
-               class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
-               name="try-again" id="kc-try-again" value="${kcSanitize(msg("doTryAgain"))?no_esc}"
-        />
+        <div class="nm-btn-stack">
+            <input onclick="refreshPage()" type="button"
+                   class="nm-btn nm-btn-primary"
+                   name="try-again" id="kc-try-again" value="${kcSanitize(msg("doTryAgain"))?no_esc}"
+            />
 
-        <#if isAppInitiatedAction??>
-            <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="kc-webauthn-settings-form" method="post">
-                <button type="submit"
-                        class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
-                        id="cancelWebAuthnAIA" name="cancel-aia" value="true">${msg("doCancel")}
-                </button>
-            </form>
-        </#if>
+            <#if isAppInitiatedAction??>
+                <form action="${url.loginAction}" class="nm-form" id="kc-webauthn-settings-form" method="post">
+                    <button type="submit"
+                            class="nm-btn nm-btn-ghost"
+                            id="cancelWebAuthnAIA" name="cancel-aia" value="true">${msg("doCancel")}
+                    </button>
+                </form>
+            </#if>
+        </div>
 
     </#if>
 </@layout.registrationLayout>

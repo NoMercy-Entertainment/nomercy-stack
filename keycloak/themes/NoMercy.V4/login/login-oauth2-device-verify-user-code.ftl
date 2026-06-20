@@ -1,30 +1,22 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout; section>
     <#if section = "header">
-        ${msg("oauth2DeviceVerificationTitle")}
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("oauth2DeviceVerificationTitle")}</span>
+        </span>
     <#elseif section = "form">
-        <form id="kc-user-verify-device-user-code-form" class="${properties.kcFormClass!}" action="${url.oauth2DeviceVerificationAction}" method="post">
-            <div class="${properties.kcFormGroupClass!}">
-                <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="device-user-code" class="${properties.kcLabelClass!}">${msg("verifyOAuth2DeviceUserCode")}</label>
-                </div>
-
-                <div class="${properties.kcInputWrapperClass!}">
-                    <input id="device-user-code" name="device_user_code" autocomplete="off" type="text" class="${properties.kcInputClass!}" autofocus />
+        <form id="kc-user-verify-device-user-code-form" class="nm-form" action="${url.oauth2DeviceVerificationAction}" method="post">
+            <div class="nm-fields">
+                <div class="nm-field">
+                    <label for="device-user-code">${msg("verifyOAuth2DeviceUserCode")}</label>
+                    <div class="nm-input">
+                        <input id="device-user-code" name="device_user_code" autocomplete="off" type="text" autofocus />
+                    </div>
                 </div>
             </div>
 
-            <div class="${properties.kcFormGroupClass!}">
-                <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                    </div>
-                </div>
-
-                <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <div class="${properties.kcFormButtonsWrapperClass!}">
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}"/>
-                    </div>
-                </div>
+            <div class="nm-btn-stack">
+                <button class="nm-btn nm-btn-primary" type="submit">${msg("doSubmit")}</button>
             </div>
         </form>
     </#if>

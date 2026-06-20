@@ -21,7 +21,9 @@ export async function registerByWebAuthn(input) {
             options.attestation = input.attestationConveyancePreference;
         }
         const selection = {};
-        if (input.authenticatorAttachment !== "not specified") selection.authenticatorAttachment = input.authenticatorAttachment;
+        if (input.authenticatorAttachment === "platform" || input.authenticatorAttachment === "cross-platform") {
+            selection.authenticatorAttachment = input.authenticatorAttachment;
+        }
         if (input.requireResidentKey !== "not specified") selection.requireResidentKey = input.requireResidentKey === "Yes";
         if (input.userVerificationRequirement !== "not specified") selection.userVerification = input.userVerificationRequirement;
         if (Object.keys(selection).length) options.authenticatorSelection = selection;

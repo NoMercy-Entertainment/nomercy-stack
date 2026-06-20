@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm','termsAccepted'); section>
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('email','username','password','password-confirm','termsAccepted'); section>
     <#if section = "header">
         <div class="nm-tabs">
             <a class="nm-tab" href="${url.loginUrl}">${msg("doLogIn")}</a>
@@ -55,28 +55,6 @@
                     </#if>
                 </div>
                 </#if>
-
-                <div class="nm-field">
-                    <label for="firstName">${msg("firstName")} <span class="nm-opt">(${msg("optionalField")})</span></label>
-                    <div class="nm-input">
-                        <input type="text" id="firstName" name="firstName" value="${(register.formData.firstName!'')}"
-                               aria-invalid="<#if messagesPerField.existsError('firstName')>true</#if>"/>
-                    </div>
-                    <#if messagesPerField.existsError('firstName')>
-                        <span id="input-error-firstname" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('firstName'))?no_esc}</span>
-                    </#if>
-                </div>
-
-                <div class="nm-field">
-                    <label for="lastName">${msg("lastName")} <span class="nm-opt">(${msg("optionalField")})</span></label>
-                    <div class="nm-input">
-                        <input type="text" id="lastName" name="lastName" value="${(register.formData.lastName!'')}"
-                               aria-invalid="<#if messagesPerField.existsError('lastName')>true</#if>"/>
-                    </div>
-                    <#if messagesPerField.existsError('lastName')>
-                        <span id="input-error-lastname" class="nm-error" aria-live="polite">${kcSanitize(messagesPerField.get('lastName'))?no_esc}</span>
-                    </#if>
-                </div>
             </div>
 
             <#if termsAcceptanceRequired??>

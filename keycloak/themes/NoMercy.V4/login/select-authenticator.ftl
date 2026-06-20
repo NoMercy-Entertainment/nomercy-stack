@@ -1,37 +1,27 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=false; section>
-    <#if section = "header" || section = "show-username">
-        <#if section = "header">
-            ${msg("loginChooseAuthenticator")}
-        </#if>
+    <#if section = "header">
+        <span class="nm-head">
+            <span class="nm-head__title">${msg("loginChooseAuthenticator")}</span>
+        </span>
     <#elseif section = "form">
-
-        <form id="kc-select-credential-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
+        <form id="kc-select-credential-form" class="nm-form" action="${url.loginAction}" method="post">
             <input type="hidden" id="authexec-hidden-input" name="authenticationExecution"/>
-            <div class="${properties.kcSelectAuthListClass!}">
+            <div class="nm-select">
                 <#list auth.authenticationSelections as authenticationSelection>
-                    <button type="button" class="${properties.kcSelectAuthListItemClass!}"
+                    <button type="button" class="nm-select-item"
                             onclick="document.getElementById('authexec-hidden-input').value='${authenticationSelection.authExecId}'; this.form.submit();">
-                        <div class="${properties.kcSelectAuthListItemIconClass!}">
-                            <i class="${properties['${authenticationSelection.iconCssClass}']!authenticationSelection.iconCssClass} ${properties.kcSelectAuthListItemIconPropertyClass!}"></i>
-                        </div>
-                        <div class="${properties.kcSelectAuthListItemBodyClass!}">
-                            <span class="${properties.kcSelectAuthListItemHeadingClass!}">
-                                ${msg('${authenticationSelection.displayName}')}
-                            </span>
-                            <span class="${properties.kcSelectAuthListItemDescriptionClass!}">
-                                ${msg('${authenticationSelection.helpText}')}
-                            </span>
-                        </div>
-                        <div class="${properties.kcSelectAuthListItemFillClass!}"></div>
-                        <div class="${properties.kcSelectAuthListItemArrowClass!}">
-                            <i class="${properties.kcSelectAuthListItemArrowIconClass!}"></i>
-                        </div>
+                        <span class="nm-select-icon">
+                            <i class="${properties['${authenticationSelection.iconCssClass}']!authenticationSelection.iconCssClass}" aria-hidden="true"></i>
+                        </span>
+                        <span class="nm-select-body">
+                            <span class="nm-select-title">${msg('${authenticationSelection.displayName}')}</span>
+                            <span class="nm-select-desc">${msg('${authenticationSelection.helpText}')}</span>
+                        </span>
+                        <svg class="nm-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </button>
                 </#list>
             </div>
         </form>
-
     </#if>
 </@layout.registrationLayout>
-

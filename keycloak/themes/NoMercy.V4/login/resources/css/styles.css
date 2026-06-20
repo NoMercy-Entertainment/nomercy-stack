@@ -48,7 +48,7 @@ body{
   background:
     radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%),
     #1c1e22 !important;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; justify-content:center;
   min-height:100dvh; padding:40px 20px;
 }
 
@@ -56,7 +56,7 @@ body{
 #kc-header{display:none !important}
 
 /* page wrapper */
-.login-pf-page{width:auto;border-radius:0;margin:0}
+.login-pf-page{width:auto;border-radius:0;margin:auto}
 
 /* the card */
 .card-pf{
@@ -158,6 +158,7 @@ body{
 .nm-btn-passkey:hover{filter:brightness(1.08)}
 .nm-btn[disabled]{opacity:.7;cursor:default}
 .nm-ico{width:20px;height:20px}
+.nm-btn.is-disabled{filter:grayscale(1);opacity:.55;cursor:not-allowed;pointer-events:none}
 
 /* ---- dividers ---- */
 .nm-divider,.nm-foot{display:flex;align-items:center;justify-content:center;gap:32px}
@@ -201,6 +202,19 @@ a:hover{color:var(--link-hover)}
 .nm-resend button:hover{color:var(--link-hover)}
 .nm-status{text-align:center;font-family:Inter;font-size:13px;color:var(--slate-11)}
 .nm-opt{color:var(--slate-11);font-weight:400}
+
+/* ---- select authenticator (try another way) ---- */
+.nm-select{display:flex;flex-direction:column;gap:12px;width:100%}
+.nm-select-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+  padding:14px 16px;border-radius:var(--r-btn);border:1px solid var(--slate-a6);background:transparent;color:var(--slate-12);
+  transition:border-color .15s,background .15s}
+.nm-select-item:hover{border-color:var(--slate-a8);background:var(--slate-a3)}
+.nm-select-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:0 0 auto;
+  border-radius:10px;background:var(--slate-a4);color:var(--accent-11);font-size:18px}
+.nm-select-body{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
+.nm-select-title{font-family:Inter;font-weight:600;font-size:16px;line-height:22px;color:var(--slate-12)}
+.nm-select-desc{font-family:Inter;font-weight:400;font-size:13px;line-height:18px;color:var(--slate-11)}
+.nm-select-arrow{width:18px;height:18px;flex:0 0 auto;color:var(--slate-a8)}
 
 /* ---- alert / messages ---- */
 .alert-error,.alert-warning,.alert-success,.alert-info,

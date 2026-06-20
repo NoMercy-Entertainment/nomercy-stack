@@ -17,6 +17,7 @@
                     <div class="nm-input">
                         <input id="username" name="username" value="${(login.username!'')}" type="text" autofocus
                                autocomplete="${(enableWebAuthnConditionalUI?has_content)?then('username webauthn', 'email')}"
+                               data-validate="email"
                                aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"/>
                     </div>
                     <#if messagesPerField.existsError('username')>

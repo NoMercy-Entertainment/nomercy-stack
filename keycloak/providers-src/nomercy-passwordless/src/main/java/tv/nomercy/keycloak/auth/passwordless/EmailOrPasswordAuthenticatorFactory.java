@@ -17,6 +17,7 @@ import org.keycloak.authentication.AuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.provider.ProviderConfigProperty;
 
 public class EmailOrPasswordAuthenticatorFactory implements AuthenticatorFactory {
@@ -70,7 +71,10 @@ public class EmailOrPasswordAuthenticatorFactory implements AuthenticatorFactory
 
     @Override
     public String getReferenceCategory() {
-        return "passwordless";
+        // Must be a category the brute-force protector recognises (password/otp/recovery-authn-codes);
+        // anything else makes DefaultBruteForceProtector silently drop this step's failed attempts.
+        // This step's primary factor is the password, so failures count against the password budget.
+        return PasswordCredentialModel.TYPE;
     }
 
     @Override

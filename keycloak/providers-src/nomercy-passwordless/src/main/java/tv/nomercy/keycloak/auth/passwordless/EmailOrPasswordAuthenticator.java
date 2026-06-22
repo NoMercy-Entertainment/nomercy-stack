@@ -23,10 +23,12 @@ import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorUtil;
+import org.keycloak.authentication.authenticators.util.AuthenticatorUtils;
 import org.keycloak.common.util.SecretGenerator;
 import org.keycloak.models.credential.WebAuthnCredentialModel;
 import org.keycloak.email.EmailException;
 import org.keycloak.email.EmailSenderProvider;
+import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
@@ -69,6 +71,9 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
             context.success();
             return;
         }
+        if (abortIfLockedOut(context)) {
+            return;
+        }
         UserModel user = context.getUser();
         if (!emailCodeAllowed(context) || !hasEmail(user)) {
             context.challenge(passwordForm(context, null));
@@ -88,8 +93,34 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
         return role != null && context.getUser().hasRole(role);
     }
 
+    /**
+     * Refuses the attempt when Keycloak's brute-force protector has the account locked.
+     * The username step only checks at session start, so without this a passed-username session
+     * could keep probing password/code attempts after the account is already locked.
+     */
+    private boolean abortIfLockedOut(AuthenticationFlowContext context) {
+        UserModel user = context.getUser();
+        if (user == null) {
+            return false;
+        }
+        String bruteForceError = AuthenticatorUtils.getDisabledByBruteForceEventError(context, user);
+        if (bruteForceError == null) {
+            return false;
+        }
+        context.getEvent().user(user);
+        context.getEvent().error(bruteForceError);
+        Response challenge = emailCodeAllowed(context) && hasEmail(user)
+                ? codeForm(context, "nmTooManyAttempts", null)
+                : passwordForm(context, "nmTooManyAttempts");
+        context.forceChallenge(challenge);
+        return true;
+    }
+
     @Override
     public void action(AuthenticationFlowContext context) {
+        if (abortIfLockedOut(context)) {
+            return;
+        }
         MultivaluedMap<String, String> form = context.getHttpRequest().getDecodedFormParameters();
 
         if (!emailCodeAllowed(context)) {
@@ -147,7 +178,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
             authSession.removeAuthNote(NOTE_CODE_HASH);
         }
         String error = expired ? "nmOtpExpired" : "nmOtpInvalid";
-        context.getEvent().error(org.keycloak.events.Errors.INVALID_USER_CREDENTIALS);
+        context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
         context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, codeForm(context, error, null));
     }
 
@@ -160,7 +191,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
             context.success();
             return;
         }
-        context.getEvent().error(org.keycloak.events.Errors.INVALID_USER_CREDENTIALS);
+        context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
         context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, passwordForm(context, "nmInvalidPassword"));
     }
 

@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
@@ -34,6 +35,7 @@ import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
+import org.keycloak.models.SingleUseObjectProvider;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.FormMessage;
@@ -52,7 +54,11 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     private static final String NOTE_CODE_HASH = "nm-pwl-code-hash";
     private static final String NOTE_CODE_EXP = "nm-pwl-code-exp";
     private static final String NOTE_ATTEMPTS = "nm-pwl-attempts";
-    private static final String NOTE_LAST_SENT = "nm-pwl-last-sent";
+
+    /** Per-user single-use-object keys that rate-limit how often a code is emailed, across all sessions. */
+    private static final String SUO_COOLDOWN = "nm-pwl-cd:";
+    private static final String SUO_HOUR_SLOT = "nm-pwl-h:";
+    private static final int SEND_WINDOW_SECONDS = 3600;
 
     private static final String TEMPLATE_CODE = "nm-code.ftl";
     private static final String TEMPLATE_PASSWORD = "nm-password.ftl";
@@ -60,6 +66,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     private static final int DEFAULT_CODE_LENGTH = 6;
     private static final int DEFAULT_CODE_TTL = 300;
     private static final int DEFAULT_RESEND_COOLDOWN = 30;
+    private static final int DEFAULT_MAX_SENDS_PER_HOUR = 10;
     private static final int MAX_CODE_ATTEMPTS = 5;
 
     /** Realm role that enables the email one-time-code option. Users without it get password-only login. */
@@ -79,8 +86,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
             context.challenge(passwordForm(context, null));
             return;
         }
-        sendCode(context);
-        context.challenge(codeForm(context, null, null));
+        context.challenge(codeChallenge(context, sendCode(context)));
     }
 
     private static boolean alreadyAuthenticatedPasswordless(AuthenticationFlowContext context) {
@@ -137,8 +143,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
             return;
         }
         if (form.containsKey("useCode")) {
-            sendCode(context);
-            context.challenge(codeForm(context, null, null));
+            context.challenge(codeChallenge(context, sendCode(context)));
             return;
         }
         if (form.containsKey("resend")) {
@@ -196,34 +201,57 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     }
 
     private void resendCode(AuthenticationFlowContext context) {
-        AuthenticationSessionModel authSession = context.getAuthenticationSession();
-        long lastSent = readLong(authSession.getAuthNote(NOTE_LAST_SENT), 0L);
-        long cooldownMs = resendCooldown(context) * 1000L;
-        long remaining = (lastSent + cooldownMs - System.currentTimeMillis()) / 1000L;
-        if (remaining > 0) {
-            context.challenge(codeForm(context, null, remaining));
-            return;
-        }
-        sendCode(context);
-        context.challenge(codeForm(context, null, null));
+        context.challenge(codeChallenge(context, sendCode(context)));
     }
 
-    private void sendCode(AuthenticationFlowContext context) {
+    /**
+     * Rate-limited code send, keyed per user across all login sessions (anti email-bombing / SMTP cost).
+     * Returns 0 when an email was sent, the seconds remaining when inside the per-user cooldown,
+     * or -1 when the hourly cap is reached or the user has no email.
+     */
+    private long sendCode(AuthenticationFlowContext context) {
         UserModel user = context.getUser();
         if (!hasEmail(user)) {
-            return;
+            return -1;
         }
+        SingleUseObjectProvider store = context.getSession().singleUseObjects();
+        String userId = user.getId();
+        long now = System.currentTimeMillis();
+
+        Map<String, String> cooldown = store.get(SUO_COOLDOWN + userId);
+        if (cooldown != null) {
+            long remaining = (readLong(cooldown.get("t"), 0L) + resendCooldown(context) * 1000L - now) / 1000L;
+            if (remaining > 0) {
+                return remaining;
+            }
+        }
+        if (!reserveHourlySlot(store, userId, maxSendsPerHour(context))) {
+            return -1;
+        }
+        store.put(SUO_COOLDOWN + userId, resendCooldown(context), Map.of("t", Long.toString(now)));
+        emitCode(context, user);
+        return 0;
+    }
+
+    private static boolean reserveHourlySlot(SingleUseObjectProvider store, String userId, int maxPerHour) {
+        for (int slot = 0; slot < maxPerHour; slot++) {
+            if (store.putIfAbsent(SUO_HOUR_SLOT + userId + ":" + slot, SEND_WINDOW_SECONDS)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void emitCode(AuthenticationFlowContext context, UserModel user) {
         KeycloakSession session = context.getSession();
         RealmModel realm = context.getRealm();
-        int length = codeLength(context);
         int ttl = codeTtl(context);
 
-        String code = SecretGenerator.getInstance().randomString(length, SecretGenerator.DIGITS);
+        String code = SecretGenerator.getInstance().randomString(codeLength(context), SecretGenerator.DIGITS);
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
         authSession.setAuthNote(NOTE_CODE_HASH, hash(code));
         authSession.setAuthNote(NOTE_CODE_EXP, Long.toString(System.currentTimeMillis() + ttl * 1000L));
         authSession.setAuthNote(NOTE_ATTEMPTS, "0");
-        authSession.setAuthNote(NOTE_LAST_SENT, Long.toString(System.currentTimeMillis()));
 
         String subject = "Your NoMercy sign-in code";
         String text = "Your one-time sign-in code is " + code + ". It expires in " + (ttl / 60) + " minutes.";
@@ -235,6 +263,12 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
         } catch (EmailException e) {
             LOG.errorf(e, "Failed to send NoMercy sign-in code to user %s", user.getId());
         }
+    }
+
+    private Response codeChallenge(AuthenticationFlowContext context, long sendResult) {
+        String errorKey = sendResult == -1 ? "nmTooManyRequests" : null;
+        Long cooldownRemaining = sendResult > 0 ? sendResult : null;
+        return codeForm(context, errorKey, cooldownRemaining);
     }
 
     private Response codeForm(AuthenticationFlowContext context, String errorKey, Long cooldownRemaining) {
@@ -268,7 +302,6 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
         authSession.removeAuthNote(NOTE_CODE_HASH);
         authSession.removeAuthNote(NOTE_CODE_EXP);
         authSession.removeAuthNote(NOTE_ATTEMPTS);
-        authSession.removeAuthNote(NOTE_LAST_SENT);
     }
 
     private static String maskEmail(String email) {
@@ -306,6 +339,10 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
 
     private int resendCooldown(AuthenticationFlowContext context) {
         return configInt(context, EmailOrPasswordAuthenticatorFactory.CONFIG_RESEND_COOLDOWN, DEFAULT_RESEND_COOLDOWN);
+    }
+
+    private int maxSendsPerHour(AuthenticationFlowContext context) {
+        return configInt(context, EmailOrPasswordAuthenticatorFactory.CONFIG_MAX_SENDS_PER_HOUR, DEFAULT_MAX_SENDS_PER_HOUR);
     }
 
     private int configInt(AuthenticationFlowContext context, String key, int fallback) {

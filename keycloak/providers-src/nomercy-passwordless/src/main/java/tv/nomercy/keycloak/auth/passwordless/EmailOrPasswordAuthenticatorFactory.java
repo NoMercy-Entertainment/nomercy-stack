@@ -27,6 +27,7 @@ public class EmailOrPasswordAuthenticatorFactory implements AuthenticatorFactory
     public static final String CONFIG_CODE_LENGTH = "codeLength";
     public static final String CONFIG_CODE_TTL = "codeTtl";
     public static final String CONFIG_RESEND_COOLDOWN = "resendCooldown";
+    public static final String CONFIG_MAX_SENDS_PER_HOUR = "maxSendsPerHour";
 
     private static final EmailOrPasswordAuthenticator INSTANCE = new EmailOrPasswordAuthenticator();
 
@@ -42,7 +43,10 @@ public class EmailOrPasswordAuthenticatorFactory implements AuthenticatorFactory
             property(CONFIG_CODE_TTL, "Code time-to-live (seconds)", "How long an emailed code stays valid.",
                     ProviderConfigProperty.STRING_TYPE, "300"),
             property(CONFIG_RESEND_COOLDOWN, "Resend cooldown (seconds)", "Minimum wait before a new code can be sent.",
-                    ProviderConfigProperty.STRING_TYPE, "30"));
+                    ProviderConfigProperty.STRING_TYPE, "30"),
+            property(CONFIG_MAX_SENDS_PER_HOUR, "Max code emails per hour",
+                    "Hard cap on one-time-code emails sent to a single user per hour, across all sessions (anti email-bombing).",
+                    ProviderConfigProperty.STRING_TYPE, "10"));
 
     private static ProviderConfigProperty property(String name, String label, String help, String type, String defaultValue) {
         ProviderConfigProperty property = new ProviderConfigProperty();

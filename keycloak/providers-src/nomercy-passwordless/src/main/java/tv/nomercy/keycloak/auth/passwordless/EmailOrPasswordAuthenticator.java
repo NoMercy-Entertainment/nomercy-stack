@@ -31,6 +31,7 @@ import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.FormMessage;
@@ -59,6 +60,9 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     private static final int DEFAULT_RESEND_COOLDOWN = 30;
     private static final int MAX_CODE_ATTEMPTS = 5;
 
+    /** Realm role that enables the email one-time-code option. Users without it get password-only login. */
+    private static final String EMAIL_CODE_ROLE = "email-code-login";
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
         if (alreadyAuthenticatedPasswordless(context)) {
@@ -66,7 +70,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
             return;
         }
         UserModel user = context.getUser();
-        if (!hasEmail(user)) {
+        if (!emailCodeAllowed(context) || !hasEmail(user)) {
             context.challenge(passwordForm(context, null));
             return;
         }
@@ -79,9 +83,23 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
         return used != null && used.contains(WebAuthnCredentialModel.TYPE_PASSWORDLESS);
     }
 
+    private static boolean emailCodeAllowed(AuthenticationFlowContext context) {
+        RoleModel role = context.getRealm().getRole(EMAIL_CODE_ROLE);
+        return role != null && context.getUser().hasRole(role);
+    }
+
     @Override
     public void action(AuthenticationFlowContext context) {
         MultivaluedMap<String, String> form = context.getHttpRequest().getDecodedFormParameters();
+
+        if (!emailCodeAllowed(context)) {
+            if (form.containsKey("password")) {
+                validatePassword(context, form.getFirst("password"));
+            } else {
+                context.challenge(passwordForm(context, null));
+            }
+            return;
+        }
 
         if (form.containsKey("usePassword")) {
             context.challenge(passwordForm(context, null));
@@ -203,7 +221,8 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
 
     private Response passwordForm(AuthenticationFlowContext context, String errorKey) {
         LoginFormsProvider form = context.form()
-                .setAttribute("maskedEmail", maskEmail(context.getUser().getEmail()));
+                .setAttribute("maskedEmail", maskEmail(context.getUser().getEmail()))
+                .setAttribute("allowCode", emailCodeAllowed(context));
         if (errorKey != null) {
             form.addError(new FormMessage("password", errorKey));
         }
@@ -222,6 +241,9 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     }
 
     private static String maskEmail(String email) {
+        if (email == null) {
+            return null;
+        }
         int at = email.indexOf('@');
         if (at <= 0) {
             return email;

@@ -234,6 +234,10 @@ a:hover{color:var(--link-hover)}
 .nm-resend button:hover{color:var(--link-hover)}
 .nm-status{text-align:center;font-family:Inter;font-size:13px;color:var(--slate-11)}
 .nm-opt{color:var(--slate-11);font-weight:400}
+.nm-alt{text-align:center;margin-top:2px}
+.nm-linkbtn{color:var(--slate-11);text-decoration:underline;text-underline-offset:2px;background:none;border:0;cursor:pointer;
+  font-family:Inter;font-size:14px;line-height:20px;padding:0}
+.nm-linkbtn:hover{color:var(--slate-12)}
 
 /* ---- select authenticator (try another way) ---- */
 .nm-select{display:flex;flex-direction:column;gap:12px;width:100%}

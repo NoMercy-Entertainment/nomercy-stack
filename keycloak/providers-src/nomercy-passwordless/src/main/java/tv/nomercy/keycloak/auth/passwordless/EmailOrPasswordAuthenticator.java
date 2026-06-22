@@ -9,12 +9,15 @@
 
 package tv.nomercy.keycloak.auth.passwordless;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
@@ -40,6 +43,7 @@ import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.FormMessage;
 import org.keycloak.sessions.AuthenticationSessionModel;
+import org.keycloak.theme.Theme;
 
 /**
  * Browser authenticator that runs as the REQUIRED credential step after the username/email form.
@@ -253,15 +257,30 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
         authSession.setAuthNote(NOTE_CODE_EXP, Long.toString(System.currentTimeMillis() + ttl * 1000L));
         authSession.setAuthNote(NOTE_ATTEMPTS, "0");
 
-        String subject = "Your NoMercy sign-in code";
-        String text = "Your one-time sign-in code is " + code + ". It expires in " + (ttl / 60) + " minutes.";
-        String html = "<p>Your one-time sign-in code is <strong style=\"font-size:20px;letter-spacing:2px\">"
-                + code + "</strong>.</p><p>It expires in " + (ttl / 60) + " minutes.</p>";
+        Properties messages = localizedMessages(session, user);
+        String subject = messages.getProperty("nmCodeEmailSubject", "Your NoMercy sign-in code");
+        String intro = messages.getProperty("nmCodeEmailIntro", "Your one-time sign-in code is:");
+        String expiry = messages.getProperty("nmCodeEmailExpiry", "It expires in {0} minutes.")
+                .replace("{0}", Integer.toString(ttl / 60));
+        String text = intro + "\n\n    " + code + "\n\n" + expiry;
+        String html = "<p>" + intro + "</p>"
+                + "<p style=\"font-size:24px;font-weight:bold;letter-spacing:3px\">" + code + "</p>"
+                + "<p>" + expiry + "</p>";
         try {
             EmailSenderProvider sender = session.getProvider(EmailSenderProvider.class);
             sender.send(realm.getSmtpConfig(), user, subject, text, html);
         } catch (EmailException e) {
             LOG.errorf(e, "Failed to send NoMercy sign-in code to user %s", user.getId());
+        }
+    }
+
+    /** Resolves the login theme's messages in the user's locale so the code email matches the UI language. */
+    private static Properties localizedMessages(KeycloakSession session, UserModel user) {
+        try {
+            Locale locale = session.getContext().resolveLocale(user);
+            return session.theme().getTheme(Theme.Type.LOGIN).getMessages(locale);
+        } catch (IOException e) {
+            return new Properties();
         }
     }
 

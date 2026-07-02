@@ -10,3 +10,16 @@ services:
       - "${DNS_BIND_IP}:53:53/udp"
       - "${DNS_BIND_IP}:53:53/tcp"
     restart: unless-stopped
+
+  txt-updater:
+    build: ./txt-updater
+    container_name: txt-updater
+    environment:
+      - ZONE_PATH=/etc/coredns/zones/dynamic.db
+      - TXT_UPDATER_TOKEN=${TXT_UPDATER_TOKEN}
+      - LISTEN=0.0.0.0:8081
+    volumes:
+      - ./zones:/etc/coredns/zones
+    ports:
+      - "127.0.0.1:8081:8081"
+    restart: unless-stopped

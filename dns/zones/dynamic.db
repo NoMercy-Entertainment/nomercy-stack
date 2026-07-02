@@ -1,0 +1,9 @@
+$ORIGIN srv.nomercy.tv.
+$TTL 60
+@   IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. (
+        2026070301 ; serial (YYYYMMDDnn)
+        7200       ; refresh
+        3600       ; retry
+        1209600    ; expire
+        60 )       ; minimum
+@   IN NS  ns1.nomercy.tv.

@@ -38,6 +38,14 @@ srv.nomercy.tv:53 {
         authority "srv.nomercy.tv. 60 IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. 2026070301 7200 3600 1209600 60"
     }
 
+    # Dynamic _acme-challenge TXT records, written by the txt-updater sidecar. The template
+    # blocks above handle A/AAAA/NS (with NODATA catch-alls), so `file` is only ever consulted
+    # for TXT (and non-apex SOA) -- it never sees a synthesized-host query, so its NXDOMAIN for
+    # absent names is harmless (LE only queries the challenge name while it exists).
+    file /etc/coredns/zones/dynamic.db srv.nomercy.tv {
+        reload 5s
+    }
+
     log
     errors
 }

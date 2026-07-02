@@ -23,9 +23,6 @@ services:
       --features token-exchange,preview,docker
       --health-enabled true
       --metrics-enabled false
-      --spi-theme-cache-themes=false
-      --spi-theme-cache-templates=false
-      --spi-theme-static-max-age=-1
     environment:
       KC_PROXY_HEADERS: xforwarded
     healthcheck:

@@ -1,11 +1,43 @@
 srv.nomercy.tv:53 {
+    # --- Apex records ---
+    template IN SOA srv.nomercy.tv {
+        match "^srv\.nomercy\.tv\.$"
+        answer "srv.nomercy.tv. 60 IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. 2026070301 7200 3600 1209600 60"
+        fallthrough
+    }
+    template IN NS srv.nomercy.tv {
+        match "^srv\.nomercy\.tv\.$"
+        answer "srv.nomercy.tv. 60 IN NS ns1.nomercy.tv."
+        fallthrough
+    }
+
+    # --- A synthesis: <a>-<b>-<c>-<d>.<label>.srv.nomercy.tv -> a.b.c.d ---
     template IN A srv.nomercy.tv {
         match "^(?P<a>[0-9]{1,3})-(?P<b>[0-9]{1,3})-(?P<c>[0-9]{1,3})-(?P<d>[0-9]{1,3})\.[^.]+\.srv\.nomercy\.tv\.$"
         answer "{{ .Name }} 60 IN A {{ .Group.a }}.{{ .Group.b }}.{{ .Group.c }}.{{ .Group.d }}"
         fallthrough
     }
-    file /etc/coredns/zones/srv.nomercy.tv.db
-    reload 3s
+
+    # --- NODATA catch-alls (NEVER NXDOMAIN) ---
+    # Intermediate / non-matching names must return NOERROR-empty with the SOA in authority so
+    # QNAME-minimizing resolvers (Unbound/pfSense) keep walking to the full synthesized name.
+    # One block per type because CoreDNS `template` requires an explicit TYPE.
+    template IN A srv.nomercy.tv {
+        match "srv\.nomercy\.tv\.$"
+        rcode NOERROR
+        authority "srv.nomercy.tv. 60 IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. 2026070301 7200 3600 1209600 60"
+    }
+    template IN AAAA srv.nomercy.tv {
+        match "srv\.nomercy\.tv\.$"
+        rcode NOERROR
+        authority "srv.nomercy.tv. 60 IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. 2026070301 7200 3600 1209600 60"
+    }
+    template IN NS srv.nomercy.tv {
+        match "srv\.nomercy\.tv\.$"
+        rcode NOERROR
+        authority "srv.nomercy.tv. 60 IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. 2026070301 7200 3600 1209600 60"
+    }
+
     log
     errors
 }

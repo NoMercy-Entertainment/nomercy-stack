@@ -44,6 +44,9 @@ func TestNameRegexRejectsGarbage(t *testing.T) {
 		}
 	}
 	if !nameRe.MatchString("_acme-challenge.10-0-0-7.abc.srv.nomercy.tv") {
-		t.Fatal("regex should accept a valid challenge name")
+		t.Fatal("regex should accept a per-host challenge name")
+	}
+	if !nameRe.MatchString("_acme-challenge.9ac70a94-d4ca-dd69-9a65-79229718f7db.srv.nomercy.tv") {
+		t.Fatal("regex should accept a wildcard-cert challenge name (single uuid label)")
 	}
 }

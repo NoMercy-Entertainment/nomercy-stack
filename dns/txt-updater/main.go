@@ -15,7 +15,9 @@ import (
 var (
 	zonePath = envOr("ZONE_PATH", "/etc/coredns/zones/dynamic.db")
 	token    = os.Getenv("TXT_UPDATER_TOKEN")
-	nameRe   = regexp.MustCompile(`^_acme-challenge\.[^.]+\.[0-9a-fA-F-]+\.srv\.nomercy\.tv$`)
+	// Accepts the wildcard-cert challenge `_acme-challenge.<server-uuid>.srv.nomercy.tv`
+	// and the per-host form `_acme-challenge.<host>.<server-uuid>.srv.nomercy.tv`.
+	nameRe   = regexp.MustCompile(`^_acme-challenge\.([^.]+\.)?[0-9a-fA-F-]+\.srv\.nomercy\.tv$`)
 	serialRe = regexp.MustCompile(`(\d{10})(\s*;\s*serial)`)
 	mu       sync.Mutex
 )

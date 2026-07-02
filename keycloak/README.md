@@ -215,7 +215,7 @@ From address: `noreply@nomercy.tv`
 Display name: `NoMercy Entertainment`
 Auth: enabled, SSL: enabled
 
-Login theme: `NoMercy.V4` (custom theme in `./themes/`)
+Login theme: `NoMercy` (custom theme in `./themes/`)
 Account theme: `keycloak.v3`
 Admin theme: `keycloak.v2`
 Email theme: `keycloak` (default)

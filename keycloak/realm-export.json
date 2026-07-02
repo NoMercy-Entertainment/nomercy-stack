@@ -3084,7 +3084,7 @@
     "fromDisplayName": "NoMercy Entertainment",
     "user": "noreply@nomercy.tv"
   },
-  "loginTheme": "NoMercy.V4",
+  "loginTheme": "NoMercy",
   "accountTheme": "keycloak.v3",
   "adminTheme": "keycloak.v2",
   "emailTheme": "keycloak",

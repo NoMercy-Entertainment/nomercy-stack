@@ -335,20 +335,20 @@ body,
 }
 
 /* The device list is one __item holding a __item-row per device, so the per-device
-   card is the ROW. Darker fill + visible border + shadow read clearly on the page;
-   !important + specificity beat the DeviceActivity route chunk that loads later. */
+   card is the ROW. Flat and calm to sit with the dashboard: subtle fill, hairline
+   border, no drop shadow. !important + specificity beat the DeviceActivity route
+   chunk that loads later. */
 .pf-v5-c-page__main-section .pf-v5-c-data-list__item {
     background: transparent !important;
     border: 0 !important;
 }
 
 .pf-v5-c-page__main-section .pf-v5-c-data-list__item-row {
-    background-color: var(--surface) !important;
-    border: 1px solid var(--slate-a7) !important;
+    background-color: var(--surface-2) !important;
+    border: 1px solid var(--slate-a4) !important;
     border-radius: var(--r-card);
     margin-bottom: 12px;
     padding: 10px 18px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .28);
 }
 
 /* drop PatternFly's per-row bottom divider — the card border is the separator now */
@@ -395,9 +395,14 @@ body,
     border: 0 !important;
 }
 
-.pf-v5-c-nav__link:hover {
+/* Set the whole border (not just its color): PatternFly resets the link to
+   border-style:none on :hover/:focus with higher specificity than our base 1px,
+   so a colour-only override left the width at 0 and the link lost 2px of height
+   on hover — shifting every item below it. The explicit border keeps it stable. */
+.pf-v5-c-nav__link:hover,
+.pf-v5-c-nav__link:focus {
     background-color: #7650ff38;
-    border-color: #e2f0fd14;
+    border: 1px solid #e2f0fd14;
     color: var(--slate-12);
 }
 

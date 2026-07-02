@@ -7,7 +7,7 @@ services:
       backend:
         aliases:
           - keycloak
-    image: quay.io/keycloak/keycloak:26.1
+    image: quay.io/keycloak/keycloak:26.6.3
     restart: unless-stopped
     command: >
       start
@@ -20,9 +20,12 @@ services:
       --http-enabled true
       --spi-login-protocol-openid-connect-suppress-logout-confirmation-screen=true
       --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
-      --features token-exchange,preview,docker,persistent-user-sessions
+      --features token-exchange,preview,docker
       --health-enabled true
       --metrics-enabled false
+      --spi-theme-cache-themes=false
+      --spi-theme-cache-templates=false
+      --spi-theme-static-max-age=-1
     environment:
       KC_PROXY_HEADERS: xforwarded
     healthcheck:

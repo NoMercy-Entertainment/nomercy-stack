@@ -52,6 +52,7 @@ RUN apk add --no-cache \
   npm \
   openjpeg \
   openssh-client \
+  patch \
   supervisor \
   texinfo \
   wget \

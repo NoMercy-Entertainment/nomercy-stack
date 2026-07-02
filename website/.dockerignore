@@ -1,0 +1,11 @@
+# The website image installs composer + yarn deps at build time and stashes them
+# in named volumes. A stale vendor/node_modules inside the copied ./data/ context
+# shadows that fresh install (composer sees packages already present and skips
+# reinstall, so composer-patches never runs), and bloats the build context.
+data/vendor/
+data/node_modules/
+data/.git
+data/storage/logs/
+data/storage/framework/cache/
+data/storage/framework/sessions/
+data/storage/framework/views/

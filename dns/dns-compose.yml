@@ -1,0 +1,12 @@
+services:
+  coredns:
+    image: coredns/coredns:1.11.3
+    container_name: coredns
+    command: -conf /etc/coredns/Corefile
+    volumes:
+      - ./Corefile:/etc/coredns/Corefile:ro
+      - ./zones:/etc/coredns/zones
+    ports:
+      - "${DNS_BIND_IP}:53:53/udp"
+      - "${DNS_BIND_IP}:53:53/tcp"
+    restart: unless-stopped

@@ -1,0 +1,11 @@
+srv.nomercy.tv:53 {
+    template IN A srv.nomercy.tv {
+        match "^(?P<a>[0-9]{1,3})-(?P<b>[0-9]{1,3})-(?P<c>[0-9]{1,3})-(?P<d>[0-9]{1,3})\.[^.]+\.srv\.nomercy\.tv\.$"
+        answer "{{ .Name }} 60 IN A {{ .Group.a }}.{{ .Group.b }}.{{ .Group.c }}.{{ .Group.d }}"
+        fallthrough
+    }
+    file /etc/coredns/zones/srv.nomercy.tv.db
+    reload 3s
+    log
+    errors
+}

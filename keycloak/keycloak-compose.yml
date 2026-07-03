@@ -20,7 +20,7 @@ services:
       --http-enabled true
       --spi-login-protocol-openid-connect-suppress-logout-confirmation-screen=true
       --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
-      --features token-exchange,preview,docker
+      --features preview,docker,token-exchange:v1,admin-fine-grained-authz:v1
       --health-enabled true
       --metrics-enabled false
     environment:

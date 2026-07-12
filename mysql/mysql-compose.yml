@@ -31,3 +31,8 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data:/var/lib/mysql
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

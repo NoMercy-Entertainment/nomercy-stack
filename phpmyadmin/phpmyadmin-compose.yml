@@ -31,3 +31,8 @@ services:
       - ./auth.php:/var/www/html/auth.php:ro
       - ./login.php:/var/www/html/login.php:ro
       - ./logout.php:/var/www/html/logout.php:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

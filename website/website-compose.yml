@@ -43,3 +43,8 @@ services:
         condition: service_healthy
     links:
       - mysql
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

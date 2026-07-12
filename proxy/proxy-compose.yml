@@ -34,3 +34,8 @@ services:
         condition: service_started
       portainer:
         condition: service_started
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

@@ -10,6 +10,11 @@ services:
       - "${DNS_BIND_IP}:53:53/udp"
       - "${DNS_BIND_IP}:53:53/tcp"
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
 
   txt-updater:
     build: ./txt-updater
@@ -23,3 +28,8 @@ services:
     ports:
       - "127.0.0.1:8081:8081"
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

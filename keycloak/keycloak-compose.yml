@@ -42,3 +42,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./themes/:/opt/keycloak/themes/
       - ./providers/:/opt/keycloak/providers/
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

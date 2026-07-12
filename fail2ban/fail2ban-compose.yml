@@ -19,3 +19,8 @@ services:
       - ../logs/:/config/log/:rw
       - ../logs/nginx/:/remotelogs/nginx/:ro
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

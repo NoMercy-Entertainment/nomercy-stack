@@ -15,6 +15,8 @@ services:
       options:
         max-size: "20m"
         max-file: "5"
+    networks:
+      - default
 
   txt-updater:
     build: ./txt-updater
@@ -33,3 +35,14 @@ services:
       options:
         max-size: "20m"
         max-file: "5"
+    # Join the main stack's network so nomercy-tv's cert pipeline can reach this
+    # sidecar by name (http://txt-updater:8081) to write ACME DNS-01 tokens. The
+    # DNS stack otherwise runs as its own isolated project; this is the single,
+    # deliberate cross-connect and must survive recreates or cert renewal breaks.
+    networks:
+      - default
+      - nomercy-stack_backend
+
+networks:
+  nomercy-stack_backend:
+    external: true

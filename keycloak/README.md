@@ -96,8 +96,27 @@ self-hosted media server use case — users should not be kicked out mid-stream.
 
 **nomercy-server** — Used by the .NET media server.
 - Public client
-- Used by: nomercy-media-server (.NET) for `client_credentials` grant → service account token
-- Redirect URIs: `https://*.nomercy.tv/sso-callback/*` (wildcard for self-hosted subdomains)
+- Used by: nomercy-media-server (.NET) for `client_credentials` grant → service account token,
+  and for the browser-based setup/onboarding PKCE flow (callback paths `/sso-callback` and
+  `/setup/silent-sso`, built client-side from `window.location` in `setup.js` — see
+  `NoMercy.Setup.Resources.setup.js` and `NoMercy.Setup.Server.SetupEndpoints`)
+- Redirect URIs: `https://*` and `http://*`
+
+  Every self-hosted server has a unique redirect host —
+  `{ip-dashed}.{device-id}.srv.nomercy.tv:{port}` (synthesized DNS) or the legacy
+  `{ip-dashed}.{device-id}.nomercy.tv:{port}` apex form, plus a raw LAN address and
+  `localhost` during first boot. **Keycloak only treats `*` as a wildcard when it is the
+  final character of the registered URI** (prefix match on everything before it); a `*`
+  placed mid-string (e.g. in `https://*.nomercy.tv:*/sso-callback/*`) is matched
+  *literally* and will never match a real hostname/port. Because the variable part of
+  our redirect host (the device-id) is a *prefix*, not a suffix, there is no
+  Keycloak-native pattern that pins the domain suffix or the callback path while
+  leaving the host open — the only working wildcard is scheme-level. Do not "tighten"
+  this back to a subdomain/port wildcard; it silently stops matching every fresh
+  server and reproduces the onboarding "Invalid parameter: redirect_uri" failure.
+  PKCE (no client secret, code alone is unusable without the verifier) is the actual
+  mitigation for the open-redirect surface this leaves; `nomercy-ui` already runs an
+  even more permissive bare `*` (any scheme) for its native-app deep-link redirects.
 
 **nomercy-api** — Service account client for nomercy-tv (Laravel backend).
 - Confidential client (has secret — stored in Laravel `.env`)

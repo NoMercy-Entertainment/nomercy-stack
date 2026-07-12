@@ -74,6 +74,22 @@ To enable Keycloak authentication in Portainer:
 - `proxy/`          - Nginx reverse proxy, configs, certificates, and site definitions
 - `website/`        - Website container (PHP, Nginx, etc.)
 - `shares/`         - Shared files (if any)
+- `scripts/`        - Host provisioning + maintenance scripts (see below)
+
+## Host provisioning scripts (production droplet)
+
+These install host-level config that lives outside any container (docker
+daemon, system logrotate) so it survives a fresh droplet provision. Run as
+root from the stack root on the target host, and re-run any time after
+pulling changes to `docker/daemon.json` or `scripts/logrotate/`:
+
+```sh
+./scripts/provision-docker-daemon-logging.sh   # caps every container's json-file log (max-size 20m x max-file 5)
+./scripts/provision-nginx-logrotate.sh         # rotates the bind-mounted logs/nginx/*.log files
+```
+
+`scripts/disk-cleanup.sh` runs daily via cron (`/etc/cron.d` or `crontab -l`
+on the host) to prune Docker build cache/images and vacuum the journal.
 
 ## Shares
 

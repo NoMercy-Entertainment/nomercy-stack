@@ -1,0 +1,8 @@
+# Bootstrap default for the blue-green website upstream.
+#
+# scripts/deploy-website.sh copies this to upstream-website.conf the first
+# time it runs (that file is gitignored and server-generated from then on —
+# do not edit or commit it, it is overwritten on every deploy).
+upstream website_upstream {
+    server website-blue:8080;
+}

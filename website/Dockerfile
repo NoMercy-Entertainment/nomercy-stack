@@ -83,8 +83,12 @@ RUN chown -R www:www /var/www/html /run /var/lib/nginx /var/log/nginx
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
+# Which host checkout to bake in — "data" (default) or "data-green" for the
+# blue-green idle color. See website-compose.yml (website-blue/website-green).
+ARG DATA_DIR=data
+
 # Copy application code and install dependencies at build time
-COPY --chown=www ./data/ /var/www/html/
+COPY --chown=www ./${DATA_DIR}/ /var/www/html/
 RUN --mount=type=cache,target=/tmp/composer-cache,uid=1000 \
     su -s /bin/bash www -c "COMPOSER_CACHE_DIR=/tmp/composer-cache composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
 RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"

@@ -22,8 +22,12 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-      website:
-        condition: service_healthy
+      # website intentionally NOT listed here: production wires traffic to
+      # whichever of website-blue/website-green is active via
+      # upstream-website.conf, health-gated by scripts/deploy-website.sh —
+      # not by compose startup ordering. A compose-level dependency on one
+      # specific color would also wrongly force that color to start on any
+      # bare `docker compose up -d` of the full stack.
       postgres:
         condition: service_healthy
       mysql:

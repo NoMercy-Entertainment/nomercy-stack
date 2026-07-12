@@ -1,50 +1,104 @@
 volumes:
   vendor: ~
   node_modules: ~
+  vendor_green: ~
+  node_modules_green: ~
+
+x-website-base: &website-base
+  restart: unless-stopped
+  labels:
+    # Let the autoheal sidecar restart this container if it goes unhealthy.
+    - autoheal=true
+  build:
+    context: ./
+    dockerfile: Dockerfile
+  environment:
+    - TZ=${TZ}
+  dns:
+    - 1.1.1.1
+    - 8.8.8.8
+  healthcheck:
+    test: ["CMD", "curl", "--silent", "--fail", "http://127.0.0.1:8080/fpm-ping"]
+    interval: 10s
+    timeout: 10s
+    retries: 3
+    start_period: 60s
+  depends_on:
+    mysql:
+      condition: service_healthy
+  links:
+    - mysql
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
 
 services:
-  ### NoMercy.tv ########################################
+  ### NoMercy.tv — local dev target #####################
+  # Unchanged. Local dev (docker-compose.override.yml) still targets this
+  # service by name. Production deploys no longer use it directly — see
+  # website-blue / website-green below.
   website:
+    <<: *website-base
     container_name: "${APP_NAME}-website"
     hostname: website
     networks:
       backend:
         aliases:
           - website
-    restart: unless-stopped
-    labels:
-      # Let the autoheal sidecar restart this container if it goes unhealthy.
-      - autoheal=true
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    environment:
-      - TZ=${TZ}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data/:/var/www/html
       - vendor:/var/www/html/vendor
       - node_modules:/var/www/html/node_modules
-      # - ./config/resolv.conf:/etc/resolv.conf
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    # ports:
+    # - ports:
     #     - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "--silent", "--fail", "http://127.0.0.1:8080/fpm-ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    depends_on:
-      mysql:
-        condition: service_healthy
-    links:
-      - mysql
-    logging:
-      driver: json-file
-      options:
-        max-size: "20m"
-        max-file: "5"
+
+  ### NoMercy.tv — blue-green production targets ########
+  # Only one of these is ever wired into the nginx upstream at a time
+  # (proxy/sites/upstream-website.conf, flipped by scripts/deploy-website.sh).
+  # Each color has its own code checkout and its own vendor/node_modules
+  # volumes so a bad deploy to the idle color can never touch what the
+  # active color is serving.
+  #
+  # "blue" reuses the pre-existing ./data checkout and vendor/node_modules
+  # volumes (this is the original single-container website, renamed) so the
+  # one-time cutover to blue-green doesn't need a cold dependency install.
+  # "green" gets its own checkout (./data-green, cloned by the deploy script
+  # on first use) and its own vendor_green/node_modules_green volumes.
+  website-blue:
+    <<: *website-base
+    container_name: "${APP_NAME}-website-blue"
+    hostname: website-blue
+    networks:
+      backend:
+        aliases:
+          - website-blue
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/:/var/www/html
+      - vendor:/var/www/html/vendor
+      - node_modules:/var/www/html/node_modules
+
+  website-green:
+    <<: *website-base
+    container_name: "${APP_NAME}-website-green"
+    hostname: website-green
+    networks:
+      backend:
+        aliases:
+          - website-green
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        DATA_DIR: data-green
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data-green/:/var/www/html
+      - vendor_green:/var/www/html/vendor
+      - node_modules_green:/var/www/html/node_modules

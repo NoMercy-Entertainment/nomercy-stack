@@ -5,3 +5,8 @@
 data/vendor/
 data/node_modules/
 data/.git
+
+# Same, for the blue-green "green" checkout (see Dockerfile ARG DATA_DIR).
+data-green/vendor/
+data-green/node_modules/
+data-green/.git

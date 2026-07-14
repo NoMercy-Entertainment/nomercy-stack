@@ -10,8 +10,11 @@ set -e
 # runtime container never needs it.
 if [ -d /opt/_vendor_built ]; then
     echo "Restoring vendor from build cache..."
-    rm -rf /var/www/html/vendor
-    mkdir -p /var/www/html/vendor
+    # vendor is a mounted named volume — clear its CONTENTS, never the mount
+    # point itself (rm -rf on the mount point fails with "Resource busy" and,
+    # under set -e, crash-loops the container). php-fpm has not started yet, so
+    # nothing holds these files open.
+    find /var/www/html/vendor -mindepth 1 -delete 2>/dev/null || true
     cp -a /opt/_vendor_built/. /var/www/html/vendor/
     chown -R www:www /var/www/html/vendor
 fi

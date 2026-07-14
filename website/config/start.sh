@@ -15,9 +15,18 @@ if [ ! -d /var/www/html/node_modules/.cache ] && [ -d /opt/_node_modules_built ]
     cp -a /opt/_node_modules_built/. /var/www/html/node_modules/
 fi
 
-# Ensure storage is writable by PHP-FPM (www user)
-chown -R www:www /var/www/html/storage
-chmod -R 775 /var/www/html/storage
+# The idle-color checkout is a bind mount owned by the host deploy user, not
+# www. git refuses to operate on a foreign-owned repo ("detected dubious
+# ownership") and www cannot write Laravel's compiled caches or Vite's build
+# output — so a freshly cloned checkout (notably the first green deploy) fails
+# composer dump-autoload / artisan optimize / yarn build with permission errors.
+# Mark the repo safe for every user and hand www the directories it writes.
+git config --system --add safe.directory /var/www/html
+chown -R www:www \
+    /var/www/html/storage \
+    /var/www/html/bootstrap/cache \
+    /var/www/html/public
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # auth.json holds composer registry credentials (a 0600 secret). It arrives via
 # the root-owned host bind mount, which the www user that runs composer cannot

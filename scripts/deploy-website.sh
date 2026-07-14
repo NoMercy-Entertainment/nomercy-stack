@@ -104,6 +104,21 @@ fi
 git -C "$IDLE_DATA_DIR" fetch origin master
 git -C "$IDLE_DATA_DIR" reset --hard origin/master
 
+# --- seed the idle checkout's .env from the active color ---
+# A fresh clone/reset has no .env (gitignored), so artisan would fall back to
+# the sqlite default and `migrate` fails ("database.sqlite does not exist").
+# Both colors run against the same production config, so copy the live color's
+# .env. It persists across future deploys (reset --hard leaves untracked files).
+if [ "$active" = "blue" ]; then
+  ACTIVE_DATA_DIR="$WEBSITE_DIR/data"
+else
+  ACTIVE_DATA_DIR="$WEBSITE_DIR/data-green"
+fi
+if [ ! -f "$IDLE_DATA_DIR/.env" ] && [ -f "$ACTIVE_DATA_DIR/.env" ]; then
+  echo "Seeding $idle .env from the $active checkout."
+  cp "$ACTIVE_DATA_DIR/.env" "$IDLE_DATA_DIR/.env"
+fi
+
 # --- build only the idle color's image (active color's image/container is
 #     never touched by this run) ---
 docker compose build --no-cache "$idle_service"

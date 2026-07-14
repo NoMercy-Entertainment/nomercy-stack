@@ -1,18 +1,19 @@
 #!/bin/bash
 set -e
 
-# Sync pre-built dependencies from image into volumes (fast cp vs slow install)
-# The named volumes mount empty on first run, overriding the image contents
-if [ ! -f /var/www/html/vendor/autoload.php ]; then
-    echo "Syncing vendor from build cache..."
-    chown -R www:www /var/www/html/vendor
+# Restore the optimized vendor tree baked into the image over the named volume,
+# which persists (and can go stale) across recreates. Done unconditionally — a
+# cheap cp — so the freshly-built --no-cache image's autoload always wins and we
+# never have to run composer on the memory-constrained live host (that was
+# OOM-killing the deploy). node_modules is intentionally NOT restored: it is
+# only needed to BUILD assets, which now happens at image-build time, so the
+# runtime container never needs it.
+if [ -d /opt/_vendor_built ]; then
+    echo "Restoring vendor from build cache..."
+    rm -rf /var/www/html/vendor
+    mkdir -p /var/www/html/vendor
     cp -a /opt/_vendor_built/. /var/www/html/vendor/
-fi
-
-if [ ! -d /var/www/html/node_modules/.cache ] && [ -d /opt/_node_modules_built ]; then
-    echo "Syncing node_modules from build cache..."
-    chown -R www:www /var/www/html/node_modules
-    cp -a /opt/_node_modules_built/. /var/www/html/node_modules/
+    chown -R www:www /var/www/html/vendor
 fi
 
 # Restore the compiled Vite assets baked into the image over the bind-mounted

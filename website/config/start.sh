@@ -15,6 +15,20 @@ if [ ! -d /var/www/html/node_modules/.cache ] && [ -d /opt/_node_modules_built ]
     cp -a /opt/_node_modules_built/. /var/www/html/node_modules/
 fi
 
+# Restore the compiled Vite assets baked into the image over the bind-mounted
+# checkout, which ships without public/build (it is gitignored and never built
+# on the host). Restoring the image build instead of running `yarn build` at
+# boot keeps the memory-heavy asset build off the live host — running it there,
+# alongside the other color and the rest of the stack, was OOM-killing the
+# deploy. The image is rebuilt --no-cache from the exact deployed commit, so
+# these assets always match the code being served.
+if [ -d /opt/_public_build_built ]; then
+    echo "Restoring compiled assets from build cache..."
+    rm -rf /var/www/html/public/build
+    mkdir -p /var/www/html/public/build
+    cp -a /opt/_public_build_built/. /var/www/html/public/build/
+fi
+
 # The idle-color checkout is a bind mount owned by the host deploy user, not
 # www. git refuses to operate on a foreign-owned repo ("detected dubious
 # ownership") and www cannot write Laravel's compiled caches or Vite's build

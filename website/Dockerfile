@@ -93,9 +93,15 @@ RUN --mount=type=cache,target=/tmp/composer-cache,uid=1000 \
     su -s /bin/bash www -c "COMPOSER_CACHE_DIR=/tmp/composer-cache composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
 RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
 
-# Stash pre-built deps outside the volume mount point
+# Stash pre-built deps + compiled Vite assets outside the volume/bind-mount
+# points so start.sh can restore them at runtime (the vendor/node_modules
+# volumes and the ./data* bind mount shadow the image copies). Baking the asset
+# build here — and restoring it at boot instead of rebuilding — keeps the
+# memory-heavy `yarn build` off the production host, where it was OOM-killing
+# the blue-green deploy.
 RUN cp -a /var/www/html/vendor /opt/_vendor_built \
- && cp -a /var/www/html/node_modules /opt/_node_modules_built
+ && cp -a /var/www/html/node_modules /opt/_node_modules_built \
+ && cp -a /var/www/html/public/build /opt/_public_build_built
 
 # Expose the port nginx is reachable on
 ADD config/start.sh /start.sh

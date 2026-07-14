@@ -112,12 +112,14 @@ docker compose build --no-cache "$idle_service"
 docker ps -aq --filter "status=exited" --filter "name=${idle_container}" | xargs -r docker rm -f
 docker compose up -d --no-deps "$idle_service"
 
-# --- known volume-shadow workaround (see website/config/start.sh): named
-#     vendor/node_modules volumes persist across recreates, so a stale
-#     autoload/node_modules can shadow the freshly-built image's stash on a
-#     non-first boot. Force a refresh before the health gate. ---
+# --- known volume-shadow workaround (see website/config/start.sh): the named
+#     vendor volume persists across recreates, so a stale autoload can shadow
+#     the freshly-built image's stash on a non-first boot. Re-dump the optimized
+#     autoload against the reset checkout before the health gate. Assets are NOT
+#     rebuilt here — start.sh restores the image's baked public/build, keeping
+#     the memory-heavy `yarn build` off the live host (it was OOM-killing the
+#     deploy when run alongside the other color and the rest of the stack). ---
 docker compose exec -T "$idle_service" su -s /bin/bash www -c "cd /var/www/html && composer dump-autoload --optimize"
-docker compose exec -T "$idle_service" su -s /bin/bash www -c "cd /var/www/html && yarn build"
 
 # --- health gate: never switch traffic to an unhealthy idle color ---
 echo "Waiting for $idle_container to become healthy..."

@@ -39,7 +39,13 @@ fi
 # output — so a freshly cloned checkout (notably the first green deploy) fails
 # composer dump-autoload / artisan optimize / yarn build with permission errors.
 # Mark the repo safe for every user and hand www the directories it writes.
-git config --system --add safe.directory /var/www/html
+# Run from / (via -C /), not from the checkout: the blue color's bind-mounted
+# checkout is a git submodule whose .git is a *file* pointing at a gitdir that
+# does not exist in the container, so a git command that discovers the repo from
+# /var/www/html aborts with "fatal: not a git repository" (exit 128) and, under
+# set -e, crash-loops the container before supervisord ever starts. Running from
+# / writes the system config without repo discovery.
+git -C / config --system --add safe.directory /var/www/html
 chown -R www:www \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache \

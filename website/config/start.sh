@@ -66,6 +66,12 @@ fi
 # container start loudly instead of serving a green deploy on a stale schema.
 su -s /bin/bash www -c "cd /var/www/html && php artisan migrate --force"
 
+# Reference data the app validates against, not sample content. Push subscription
+# requests are rejected with a 422 for every channel while notification_channels
+# is empty, because the validator builds its allow-list from that table. The
+# seeder is firstOrCreate, so a boot that changes nothing is the normal case.
+su -s /bin/bash www -c "cd /var/www/html && php artisan db:seed --class='Database\\Seeders\\NotificationChannelSeeder' --force"
+
 # Run all Laravel production optimizations
 su -s /bin/bash www -c "cd /var/www/html && php artisan optimize:production"
 

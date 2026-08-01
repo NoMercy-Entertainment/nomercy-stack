@@ -185,6 +185,15 @@ docker exec "$PROXY_CONTAINER" nginx -s reload
 echo "$idle" > "$ACTIVE_COLOR_FILE"
 echo "Switched: $idle is now active (nginx reloaded gracefully)."
 
+# --- reconcile Cloudflare tunnel ingress with the deployed config ---
+# putConfiguration otherwise only runs when a tunnel is first created, so a
+# settings change (e.g. turning off http2Origin, which the media server's TLS
+# ALPN refuses) never reaches tunnels that already exist. The command is an
+# idempotent PUT of the desired state, and must never fail a deploy that has
+# already switched traffic.
+docker exec "$idle_container" php artisan tunnels:reapply-config \
+  || echo "WARNING: tunnels:reapply-config failed; existing tunnels keep their stored ingress config." >&2
+
 # --- drain, then stop the old color (kept, not removed, so it's warm for
 #     next time it becomes idle) ---
 echo "Draining $active_service for ${DRAIN_SECONDS}s before stopping it."

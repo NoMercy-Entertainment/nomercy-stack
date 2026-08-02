@@ -1,4 +1,5 @@
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
+<#assign nmAssetVersion = properties.nmAssetVersion!"1">
 <!DOCTYPE html>
 <html class="${properties.kcHtmlClass!}"<#if realm.internationalizationEnabled> lang="${locale.currentLanguageTag}"</#if>>
 
@@ -21,12 +22,12 @@
     </#if>
     <#if properties.styles?has_content>
         <#list properties.styles?split(' ') as style>
-            <link href="${url.resourcesPath}/${style}?v=nm4" rel="stylesheet" />
+            <link href="${url.resourcesPath}/${style}?v=${nmAssetVersion}" rel="stylesheet" />
         </#list>
     </#if>
     <#if properties.scripts?has_content>
         <#list properties.scripts?split(' ') as script>
-            <script src="${url.resourcesPath}/${script}" type="text/javascript"></script>
+            <script src="${url.resourcesPath}/${script}?v=${nmAssetVersion}" type="text/javascript"></script>
         </#list>
     </#if>
     <#if scripts??>

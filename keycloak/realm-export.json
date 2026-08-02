@@ -1165,25 +1165,25 @@
     "totpAppGoogleName",
     "totpAppMicrosoftAuthenticatorName"
   ],
-  "webAuthnPolicyRpEntityName": "keycloak",
+  "webAuthnPolicyRpEntityName": "NoMercy",
   "webAuthnPolicySignatureAlgorithms": [
     "ES256"
   ],
-  "webAuthnPolicyRpId": "",
+  "webAuthnPolicyRpId": "nomercy.tv",
   "webAuthnPolicyAttestationConveyancePreference": "not specified",
-  "webAuthnPolicyAuthenticatorAttachment": "cross-platform",
+  "webAuthnPolicyAuthenticatorAttachment": "not specified",
   "webAuthnPolicyRequireResidentKey": "Yes",
   "webAuthnPolicyUserVerificationRequirement": "required",
   "webAuthnPolicyCreateTimeout": 0,
   "webAuthnPolicyAvoidSameAuthenticatorRegister": true,
   "webAuthnPolicyAcceptableAaguids": [],
-  "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
+  "webAuthnPolicyPasswordlessRpEntityName": "NoMercy",
   "webAuthnPolicyPasswordlessSignatureAlgorithms": [
     "ES256"
   ],
-  "webAuthnPolicyPasswordlessRpId": "",
+  "webAuthnPolicyPasswordlessRpId": "nomercy.tv",
   "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
-  "webAuthnPolicyPasswordlessAuthenticatorAttachment": "cross-platform",
+  "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
   "webAuthnPolicyPasswordlessRequireResidentKey": "Yes",
   "webAuthnPolicyPasswordlessUserVerificationRequirement": "required",
   "webAuthnPolicyPasswordlessCreateTimeout": 0,
@@ -4795,7 +4795,7 @@
       "config": {}
     }
   ],
-  "browserFlow": "Session-NoPW-Passkey-OTP-Password",
+  "browserFlow": "browser",
   "registrationFlow": "registration",
   "directGrantFlow": "direct grant",
   "resetCredentialsFlow": "reset credentials",

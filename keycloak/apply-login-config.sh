@@ -8,6 +8,13 @@
 # Idempotent — safe to re-run. Reads the admin password from KC_ADMIN_PASSWORD so no
 # credential is ever passed on the command line.
 #
+# Read the realm BEFORE running this. auth-dev turned out not to have a "Forms" flow at all —
+# it was bound to a custom "passwordless-email" flow whose executions endpoint 404s because one
+# of its authenticator providers is not installed there. On that realm the fix was simply
+# browserFlow=browser, whose built-in forms subflow already uses auth-username-password-form and
+# a correctly gated conditional OTP. This script targets a realm shaped like the committed
+# export; it is not a blind "apply everywhere".
+#
 # Usage:
 #   KC_ADMIN_PASSWORD=... ./apply-login-config.sh <container> [admin-user] [realm]
 #   KC_ADMIN_PASSWORD=... ./apply-login-config.sh nomercy.tv-keycloak admin NoMercyTV

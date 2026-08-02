@@ -1,0 +1,34 @@
+name: Keycloak consistency
+
+# The realm and the login theme are edited with different tools and reviewed in
+# different mental modes, so a contradiction between them survives review. One did
+# for ten weeks: the realm required name fields the registration form has never
+# rendered, and email-and-password signups produced zero accounts on production
+# while Google logins kept working and kept it quiet.
+
+on:
+  push:
+    paths:
+      - 'keycloak/realm-export.json'
+      - 'keycloak/themes/**'
+      - 'scripts/check-registration-form-matches-realm.py'
+      - '.github/workflows/keycloak-consistency.yml'
+  pull_request:
+    paths:
+      - 'keycloak/realm-export.json'
+      - 'keycloak/themes/**'
+      - 'scripts/check-registration-form-matches-realm.py'
+  workflow_dispatch:
+
+jobs:
+  registration-form-matches-realm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Every required attribute is reachable from the registration form
+        run: python scripts/check-registration-form-matches-realm.py

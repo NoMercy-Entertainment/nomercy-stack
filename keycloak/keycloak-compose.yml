@@ -18,6 +18,7 @@ services:
       --hostname https://${KEYCLOAK_FRONTEND_URL}
       --proxy-headers xforwarded
       --http-enabled true
+      --spi-theme-static-max-age=300
       --spi-login-protocol-openid-connect-suppress-logout-confirmation-screen=true
       --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
       --features preview,docker,token-exchange:v1,admin-fine-grained-authz:v1

@@ -207,6 +207,13 @@ a:hover{color:var(--link-hover)}
 /* ---- otp credential chooser (reset-otp) ---- */
 .nm-otp-creds{display:flex;flex-direction:column;gap:10px;width:100%}
 
+/* Body copy on the pages that never got their own classes (verify-email, page-expired, error,
+   logout-confirm, idp-link). :not([class]) means anything already carrying a theme class is
+   untouched, so this cannot fight .nm-resend or .nm-consent__legal. */
+#kc-content-wrapper p:not([class]){font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-11);margin:0}
+#kc-content-wrapper p:not([class]) a{color:var(--link);text-decoration:underline;text-underline-offset:2px}
+#kc-content-wrapper p:not([class]) a:hover{color:var(--link-hover)}
+
 /* ---- static text blocks (terms, idp link, consent) ---- */
 .nm-prose{font-family:Inter;font-size:14px;line-height:1.6;color:var(--slate-11);max-height:320px;overflow:auto}
 .nm-prose p{margin:0 0 12px}
@@ -241,6 +248,14 @@ a:hover{color:var(--link-hover)}
   background:var(--slate-a3);display:grid;grid-template-columns:repeat(2,1fr);gap:6px 20px;width:100%;
   font-family:"Roboto Mono",ui-monospace,monospace;font-size:13px;color:var(--slate-12)}
 .nm-codes li::marker{color:var(--slate-a8)}
+
+/* ---- standing notice (verify email, page expired, info) ----
+   A single accent mark carrying the page's state, so the copy can live once in the
+   heading and subtitle instead of being repeated in a banner as well. */
+.nm-notice{display:flex;align-items:center;justify-content:center;width:100%;padding:8px 0 4px}
+.nm-notice__icon{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;
+  border-radius:999px;color:var(--link);background:var(--accent-wash);border:1px solid var(--slate-a6)}
+.nm-notice__icon svg{width:34px;height:34px}
 
 /* ---- inline alert / warning panel ---- */
 .nm-alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.4;

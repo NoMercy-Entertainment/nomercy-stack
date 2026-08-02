@@ -14,7 +14,7 @@ docker-compose.override.yml
 
 keycloak/themes/*
 !keycloak/themes/.gitkeep
-!keycloak/themes/NoMercy.V4/
+!keycloak/themes/NoMercy/
 
 postgres-kc/data/*
 !postgres-kc/data/.gitkeep

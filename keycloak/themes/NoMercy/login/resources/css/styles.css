@@ -4,6 +4,7 @@
   --slate-1:#151718;
   --slate-11:#9ba1a6;
   --slate-12:#eeecec;
+  --slate-a3:rgba(226,240,253,.05);
   --slate-a4:rgba(226,240,253,.08);
   --slate-a6:rgba(223,239,254,.14);
   --slate-a7:rgba(224,243,255,.18);
@@ -215,6 +216,25 @@ a:hover{color:var(--link-hover)}
 .nm-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
 .nm-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
   border:1px solid var(--slate-a6);background:var(--slate-a3);font-family:Inter;font-size:14px;color:var(--slate-12)}
+.nm-list__ico{width:16px;height:16px;flex:0 0 auto;color:var(--link)}
+
+/* ---- oauth consent ----
+   Only the scope list scrolls. The legal notice and the buttons stay pinned outside any
+   scroll container, so consent can never be granted without them being on screen. */
+.nm-consent{display:flex;flex-direction:column;gap:20px;width:100%}
+.nm-consent__intro{margin:0;font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-12)}
+.nm-scopes{max-height:196px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+.nm-scopes::-webkit-scrollbar{width:8px}
+.nm-scopes::-webkit-scrollbar-track{background:transparent}
+.nm-scopes::-webkit-scrollbar-thumb{background:var(--slate-a6);border-radius:99px}
+.nm-scopes::-webkit-scrollbar-thumb:hover{background:var(--slate-a8)}
+.nm-scopes{scrollbar-width:thin;scrollbar-color:var(--slate-a6) transparent}
+.nm-consent__legal{margin:0;font-family:Inter;font-size:13px;line-height:19px;color:var(--slate-11)}
+.nm-consent__legal a{color:var(--link);text-decoration:underline;text-underline-offset:2px}
+.nm-consent__legal a:hover{color:var(--link-hover)}
+.nm-consent__revoke{margin:0;font-family:Inter;font-size:13px;line-height:19px;color:var(--slate-a10)}
+.nm-consent__form{gap:0}
+.nm-consent-logo{height:40px;width:auto;margin-bottom:4px;align-self:flex-start}
 
 /* ---- recovery codes ---- */
 .nm-codes{list-style:decimal inside;margin:0;padding:14px 16px;border-radius:12px;border:1px solid var(--slate-a6);
@@ -290,6 +310,7 @@ a:hover{color:var(--link-hover)}
     --slate-1:#fbfcfd;
     --slate-11:#687076;
     --slate-12:#11181c;
+    --slate-a3:rgba(2,28,55,.04);
     --slate-a4:rgba(2,28,55,.08);
     --slate-a6:rgba(1,33,57,.13);
     --slate-a7:rgba(1,33,57,.16);

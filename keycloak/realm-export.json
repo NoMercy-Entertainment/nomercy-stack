@@ -1724,7 +1724,7 @@
     {
       "id": "3ade2204-3f7b-4ae1-8dab-d745b7bada41",
       "clientId": "nomercy-server",
-      "name": "",
+      "name": "NoMercy Media Server",
       "description": "",
       "rootUrl": "",
       "adminUrl": "",
@@ -1832,7 +1832,7 @@
     {
       "id": "06329c7b-722f-4bf9-9f70-66d56bf6f617",
       "clientId": "nomercy-ui",
-      "name": "",
+      "name": "NoMercy",
       "description": "",
       "rootUrl": "",
       "adminUrl": "",
@@ -2771,7 +2771,8 @@
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
-        "display.on.consent.screen": "true"
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "${clientRolesScopeConsentText}"
       },
       "protocolMappers": [
         {
@@ -3729,7 +3730,7 @@
       "builtIn": false,
       "authenticationExecutions": [
         {
-          "authenticator": "auth-username-form",
+          "authenticator": "auth-username-password-form",
           "authenticatorFlow": false,
           "requirement": "REQUIRED",
           "priority": 1,
@@ -3738,26 +3739,10 @@
         },
         {
           "authenticatorFlow": true,
-          "requirement": "CONDITIONAL",
+          "requirement": "DISABLED",
           "priority": 2,
           "autheticatorFlow": true,
-          "flowAlias": "No Password",
-          "userSetupAllowed": false
-        },
-        {
-          "authenticatorFlow": true,
-          "requirement": "ALTERNATIVE",
-          "priority": 3,
-          "autheticatorFlow": true,
           "flowAlias": "2FA",
-          "userSetupAllowed": false
-        },
-        {
-          "authenticatorFlow": true,
-          "requirement": "CONDITIONAL",
-          "priority": 4,
-          "autheticatorFlow": true,
-          "flowAlias": "Password Fallback",
           "userSetupAllowed": false
         }
       ]
@@ -4810,7 +4795,7 @@
       "config": {}
     }
   ],
-  "browserFlow": "browser",
+  "browserFlow": "Session-NoPW-Passkey-OTP-Password",
   "registrationFlow": "registration",
   "directGrantFlow": "direct grant",
   "resetCredentialsFlow": "reset credentials",
@@ -4845,5 +4830,6 @@
   },
   "clientPolicies": {
     "policies": []
-  }
+  },
+  "webAuthnPolicyPasswordlessPasskeysEnabled": true
 }

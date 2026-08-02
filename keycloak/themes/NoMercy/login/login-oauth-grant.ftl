@@ -1,58 +1,49 @@
 <#import "template.ftl" as layout>
+<#-- Terms/privacy always render. A client that has no tosUri/policyUri set falls back to the
+     NoMercy links in the message bundle, so consent is never shown without the legal notice. -->
+<#assign tosUrl = (client.attributes.tosUri)!msg("nmLegalTosUrl")>
+<#assign policyUrl = (client.attributes.policyUri)!msg("nmLegalPrivacyUrl")>
+<#assign clientLabel = client.name?has_content?then(advancedMsg(client.name!''), client.clientId)>
 <@layout.registrationLayout bodyClass="oauth"; section>
     <#if section = "header">
         <span class="nm-head">
             <#if client.attributes.logoUri??>
-                <img src="${client.attributes.logoUri}"/>
+                <img class="nm-consent-logo" src="${client.attributes.logoUri}" alt=""/>
             </#if>
-            <span class="nm-head__title">
-                <#if client.name?has_content>
-                    ${msg("oauthGrantTitle",advancedMsg(client.name))}
-                <#else>
-                    ${msg("oauthGrantTitle",client.clientId)}
-                </#if>
-            </span>
+            <span class="nm-head__title">${msg("oauthGrantTitle", clientLabel)}</span>
+            <span class="nm-head__sub">${msg("nmConsentSubtitle", clientLabel)}</span>
         </span>
     <#elseif section = "form">
-        <div id="kc-oauth" class="nm-prose">
-            <h3>${msg("oauthGrantRequest")}</h3>
-            <ul class="nm-list">
-                <#if oauth.clientScopesRequested??>
+        <div id="kc-oauth" class="nm-consent">
+            <p class="nm-consent__intro">${msg("nmConsentIntro", clientLabel)}</p>
+
+            <#if oauth.clientScopesRequested??>
+                <ul class="nm-list nm-scopes">
                     <#list oauth.clientScopesRequested as clientScope>
-                        <li>
-                            <span><#if !clientScope.dynamicScopeParameter??>
-                                        ${advancedMsg(clientScope.consentScreenText)}
-                                    <#else>
-                                        ${advancedMsg(clientScope.consentScreenText)}: <b>${clientScope.dynamicScopeParameter}</b>
-                                </#if>
-                            </span>
-                        </li>
+                        <#assign scopeText = advancedMsg(clientScope.consentScreenText)!''>
+                        <#if scopeText?has_content>
+                            <li>
+                                <svg class="nm-list__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span><#if clientScope.dynamicScopeParameter??>${scopeText}: <b>${clientScope.dynamicScopeParameter}</b><#else>${scopeText}</#if></span>
+                            </li>
+                        </#if>
                     </#list>
-                </#if>
-            </ul>
-            <#if client.attributes.policyUri?? || client.attributes.tosUri??>
-                <h3>
-                    <#if client.name?has_content>
-                        ${msg("oauthGrantInformation",advancedMsg(client.name))}
-                    <#else>
-                        ${msg("oauthGrantInformation",client.clientId)}
-                    </#if>
-                    <#if client.attributes.tosUri??>
-                        ${msg("oauthGrantReview")}
-                        <a href="${client.attributes.tosUri}" target="_blank">${msg("oauthGrantTos")}</a>
-                    </#if>
-                    <#if client.attributes.policyUri??>
-                        ${msg("oauthGrantReview")}
-                        <a href="${client.attributes.policyUri}" target="_blank">${msg("oauthGrantPolicy")}</a>
-                    </#if>
-                </h3>
+                </ul>
             </#if>
 
-            <form class="nm-form" action="${url.oauthAction}" method="POST">
+            <p class="nm-consent__legal">
+                ${msg("nmConsentLegalPrefix")}
+                <a href="${tosUrl}" target="_blank" rel="noopener noreferrer">${msg("nmConsentTos")}</a>
+                ${msg("nmConsentLegalAnd")}
+                <a href="${policyUrl}" target="_blank" rel="noopener noreferrer">${msg("nmConsentPrivacy")}</a>${msg("nmConsentLegalSuffix")}
+            </p>
+            <p class="nm-consent__revoke">${msg("nmConsentRevoke")}</p>
+
+            <form class="nm-form nm-consent__form" action="${url.oauthAction}" method="POST">
                 <input type="hidden" name="code" value="${oauth.code}">
                 <div class="nm-btn-stack">
-                    <button class="nm-btn nm-btn-primary" name="accept" id="kc-login" type="submit">${msg("doYes")}</button>
-                    <button class="nm-btn nm-btn-ghost" name="cancel" id="kc-cancel" type="submit">${msg("doNo")}</button>
+                    <button class="nm-btn nm-btn-primary" name="accept" id="kc-login" type="submit">${msg("nmConsentAllow")}</button>
+                    <button class="nm-btn nm-btn-passkey" name="cancel" id="kc-cancel" type="submit">${msg("nmConsentDeny")}</button>
                 </div>
             </form>
         </div>

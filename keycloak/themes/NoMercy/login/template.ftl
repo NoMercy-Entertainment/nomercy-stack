@@ -46,27 +46,30 @@
              <!-- ${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc} -->
         </div>
     </div>
+    <#-- Above the card and in the flow, not pinned to the viewport corner: fixed
+         positioning put it on top of the card as soon as the card reached the
+         screen edge, which on a narrow phone is always.
+         <details> rather than a hover-only menu: the old <a href="#"> trigger
+         opened on :hover alone, so the language list could be reached by tab but
+         never opened without a pointer. <details> is keyboard-operable and
+         carries its own expanded state for assistive tech. -->
+    <#if realm.internationalizationEnabled && locale.supported?size gt 1>
+        <div class="${properties.kcLocaleMainClass!}" id="kc-locale">
+            <details id="kc-locale-dropdown" class="${properties.kcLocaleDropDownClass!}">
+                <summary id="kc-current-locale-link" aria-label="${msg('nmLanguageMenu')}: ${locale.current}">${locale.current}</summary>
+                <ul class="${properties.kcLocaleListClass!}">
+                    <#list locale.supported as l>
+                        <li class="${properties.kcLocaleListItemClass!}">
+                            <a class="${properties.kcLocaleItemClass!}" href="${l.url}"<#if l.label == locale.current> aria-current="true"</#if>>${l.label}</a>
+                        </li>
+                    </#list>
+                </ul>
+            </details>
+        </div>
+    </#if>
     <div class="${properties.kcFormCardClass!}">
         <#include "logo.ftl">
         <header class="${properties.kcFormHeaderClass!}">
-            <#-- <details> rather than a hover-only menu: the old <a href="#"> trigger opened
-                 on :hover alone, so the language list could be reached by tab but never
-                 opened without a pointer. <details> is keyboard-operable and carries its own
-                 expanded state for assistive tech. -->
-            <#if realm.internationalizationEnabled && locale.supported?size gt 1>
-                <div class="${properties.kcLocaleMainClass!}" id="kc-locale">
-                    <details id="kc-locale-dropdown" class="${properties.kcLocaleDropDownClass!}">
-                        <summary id="kc-current-locale-link" aria-label="${msg('nmLanguageMenu')}: ${locale.current}">${locale.current}</summary>
-                        <ul class="${properties.kcLocaleListClass!}">
-                            <#list locale.supported as l>
-                                <li class="${properties.kcLocaleListItemClass!}">
-                                    <a class="${properties.kcLocaleItemClass!}" href="${l.url}"<#if l.label == locale.current> aria-current="true"</#if>>${l.label}</a>
-                                </li>
-                            </#list>
-                        </ul>
-                    </details>
-                </div>
-            </#if>
             <#-- The heading element belongs to the page: most emit an <h1 class="nm-head__title">,
                  the sign-in/sign-up pages make their active tab the heading. Wrapping everything
                  in an <h1> here put the subtitle, and the tab strip, inside the heading's name. -->

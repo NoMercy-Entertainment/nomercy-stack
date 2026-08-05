@@ -26,13 +26,23 @@ ACCOUNT_DIR="keycloak/themes/NoMercy/account"
 # Hash every file the browser can end up holding, plus the templates that
 # reference them. Any existing version string is stripped first so the hash
 # depends on the theme's content and not on its own previous value.
+#
+# CR is stripped before hashing: a checkout on Windows and one on the Linux box
+# hold the same files with different line endings, and hashing the raw bytes gave
+# the same theme two different versions depending on where the script ran. That
+# still busts caches, but it means the version is not an identity for the theme's
+# content, so the two hosts can never be compared by it.
 fingerprint() {
 	local dir="$1"
 	{
-		find "${dir}/resources" -type f -print0 | sort -z | xargs -0 sha1sum
-		find "${dir}" -maxdepth 1 -name '*.ftl' -print0 | sort -z | xargs -0 sha1sum
-		sed -E 's/\?v=[0-9a-f]+//g; /^nmAssetVersion=/d' "${dir}/theme.properties"
-	} | sha1sum | cut -c1-10
+		find "${dir}/resources" "${dir}" -maxdepth 1 -type f -name '*.ftl' -print0 2>/dev/null
+		find "${dir}/resources" -type f -print0
+	} | LC_ALL=C sort -zu | while IFS= read -r -d '' file; do
+		printf '%s %s\n' "${file}" "$(tr -d '\r' < "${file}" | sha1sum | cut -d' ' -f1)"
+	done | {
+		cat
+		sed -E 's/\?v=[0-9a-f]+//g; /^nmAssetVersion=/d' "${dir}/theme.properties" | tr -d '\r'
+	} | sha1sum | cut -d' ' -f1 | cut -c1-10
 }
 
 # The login theme carries its version in one property the templates interpolate;

@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('emailCode'); section>
     <#if section="header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("nmOtpTitle")}</span>
+            <h1 class="nm-head__title">${msg("nmOtpTitle")}</h1>
             <#if maskedEmail??>
                 <span class="nm-head__sub">${msg("nmOtpEmailSub")} <strong>${kcSanitize(maskedEmail)?no_esc}</strong></span>
             <#else>

@@ -3,7 +3,7 @@
 <@layout.registrationLayout displayMessage=messagesPerField.exists('global') displayRequiredFields=true; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("loginProfileTitle")}</span>
+            <h1 class="nm-head__title">${msg("loginProfileTitle")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-update-profile-form" class="nm-form" action="${url.loginAction}" method="post">

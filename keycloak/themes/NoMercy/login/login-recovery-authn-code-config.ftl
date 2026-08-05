@@ -4,7 +4,7 @@
 
 <#if section = "header">
     <span class="nm-head">
-        <span class="nm-head__title">${msg("recovery-code-config-header")}</span>
+        <h1 class="nm-head__title">${msg("recovery-code-config-header")}</h1>
     </span>
 <#elseif section = "form">
     <div class="nm-prose">

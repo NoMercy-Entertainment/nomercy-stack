@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=false; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${kcSanitize(msg("errorTitle"))?no_esc}</span>
+            <h1 class="nm-head__title">${kcSanitize(msg("errorTitle"))?no_esc}</h1>
         </span>
     <#elseif section = "form">
         <div id="kc-error-message">

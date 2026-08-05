@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('totp'); section>
     <#if section="header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("nmOtpTitle")}</span>
+            <h1 class="nm-head__title">${msg("nmOtpTitle")}</h1>
             <span class="nm-head__sub">${msg("nmOtpAuthApp")}</span>
         </span>
     <#elseif section="form">

@@ -10,7 +10,7 @@
             <#if client.attributes.logoUri??>
                 <img class="nm-consent-logo" src="${client.attributes.logoUri}" alt=""/>
             </#if>
-            <span class="nm-head__title">${msg("oauthGrantTitle", clientLabel)}</span>
+            <h1 class="nm-head__title">${msg("oauthGrantTitle", clientLabel)}</h1>
             <span class="nm-head__sub">${msg("nmConsentSubtitle", clientLabel)}</span>
         </span>
     <#elseif section = "form">

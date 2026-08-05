@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('password'); section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("doLogIn")}</span>
+            <h1 class="nm-head__title">${msg("doLogIn")}</h1>
             <#if maskedEmail??>
                 <span class="nm-head__sub">${msg("nmPasswordSub")} <strong>${kcSanitize(maskedEmail)?no_esc}</strong></span>
             </#if>

@@ -1,11 +1,13 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout; section>
     <#if section = "header">
-        <#if code.success>
-            ${msg("codeSuccessTitle")}
-        <#else>
-            ${kcSanitize(msg("codeErrorTitle", code.error))}
-        </#if>
+        <h1 class="nm-head__title">
+            <#if code.success>
+                ${msg("codeSuccessTitle")}
+            <#else>
+                ${kcSanitize(msg("codeErrorTitle", code.error))}
+            </#if>
+        </h1>
     <#elseif section = "form">
         <div id="kc-code">
             <#if code.success>

@@ -4,7 +4,7 @@
 
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("loginTotpTitle")}</span>
+            <h1 class="nm-head__title">${msg("loginTotpTitle")}</h1>
         </span>
     <#elseif section = "form">
         <div style="display:flex;gap:3rem;">

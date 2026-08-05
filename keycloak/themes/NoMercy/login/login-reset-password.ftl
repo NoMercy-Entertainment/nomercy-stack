@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayInfo=true displayMessage=!messagesPerField.existsError('username'); section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("emailForgotTitle")}</span>
+            <h1 class="nm-head__title">${msg("emailForgotTitle")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-reset-password-form" class="nm-form" action="${url.loginAction}" method="post">

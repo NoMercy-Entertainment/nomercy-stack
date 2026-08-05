@@ -2,7 +2,7 @@
 <@layout.registrationLayout; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("deleteAccountConfirm")}</span>
+            <h1 class="nm-head__title">${msg("deleteAccountConfirm")}</h1>
         </span>
     <#elseif section = "form">
         <form action="${url.loginAction}" class="nm-form" method="post">

@@ -2,7 +2,7 @@
 <@layout.registrationLayout; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("logoutConfirmTitle")}</span>
+            <h1 class="nm-head__title">${msg("logoutConfirmTitle")}</h1>
         </span>
     <#elseif section = "form">
         <div id="kc-logout-confirm">

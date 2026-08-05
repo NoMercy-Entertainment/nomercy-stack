@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('password'); section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("doLogIn")}</span>
+            <h1 class="nm-head__title">${msg("doLogIn")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-form-login" class="nm-form" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">

@@ -4,9 +4,11 @@
     <#if section = "header">
         <#if realm.registrationAllowed && !registrationDisabled??>
         <div class="nm-tabs">
-            <span class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</span>
+            <h1 class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</h1>
             <a class="nm-tab" href="${url.registrationUrl}">${msg("doRegister")}</a>
         </div>
+        <#else>
+        <h1 class="nm-head__title">${msg("doLogIn")}</h1>
         </#if>
     <#elseif section = "form">
         <form id="kc-form-login" class="nm-form" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">

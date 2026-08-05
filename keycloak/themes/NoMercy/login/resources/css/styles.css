@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
 
+/* Dark is the default and the no-JS fallback. js/theme.js resolves the scheme
+   before first paint and stamps data-scheme on <html>; light lives in the
+   [data-scheme="light"] block at the bottom of this file. There is deliberately
+   no prefers-color-scheme media query here — two independent answers to "is this
+   light?" is how the page ended up light on a browser asking for dark. */
 :root{
+  color-scheme:dark;
   --slate-1:#151718;
   --slate-11:#9ba1a6;
   --slate-12:#eeecec;
@@ -13,6 +19,14 @@
   --input-text:#ffffff;
   --accent-12:#f1eefe;
   --primary:#6e56cf;
+  /* The label colour that clears WCAG AA on --primary, whatever accent the app
+     sent. js/theme.js picks it from the accent's luminance and adjusts the
+     accent itself when neither black nor white would clear on its own. */
+  --primary-ink:#ffffff;
+  /* Focus ring, on the accent but forced bright enough to be visible against
+     both the card and the accent-filled controls it can land on. */
+  --focus-ring:#a894ff;
+  --focus-ring:oklch(from var(--primary) max(l, 0.72) c h);
   /* The accent palette derives from --primary via relative colour (OKLCH), so
      theming only needs to set --primary. The hex/rgba line is a fallback for
      engines without relative-colour support; the oklch line overrides it. */
@@ -32,10 +46,45 @@
   --logo-text:#f4f4f6;
   --check-bg:#dfeffe24;
   --check-border:#e5f2fe42;
+  /* The unselected sign-in/sign-up tab. Its own token because it sits on the
+     tab strip, not the card, so it cannot reuse --slate-11 and still clear AA. */
+  --tab-idle:#82898e;
+  --menu-bg:#1f2227;
   --accent-wash:#7650ff38;
   --accent-wash:oklch(from var(--primary) l c h / 0.22);
   --r-card:20px; --r-input:8px; --r-btn:10px; --r-code:16px;
   --inset-input:inset 0 1px 0 rgba(0,0,0,.16),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 2px 2px rgba(0,0,0,.16);
+
+  /* Fluid scale. Every size below is clamp(floor, preferred, ceiling) where the
+     preferred term is rem + vw: the rem part keeps the browser's own text-size
+     setting and page zoom working (a pure-vw preferred term would pin the text
+     and fail WCAG 1.4.4), the vw part lets the card breathe between a phone and
+     a 4K panel. The ceilings are the design's values, so nothing grows past what
+     was drawn — the layout only changes scale, never shape. */
+  --card-w:clamp(280px, 21rem + 4vw, 416px);
+  --card-pad:clamp(18px, 0.9rem + 1vw, 26px);
+  /* Two vertical rhythms, not one. The gap between sections can afford to be
+     generous; the gap between stacked fields is what makes a six-row consent
+     card outgrow the viewport, so it stays tighter. */
+  --gap-section:clamp(18px, 0.9rem + 1vw, 26px);
+  --gap-field:clamp(14px, 0.75rem + 0.6vw, 20px);
+  --gap-md:clamp(9px, 0.45rem + 0.35vw, 12px);
+  --gap-sm:clamp(5px, 0.25rem + 0.2vw, 8px);
+  --fs-title:clamp(21px, 1.05rem + 0.7vw, 26px);
+  --fs-body:clamp(13px, 0.76rem + 0.12vw, 14px);
+  --fs-control:clamp(14px, 0.84rem + 0.15vw, 16px);
+  --fs-small:clamp(12px, 0.7rem + 0.08vw, 13px);
+  --fs-code:clamp(19px, 0.95rem + 0.6vw, 24px);
+  --h-input:clamp(36px, 2rem + 0.5vw, 42px);
+  --h-btn:clamp(40px, 2.2rem + 0.6vw, 46px);
+  --h-tabs:clamp(44px, 2.5rem + 0.7vw, 52px);
+  --h-code:clamp(46px, 2.5rem + 1vw, 58px);
+  --logo-h:clamp(46px, 2.6rem + 1.2vw, 64px);
+  /* Minimum breathing room around the card. A real margin, not auto: auto
+     margins collapse to zero the moment the card is taller than the viewport,
+     which is exactly when the card would otherwise touch the screen edge. */
+  --gutter-y:clamp(16px, 1rem + 2vw, 40px);
+  --gutter-x:clamp(12px, 0.5rem + 1.5vw, 20px);
 }
 
 *{box-sizing:border-box}
@@ -45,27 +94,42 @@ html.login-pf{background:#1c1e22 !important}
 body{
   margin:0;
   font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif !important;
-  font-size:14px !important;
+  font-size:var(--fs-body) !important;
   color:var(--slate-12);
   background:
     radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%),
     #1c1e22 !important;
-  display:flex; justify-content:center;
-  min-height:100dvh; padding:40px 20px;
+  /* `safe center` centres the card when it fits and falls back to flex-start
+     when it does not — plain `center` pushes the top of an over-tall card above
+     the scroll origin, where it can never be scrolled back into view.
+     The block gutter lives on the wrapper's margin, not this padding: a flex
+     container's end padding is not part of its scrollable overflow, so a card
+     taller than the viewport would end flush against the bottom edge. */
+  display:flex; justify-content:center; align-items:safe center;
+  min-height:100dvh; padding:0 var(--gutter-x);
 }
 
 /* hide the stock logo header — the design has none */
 #kc-header{display:none !important}
 
-/* page wrapper */
-.login-pf-page{width:auto;border-radius:0;margin:auto}
+/* page wrapper — width:100% with the cap here rather than on the card, so the
+   card can never be wider than the viewport minus the body padding. A card that
+   sizes itself and then leans on max-width:100% resolves that percentage against
+   a content-sized parent, which is circular and lets it overflow on a phone. */
+/* The block gutter is padding on this wrapper, not a margin and not padding on
+   the body. PatternFly puts `padding-top:20px` here with nothing at the bottom,
+   which alone stops the card ever looking centred; a margin here, or padding on
+   the flex container, is dropped from the scrollable area once the card is
+   taller than the viewport, and the card ends flush against the screen edge.
+   Padding on the item itself is part of its box, so it always survives. */
+.login-pf-page{width:100%;max-width:var(--card-w);border-radius:0;padding:var(--gutter-y) 0;margin:0 auto}
 
 /* the card */
 .card-pf{
-  position:relative;width:420px;max-width:92vw;margin:0;
+  position:relative;width:100%;margin:0;
   background:var(--slate-1);border:1px solid var(--slate-a4);border-top:1px solid var(--slate-a4);
-  border-radius:var(--r-card);padding:32px;color:var(--slate-12);font-weight:400;
-  display:flex;flex-direction:column;gap:32px;overflow:hidden;
+  border-radius:var(--r-card);padding:var(--card-pad);color:var(--slate-12);font-weight:400;
+  display:flex;flex-direction:column;gap:var(--gap-section);overflow:hidden;
   box-shadow:0 25px 56px rgba(0,0,0,.40),inset 0 1px 1px rgba(255,255,255,.22);
 }
 /* designer's card glow: a bright spot off the top-right corner + a wash down from the top */
@@ -83,48 +147,57 @@ body{
   background:url(../img/card-noise.png) center/cover;mix-blend-mode:screen;opacity:.16}
 .card-pf > *{position:relative;z-index:1}
 /* beat PatternFly's `.login-pf-page .card-pf` padding (10/20/30) with the design's even inset */
-.login-pf-page .card-pf{padding:24px 32px 32px}
+.login-pf-page .card-pf{padding:calc(var(--card-pad) * .75) var(--card-pad) var(--card-pad)}
 
 /* heading — .login-pf-page prefix beats PatternFly's header margin */
 .login-pf-page .card-pf header{margin:0;padding:0;border:0}
 #kc-page-title{margin:0;padding:0;font:inherit}
-.nm-head{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
-.nm-head__title{font-family:Outfit,sans-serif;font-weight:600;font-size:28px;line-height:1.15;letter-spacing:-.3px;color:var(--accent-12)}
-.nm-head__sub{font-family:Inter,sans-serif;font-weight:400;font-size:14px;line-height:20px;color:var(--slate-11)}
+/* PatternFly ships `.login-pf-page .login-pf-header h1{font-size:16px}` plus a
+   24px override above 768px, which out-specifies a bare theme class — the title
+   used to escape it only because it was the #kc-page-title element itself. The
+   heading here is styled by its class, not by being an h1, so match that
+   specificity and hand the decision back to the class. */
+.login-pf-page #kc-page-title h1{margin:0}
+.login-pf-page #kc-page-title h1.nm-head__title{font-size:var(--fs-title)}
+.login-pf-page #kc-page-title h1.nm-tab{font-size:var(--fs-control)}
+.nm-head{display:flex;flex-direction:column;gap:var(--gap-sm);width:100%;text-align:left}
+/* .nm-head__title and the active .nm-tab are <h1> elements — drop the UA heading margin */
+.nm-head__title{margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:var(--fs-title);line-height:1.15;letter-spacing:-.3px;color:var(--accent-12)}
+.nm-head__sub{font-family:Inter,sans-serif;font-weight:400;font-size:var(--fs-body);line-height:1.45;color:var(--slate-11)}
 .nm-logo{display:flex;align-items:center;justify-content:center;width:100%}
-.nm-logo__mark{height:72px;width:auto;max-width:100%;flex:0 0 auto}
+.nm-logo__mark{height:var(--logo-h);width:auto;max-width:100%;flex:0 0 auto}
 
 /* sign-in / sign-up tab toggle */
-.nm-tabs{position:relative;display:flex;gap:8px;height:56px;padding:6px;border-radius:12px;
+.nm-tabs{position:relative;display:flex;gap:var(--gap-sm);height:var(--h-tabs);padding:6px;border-radius:12px;
   background:#1a1d1e;border:1px solid rgba(52,64,84,.45);
   box-shadow:inset 0 1px 0 rgba(0,0,0,.16),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 2px 2px rgba(0,0,0,.16)}
-.nm-tab{flex:1;display:flex;align-items:center;justify-content:center;border-radius:6px;
-  font-family:Inter;font-weight:600;font-size:16px;line-height:24px;text-decoration:none;color:#787f85;cursor:pointer}
+.nm-tab{flex:1;margin:0;display:flex;align-items:center;justify-content:center;border-radius:6px;
+  font-family:Inter;font-weight:600;font-size:var(--fs-control);line-height:1.4;text-decoration:none;color:var(--tab-idle);cursor:pointer}
 .nm-tab.is-active{background:#3a3f42;color:var(--slate-12);
   box-shadow:0 16px 20px -4px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.4)}
 
 .login-pf-page #kc-content,.login-pf-page #kc-content-wrapper{width:100%;margin:0;padding:0}
-#kc-content-wrapper{display:flex;flex-direction:column;gap:32px}
+#kc-content-wrapper{display:flex;flex-direction:column;gap:var(--gap-section)}
 
 /* ---- form ---- */
-.nm-form{display:flex;flex-direction:column;gap:32px}
-.nm-fields{display:flex;flex-direction:column;gap:32px}
-.nm-field{display:flex;flex-direction:column;gap:6px}
-.nm-field label{font-family:Inter;font-weight:500;font-size:14px;line-height:20px;color:var(--slate-12)}
+.nm-form{display:flex;flex-direction:column;gap:var(--gap-section)}
+.nm-fields{display:flex;flex-direction:column;gap:var(--gap-field)}
+.nm-field{display:flex;flex-direction:column;gap:var(--gap-sm)}
+.nm-field label{font-family:Inter;font-weight:500;font-size:var(--fs-body);line-height:1.45;color:var(--slate-12)}
 .nm-req{color:var(--link)}
-.nm-input{display:flex;align-items:center;height:40px;padding:0 10px;border:1px solid var(--slate-a4);
+.nm-input{display:flex;align-items:center;height:var(--h-input);padding:0 10px;border:1px solid var(--slate-a4);
   border-radius:var(--r-input);background:var(--slate-a4);box-shadow:var(--inset-input)}
 .nm-input input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--input-text);
-  font-family:Inter;font-size:16px;line-height:24px}
+  font-family:Inter;font-size:var(--fs-control);line-height:1.4}
 .nm-input input::placeholder{color:#7e858b}
 .nm-input:focus-within{border-color:var(--primary)}
-.nm-input select,.nm-input textarea{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--input-text);font-family:Inter;font-size:16px;line-height:24px}
+.nm-input select,.nm-input textarea{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--input-text);font-family:Inter;font-size:var(--fs-control);line-height:1.4}
 .nm-input--area{height:auto;align-items:stretch;padding:8px 10px}
 .nm-input--area textarea{resize:vertical;min-height:80px}
-.nm-field-help{font-family:Inter;font-size:13px;line-height:18px;color:var(--slate-11)}
+.nm-field-help{font-family:Inter;font-size:var(--fs-small);line-height:1.4;color:var(--slate-11)}
 .nm-group{display:flex;flex-direction:column;gap:2px;margin-top:8px}
-.nm-group__title{font-family:Outfit,sans-serif;font-weight:600;font-size:16px;color:var(--accent-12)}
-.nm-group__desc{font-family:Inter;font-size:13px;color:var(--slate-11)}
+.nm-group__title{font-family:Outfit,sans-serif;font-weight:600;font-size:var(--fs-control);color:var(--accent-12)}
+.nm-group__desc{font-family:Inter;font-size:var(--fs-small);color:var(--slate-11)}
 /* keep browser autofill on-theme: clip the white fill to the glyphs so the field's own
    background shows through, and force text/caret to the themed colour (works in both modes) */
 .nm-input input:-webkit-autofill,
@@ -138,239 +211,271 @@ body{
   transition:background-color 9999s ease 0s;
 }
 .nm-helper{display:flex;justify-content:flex-end}
-.nm-helper a{font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-11);text-decoration:underline}
-.nm-error{color:var(--danger);font-size:14px;line-height:20px}
+.nm-helper a{font-family:Inter;font-size:var(--fs-body);line-height:1.45;color:var(--slate-11);text-decoration:underline}
+.nm-error{color:var(--danger);font-size:var(--fs-body);line-height:1.45}
 
 /* custom square checkbox — native accent-color can't match the designed box */
-.nm-check{display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.nm-check{display:flex;align-items:flex-start;gap:var(--gap-md);cursor:pointer}
 .nm-check input{-webkit-appearance:none;appearance:none;flex:0 0 auto;width:18px;height:18px;margin:3px 0 0;
   border:1.5px solid var(--check-border);border-radius:4px;background:var(--check-bg);box-shadow:var(--inset-input);cursor:pointer;position:relative}
 .nm-check input:checked{background:var(--primary)}
 .nm-check input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:9px;
   border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
-.nm-check input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
-.nm-check span{font-family:Inter;font-weight:500;font-size:16px;line-height:24px;color:var(--slate-12)}
+.nm-check input:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.nm-check span{font-family:Inter;font-weight:500;font-size:var(--fs-control);line-height:1.4;color:var(--slate-12)}
 .nm-check a{color:var(--link)}
 
-.nm-btn{height:44px;border-radius:var(--r-btn);width:100%;cursor:pointer;border:1px solid transparent;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  font-family:Inter;font-weight:600;font-size:16px;line-height:24px;text-decoration:none}
-.nm-btn-primary{color:#fff;border-color:var(--primary-border);position:relative;overflow:hidden;
+.nm-btn{height:var(--h-btn);border-radius:var(--r-btn);width:100%;cursor:pointer;border:1px solid transparent;
+  display:flex;align-items:center;justify-content:center;gap:var(--gap-sm);
+  font-family:Inter;font-weight:600;font-size:var(--fs-control);line-height:1.4;text-decoration:none}
+.nm-btn-primary{color:var(--primary-ink);border-color:var(--primary-border);position:relative;overflow:hidden;
   background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0)),var(--primary);
   box-shadow:0 1px 2px rgba(16,24,40,.05),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -2px 0 rgba(0,0,0,.28)}
 .nm-btn-primary:hover{filter:brightness(1.06)}
 /* passkey: same variant as the primary button (sheen + inset depth), neutral grey fill */
-.nm-btn-stack{display:flex;flex-direction:column;gap:12px;width:100%}
+.nm-btn-stack{display:flex;flex-direction:column;gap:var(--gap-md);width:100%}
 .nm-btn-passkey{color:var(--slate-12);border-color:var(--slate-a6);position:relative;overflow:hidden;
   background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0)),#33373b;
   box-shadow:0 1px 2px rgba(16,24,40,.05),inset 0 1px 0 rgba(255,255,255,.10),inset 0 -2px 0 rgba(0,0,0,.28)}
 .nm-btn-passkey:hover{filter:brightness(1.08)}
 .nm-btn[disabled]{opacity:.7;cursor:default}
-.nm-ico{width:20px;height:20px}
+.nm-ico{width:1.25em;height:1.25em;flex:0 0 auto}
 .nm-btn.is-disabled{filter:grayscale(1);opacity:.55;cursor:not-allowed;pointer-events:none}
 
+/* ---- focus ----
+   PatternFly resets the UA ring and several of our own rules set outline:none,
+   which left every control on this page with no keyboard indicator at all. One
+   rule owns it, on the accent so it reads as ours in both schemes. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:4px}
+/* the field's ring belongs on the framed wrapper, not on the bare input inside it */
+.nm-input:has(:focus-visible){outline:2px solid var(--focus-ring);outline-offset:2px;border-color:var(--primary)}
+.nm-input :focus-visible{outline:none}
+.nm-code__box:focus-visible{border-color:var(--primary)}
+.nm-btn:focus-visible,.nm-sbtn:focus-visible,.nm-select-item:focus-visible{border-radius:var(--r-btn)}
+
 /* ---- dividers ---- */
-.nm-divider,.nm-foot{display:flex;align-items:center;justify-content:center;gap:32px}
-.nm-divider .line{height:2px;width:40px;border-radius:4px;background:var(--slate-a4)}
-.nm-divider span:not(.line){font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-a8);white-space:nowrap}
+.nm-divider,.nm-foot{display:flex;align-items:center;justify-content:center;gap:var(--gap-section)}
+.nm-divider .line{height:2px;flex:0 1 40px;min-width:16px;border-radius:4px;background:var(--slate-a4)}
+/* --slate-11, not --slate-a8: a8 is a hairline/border alpha and only reaches
+   2.2:1 as text. The rules are the low-contrast part of this divider, not the label. */
+.nm-divider span:not(.line){font-family:Inter;font-size:var(--fs-body);line-height:1.45;color:var(--slate-11);white-space:nowrap}
 
 /* ---- social ---- */
-.nm-social{display:flex;gap:8px}
-.nm-sbtn{flex:1;height:44px;border-radius:var(--r-btn);border:1px solid var(--slate-a6);background:transparent;
-  display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
-  font-family:Inter;font-weight:600;font-size:16px;color:var(--slate-12);text-decoration:none}
+.nm-social{display:flex;gap:var(--gap-sm)}
+.nm-sbtn{flex:1;min-width:0;height:var(--h-btn);border-radius:var(--r-btn);border:1px solid var(--slate-a6);background:transparent;
+  display:flex;align-items:center;justify-content:center;gap:var(--gap-sm);cursor:pointer;
+  font-family:Inter;font-weight:600;font-size:var(--fs-control);color:var(--slate-12);text-decoration:none}
 .nm-sbtn:hover{border-color:var(--primary);color:var(--slate-12)}
-.nm-sbtn i{font-size:18px}
-.nm-sicon{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;flex:0 0 auto;color:var(--slate-12)}
-.nm-sicon i{color:var(--slate-12);font-size:18px;line-height:1}
-.nm-sicon svg{width:20px;height:20px;display:block;fill:var(--slate-12)}
+.nm-sicon{display:inline-flex;width:1.25em;height:1.25em;align-items:center;justify-content:center;flex:0 0 auto;color:var(--slate-12)}
+.nm-sicon i{color:var(--slate-12);font-size:1.1em;line-height:1}
+.nm-sicon svg{width:100%;height:100%;display:block;fill:var(--slate-12)}
 .nm-sicon svg path{fill:var(--slate-12)}
 
 /* ---- footer (register / info) ---- */
 .nm-foot{margin-top:4px}
-.nm-foot .line{height:2px;width:40px;border-radius:4px;background:var(--slate-a4)}
-.nm-foot span:not(.line){font-family:Inter;font-size:16px;line-height:24px;color:var(--slate-a10);white-space:nowrap}
-.nm-foot a{font-family:Inter;font-weight:500;font-size:16px;line-height:24px;color:var(--link);text-decoration:underline}
+.nm-foot .line{height:2px;flex:0 1 40px;min-width:16px;border-radius:4px;background:var(--slate-a4)}
+.nm-foot span:not(.line){font-family:Inter;font-size:var(--fs-control);line-height:1.4;color:var(--slate-a10);white-space:nowrap}
+.nm-foot a{font-family:Inter;font-weight:500;font-size:var(--fs-control);line-height:1.4;color:var(--link);text-decoration:underline}
 
 a{color:var(--link)}
 a:hover{color:var(--link-hover)}
 
 /* ---- one-time code (OTP) ---- */
-.nm-code{display:flex;gap:8px;align-items:center;justify-content:center;width:100%}
-.nm-code__box{flex:1 1 0;min-width:0;max-width:52px;height:58px;text-align:center;
+.nm-code{display:flex;gap:var(--gap-sm);align-items:center;justify-content:center;width:100%}
+.nm-code__box{flex:1 1 0;min-width:0;max-width:calc(var(--h-code) * .8);height:var(--h-code);text-align:center;
   border:1px solid var(--check-border);border-radius:var(--r-code);background:var(--check-bg);box-shadow:var(--inset-input);
-  font-family:Outfit,sans-serif;font-weight:600;font-size:24px;color:var(--input-text);outline:none;caret-color:var(--primary)}
+  font-family:Outfit,sans-serif;font-weight:600;font-size:var(--fs-code);color:var(--input-text);outline:none;caret-color:var(--primary)}
 .nm-code__box:focus{border-color:var(--primary)}
 .nm-code__dash{flex:0 0 auto;width:12px;height:2px;border-radius:2px;background:var(--slate-11)}
-.nm-row{display:flex;gap:12px;align-items:center}
+.nm-row{display:flex;gap:var(--gap-md);align-items:center}
 
 /* ---- otp credential chooser (reset-otp) ---- */
-.nm-otp-creds{display:flex;flex-direction:column;gap:10px;width:100%}
+.nm-otp-creds{display:flex;flex-direction:column;gap:var(--gap-md);width:100%}
 
 /* Body copy on the pages that never got their own classes (verify-email, page-expired, error,
    logout-confirm, idp-link). :not([class]) means anything already carrying a theme class is
    untouched, so this cannot fight .nm-resend or .nm-consent__legal. */
-#kc-content-wrapper p:not([class]){font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-11);margin:0}
+#kc-content-wrapper p:not([class]){font-family:Inter;font-size:var(--fs-body);line-height:1.45;color:var(--slate-11);margin:0}
 #kc-content-wrapper p:not([class]) a{color:var(--link);text-decoration:underline;text-underline-offset:2px}
 #kc-content-wrapper p:not([class]) a:hover{color:var(--link-hover)}
 
 /* ---- static text blocks (terms, idp link, consent) ---- */
-.nm-prose{font-family:Inter;font-size:14px;line-height:1.6;color:var(--slate-11);max-height:320px;overflow:auto}
+.nm-prose{font-family:Inter;font-size:var(--fs-body);line-height:1.6;color:var(--slate-11);max-height:clamp(200px, 38dvh, 340px);overflow:auto}
 .nm-prose p{margin:0 0 12px}
 .nm-prose a{color:var(--link)}
 
 /* ---- plain list (oauth scopes) ---- */
-.nm-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
-.nm-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
-  border:1px solid var(--slate-a6);background:var(--slate-a3);font-family:Inter;font-size:14px;color:var(--slate-12)}
-.nm-list__ico{width:16px;height:16px;flex:0 0 auto;color:var(--link)}
+.nm-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--gap-sm);width:100%}
+.nm-list li{display:flex;align-items:center;gap:var(--gap-md);padding:var(--gap-md) 12px;border-radius:10px;
+  border:1px solid var(--slate-a6);background:var(--slate-a3);font-family:Inter;font-size:var(--fs-body);color:var(--slate-12)}
+.nm-list__ico{width:1.1em;height:1.1em;flex:0 0 auto;color:var(--link)}
 
 /* ---- oauth consent ----
    Only the scope list scrolls. The legal notice and the buttons stay pinned outside any
    scroll container, so consent can never be granted without them being on screen. */
-.nm-consent{display:flex;flex-direction:column;gap:20px;width:100%}
-.nm-consent__intro{margin:0;font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-12)}
-.nm-scopes{max-height:196px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+.nm-consent{display:flex;flex-direction:column;gap:var(--gap-section);width:100%}
+.nm-consent__intro{margin:0;font-family:Inter;font-size:var(--fs-body);line-height:1.45;color:var(--slate-12)}
+.nm-scopes{max-height:clamp(150px, 26dvh, 230px);overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .nm-scopes::-webkit-scrollbar{width:8px}
 .nm-scopes::-webkit-scrollbar-track{background:transparent}
 .nm-scopes::-webkit-scrollbar-thumb{background:var(--slate-a6);border-radius:99px}
 .nm-scopes::-webkit-scrollbar-thumb:hover{background:var(--slate-a8)}
 .nm-scopes{scrollbar-width:thin;scrollbar-color:var(--slate-a6) transparent}
-.nm-consent__legal{margin:0;font-family:Inter;font-size:13px;line-height:19px;color:var(--slate-11)}
+.nm-consent__legal{margin:0;font-family:Inter;font-size:var(--fs-small);line-height:1.5;color:var(--slate-11)}
 .nm-consent__legal a{color:var(--link);text-decoration:underline;text-underline-offset:2px}
 .nm-consent__legal a:hover{color:var(--link-hover)}
-.nm-consent__revoke{margin:0;font-family:Inter;font-size:13px;line-height:19px;color:var(--slate-a10)}
+.nm-consent__revoke{margin:0;font-family:Inter;font-size:var(--fs-small);line-height:1.5;color:var(--slate-a10)}
 .nm-consent__form{gap:0}
-.nm-consent-logo{height:40px;width:auto;margin-bottom:4px;align-self:flex-start}
+.nm-consent-logo{height:clamp(30px, 2rem + 0.6vw, 44px);width:auto;margin-bottom:4px;align-self:flex-start}
 
 /* ---- recovery codes ---- */
 .nm-codes{list-style:decimal inside;margin:0;padding:14px 16px;border-radius:12px;border:1px solid var(--slate-a6);
   background:var(--slate-a3);display:grid;grid-template-columns:repeat(2,1fr);gap:6px 20px;width:100%;
-  font-family:"Roboto Mono",ui-monospace,monospace;font-size:13px;color:var(--slate-12)}
+  font-family:"Roboto Mono",ui-monospace,monospace;font-size:var(--fs-small);color:var(--slate-12)}
 .nm-codes li::marker{color:var(--slate-a8)}
 
 /* ---- standing notice (verify email, page expired, info) ----
    A single accent mark carrying the page's state, so the copy can live once in the
    heading and subtitle instead of being repeated in a banner as well. */
 .nm-notice{display:flex;align-items:center;justify-content:center;width:100%;padding:8px 0 4px}
-.nm-notice__icon{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;
+.nm-notice__icon{display:inline-flex;align-items:center;justify-content:center;
+  width:var(--logo-h);height:var(--logo-h);
   border-radius:999px;color:var(--link);background:var(--accent-wash);border:1px solid var(--slate-a6)}
-.nm-notice__icon svg{width:34px;height:34px}
+.nm-notice__icon svg{width:47%;height:47%}
 
 /* ---- inline alert / warning panel ---- */
-.nm-alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.4;
+.nm-alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:var(--fs-body);line-height:1.4;
   border:1px solid var(--slate-a6);background:var(--slate-a4);color:var(--slate-12)}
 .nm-alert--warning{border-color:rgba(255,184,108,.35);background:rgba(255,184,108,.10)}
 .nm-row .nm-btn{flex:1}
 .nm-btn-ghost{background:transparent;border:1px solid transparent;color:var(--slate-12);font-weight:600}
 .nm-btn-ghost:hover{color:var(--slate-12)}
-.nm-resend{text-align:center;font-family:Inter;font-size:14px;line-height:20px;color:var(--slate-a10)}
+.nm-resend{text-align:center;font-family:Inter;font-size:var(--fs-body);line-height:1.45;color:var(--slate-a10)}
 .nm-resend a,.nm-resend button{color:var(--link);text-decoration:underline;background:none;border:0;cursor:pointer;font:inherit;padding:0}
 .nm-resend button:hover{color:var(--link-hover)}
-.nm-status{text-align:center;font-family:Inter;font-size:13px;color:var(--slate-11)}
+.nm-status{text-align:center;font-family:Inter;font-size:var(--fs-small);color:var(--slate-11)}
 .nm-opt{color:var(--slate-11);font-weight:400}
 .nm-alt{text-align:center;margin-top:2px}
 .nm-linkbtn{color:var(--slate-11);text-decoration:underline;text-underline-offset:2px;background:none;border:0;cursor:pointer;
-  font-family:Inter;font-size:14px;line-height:20px;padding:0}
+  font-family:Inter;font-size:var(--fs-body);line-height:1.45;padding:0}
 .nm-linkbtn:hover{color:var(--slate-12)}
 
 /* ---- select authenticator (try another way) ---- */
-.nm-select{display:flex;flex-direction:column;gap:12px;width:100%}
-.nm-select-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
-  padding:14px 16px;border-radius:var(--r-btn);border:1px solid var(--slate-a6);background:transparent;color:var(--slate-12);
+.nm-select{display:flex;flex-direction:column;gap:var(--gap-md);width:100%}
+.nm-select-item{display:flex;align-items:center;gap:var(--gap-md);width:100%;text-align:left;cursor:pointer;
+  padding:var(--gap-md) 16px;border-radius:var(--r-btn);border:1px solid var(--slate-a6);background:transparent;color:var(--slate-12);
   transition:border-color .15s,background .15s}
 .nm-select-item:hover{border-color:var(--slate-a8);background:var(--slate-a3)}
-.nm-select-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:0 0 auto;
-  border-radius:10px;background:var(--slate-a4);color:var(--accent-11);font-size:18px}
+.nm-select-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+  width:var(--h-input);height:var(--h-input);
+  border-radius:10px;background:var(--slate-a4);color:var(--accent-11);font-size:var(--fs-control)}
 .nm-select-body{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
-.nm-select-title{font-family:Inter;font-weight:600;font-size:16px;line-height:22px;color:var(--slate-12)}
-.nm-select-desc{font-family:Inter;font-weight:400;font-size:13px;line-height:18px;color:var(--slate-11)}
-.nm-select-arrow{width:18px;height:18px;flex:0 0 auto;color:var(--slate-a8)}
+.nm-select-title{font-family:Inter;font-weight:600;font-size:var(--fs-control);line-height:1.35;color:var(--slate-12)}
+.nm-select-desc{font-family:Inter;font-weight:400;font-size:var(--fs-small);line-height:1.4;color:var(--slate-11)}
+.nm-select-arrow{width:1.1em;height:1.1em;flex:0 0 auto;color:var(--slate-a8)}
 
 /* ---- alert / messages ---- */
 .alert-error,.alert-warning,.alert-success,.alert-info,
-.pf-c-alert{border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.4;
+.pf-c-alert{border-radius:10px;padding:12px 14px;font-size:var(--fs-body);line-height:1.4;
   border:1px solid var(--slate-a6);background:var(--slate-a4);
   color:var(--slate-12);display:flex;gap:8px;align-items:flex-start}
 .alert-error,.pf-m-danger{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.10)}
 .alert-warning,.pf-m-warning{border-color:rgba(255,184,108,.35);background:rgba(255,184,108,.10)}
 .alert-success,.pf-m-success{border-color:rgba(110,86,207,.35);background:rgba(110,86,207,.12)}
 /* force readable copy over PatternFly's own alert text colour */
-.pf-c-alert__title,.kc-feedback-text,.instruction{color:var(--slate-12) !important;padding:0;font-size:14px;font-weight:500}
+.pf-c-alert__title,.kc-feedback-text,.instruction{color:var(--slate-12) !important;padding:0;font-size:var(--fs-body);font-weight:500}
 .pf-c-alert__icon{display:none}
 
-/* locale dropdown (kept) */
+/* locale dropdown — a <details>, so it opens from the keyboard as well as the pointer */
 #kc-locale{position:fixed;top:14px;right:18px;z-index:50}
-#kc-locale a{font-family:Inter;font-size:13px;color:var(--slate-a10)}
-#kc-locale ul{display:none;position:absolute;right:0;background:#1f2227;border:1px solid var(--slate-a6);
-  border-radius:8px;list-style:none;padding:4px;min-width:120px}
-#kc-locale:hover ul{display:block;margin:0}
-#kc-locale a{color:var(--slate-12);text-decoration:none}
-#kc-locale ul li a{display:block;padding:6px 10px;border-radius:6px}
+#kc-locale-dropdown{position:relative}
+#kc-current-locale-link{display:inline-block;padding:4px 8px;border-radius:6px;cursor:pointer;
+  font-family:Inter;font-size:var(--fs-small);color:var(--slate-12);list-style:none}
+#kc-current-locale-link::-webkit-details-marker{display:none}
+#kc-current-locale-link:hover{background:var(--slate-a4)}
+#kc-locale ul{position:absolute;right:0;margin:4px 0 0;background:var(--menu-bg);border:1px solid var(--slate-a6);
+  border-radius:8px;list-style:none;padding:4px;min-width:120px;
+  box-shadow:0 12px 24px rgba(0,0,0,.35)}
+#kc-locale ul li a{display:block;padding:6px 10px;border-radius:6px;color:var(--slate-12);text-decoration:none;
+  font-family:Inter;font-size:var(--fs-small)}
 #kc-locale ul li a:hover{background:var(--slate-a4)}
+#kc-locale ul li a[aria-current]{color:var(--link)}
 
 /* generic dark fallback for other Keycloak pages */
 .pf-c-form-control,input.pf-c-form-control{
   background:var(--slate-a4) !important;border:1px solid var(--slate-a4) !important;color:#fff !important;
-  -webkit-text-fill-color:#fff !important;border-radius:var(--r-input);height:40px;box-shadow:var(--inset-input);filter:none !important}
+  -webkit-text-fill-color:#fff !important;border-radius:var(--r-input);height:var(--h-input);box-shadow:var(--inset-input);filter:none !important}
 .pf-c-button.pf-m-primary,.btn-primary{background:var(--primary) !important;border-color:var(--primary-border) !important;
-  color:#fff !important;border-radius:var(--r-btn)}
+  color:var(--primary-ink) !important;border-radius:var(--r-btn)}
 #kc-form-buttons{margin-top:8px}
 
-/* ---- light mode: exact tokens from the designer's light variant, driven by the
-   browser's prefers-color-scheme. Neutrals flip to dark-on-light and the accent's
-   relative-colour direction inverts (links go darker, not lighter). */
-@media (prefers-color-scheme: light){
-  :root{
-    --slate-1:#fbfcfd;
-    --slate-11:#687076;
-    --slate-12:#11181c;
-    --slate-a3:rgba(2,28,55,.04);
-    --slate-a4:rgba(2,28,55,.08);
-    --slate-a6:rgba(1,33,57,.13);
-    --slate-a7:rgba(1,33,57,.16);
-    --slate-a8:rgba(0,16,27,.42);
-    --slate-a10:rgba(0,16,27,.51);
-    --input-text:#11181c;
-    /* softer inner shadow on white inputs — the dark -e-10 reads as too much depth on light */
-    --inset-input:inset 0 1px 2px rgba(2,28,55,.07);
-    --accent-12:#20134b;
-    --logo-text:#11181c;
-    --check-bg:#ffffff;
-    --check-border:#c1c8cd;
-    --accent-wash:rgba(46,2,244,.16);
-    --accent-wash:oklch(from var(--primary) calc(l + .06) calc(c * 1.4) h / .16);
-    --link:#644fc1;
-    --link:oklch(from var(--primary) calc(l - .02) c h);
-    --link-hover:#4f3da0;
-    --link-hover:oklch(from var(--primary) calc(l - .12) c h);
-    --logo-light:#20134b;
-    --logo-light:oklch(from var(--primary) .3 calc(c * 1.1) h);
-    --bg-glow:rgba(46,2,244,.12);
-    --bg-glow:oklch(from var(--primary) l c h / .14);
-  }
-  body{background:
-    radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%),
-    #eef1f4 !important}
-  .card-pf{background:#ffffff;border-color:var(--slate-a6);
-    box-shadow:0 25px 56px rgba(2,28,55,.12),inset 0 1px 1px rgba(255,255,255,.7)}
-  .nm-tabs{background:#eceef0;border-color:var(--slate-a6)}
-  .nm-tab{color:var(--slate-11)}
-  .nm-tab.is-active{background:#ffffff;color:var(--slate-12);
-    box-shadow:0 1px 3px rgba(2,28,55,.12),inset 0 1px 0 rgba(255,255,255,.8)}
-  .nm-input,.nm-code__box{background:#ffffff;border-color:var(--slate-a6)}
-  /* social buttons in light: gray fill, gray label, stronger border (icons stay dark via --slate-12) */
-  .nm-sbtn{background:#f3f4f6;color:var(--slate-11);border-color:#d3d8dd}
-  /* darken the accent under white button text so it clears WCAG AA on white, and keep the top sheen */
-  .nm-btn-primary{
-    background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),oklch(from var(--primary) calc(l - .08) c h);
-    box-shadow:0 1px 2px rgba(16,24,40,.12),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.16)}
-  .nm-btn-passkey{background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,0) 55%),#e9ebee;
-    color:var(--slate-12);border-color:#d3d8dd;
-    box-shadow:0 1px 2px rgba(16,24,40,.08),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -2px 0 rgba(0,0,0,.08)}
+/* ---- light mode: exact tokens from the designer's light variant. Applied from
+   the data-scheme attribute js/theme.js stamps on <html> — the app's scheme when
+   it sent one, the browser's preference otherwise. Neutrals flip to dark-on-light
+   and the accent's relative-colour direction inverts (links go darker, not
+   lighter). --primary itself is untouched: the button label colour adapts to it
+   via --primary-ink, so the accent stays the accent in both schemes. */
+:root[data-scheme="light"]{
+  color-scheme:light;
+  --slate-1:#fbfcfd;
+  --slate-11:#687076;
+  --slate-12:#11181c;
+  --slate-a3:rgba(2,28,55,.04);
+  --slate-a4:rgba(2,28,55,.08);
+  --slate-a6:rgba(1,33,57,.13);
+  --slate-a7:rgba(1,33,57,.16);
+  --slate-a8:rgba(0,16,27,.42);
+  /* .62, not .51: at .51 this lands at 3.7:1 on the white card, and it carries
+     body copy (consent revoke notice, footer, resend status). */
+  --slate-a10:rgba(0,16,27,.62);
+  --tab-idle:#5f676b;
+  --menu-bg:#ffffff;
+  --input-text:#11181c;
+  /* softer inner shadow on white inputs — the dark -e-10 reads as too much depth on light */
+  --inset-input:inset 0 1px 2px rgba(2,28,55,.07);
+  --accent-12:#20134b;
+  --logo-text:#11181c;
+  --check-bg:#ffffff;
+  --check-border:#c1c8cd;
+  --accent-wash:rgba(46,2,244,.16);
+  --accent-wash:oklch(from var(--primary) calc(l + .06) calc(c * 1.4) h / .16);
+  --link:#644fc1;
+  --link:oklch(from var(--primary) calc(l - .02) c h);
+  --link-hover:#4f3da0;
+  --link-hover:oklch(from var(--primary) calc(l - .12) c h);
+  --logo-light:#20134b;
+  --logo-light:oklch(from var(--primary) .3 calc(c * 1.1) h);
+  --bg-glow:rgba(46,2,244,.12);
+  --bg-glow:oklch(from var(--primary) l c h / .14);
+  --focus-ring:#4a35a8;
+  --focus-ring:oklch(from var(--primary) min(l, 0.48) c h);
 }
+:root[data-scheme="light"] body{background:
+  radial-gradient(680px 560px at 6% 1%, var(--bg-glow), transparent 60%),
+  #eef1f4 !important}
+html.login-pf[data-scheme="light"]{background:#eef1f4 !important}
+:root[data-scheme="light"] .card-pf{background:#ffffff;border-color:var(--slate-a6);
+  box-shadow:0 25px 56px rgba(2,28,55,.12),inset 0 1px 1px rgba(255,255,255,.7)}
+:root[data-scheme="light"] .nm-tabs{background:#eceef0;border-color:var(--slate-a6)}
+:root[data-scheme="light"] .nm-tab.is-active{background:#ffffff;color:var(--slate-12);
+  box-shadow:0 1px 3px rgba(2,28,55,.12),inset 0 1px 0 rgba(255,255,255,.8)}
+:root[data-scheme="light"] .nm-input,
+:root[data-scheme="light"] .nm-code__box{background:#ffffff;border-color:var(--slate-a6)}
+/* social buttons in light: gray fill, dark label, stronger border */
+:root[data-scheme="light"] .nm-sbtn{background:#f3f4f6;color:var(--slate-12);border-color:#d3d8dd}
+:root[data-scheme="light"] .nm-btn-primary{
+  background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),var(--primary);
+  box-shadow:0 1px 2px rgba(16,24,40,.12),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.16)}
+:root[data-scheme="light"] .nm-btn-passkey{background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,0) 55%),#e9ebee;
+  color:var(--slate-12);border-color:#d3d8dd;
+  box-shadow:0 1px 2px rgba(16,24,40,.08),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -2px 0 rgba(0,0,0,.08)}
 
-@media (max-width:480px){
-  .card-pf{width:100%;padding:24px}
-  #kc-page-title{font-size:24px}
-}
+/* No small-screen breakpoint: --card-w, --card-pad and the --fs-* clamps already
+   carry the card down to a phone and up to a large panel continuously. A width
+   override here would jump the layout at 480px instead of letting it scale. */

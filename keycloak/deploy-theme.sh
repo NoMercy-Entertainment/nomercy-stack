@@ -20,29 +20,44 @@ cd "$(dirname "$0")/.."
 
 REALM="${KEYCLOAK_REALM:-NoMercyTV}"
 HEALTH_URL="${KEYCLOAK_HEALTH_URL:-https://auth-dev.nomercy.tv/realms/${REALM}/account/}"
-THEME_DIR="keycloak/themes/NoMercy/login"
-PROPERTIES="${THEME_DIR}/theme.properties"
+LOGIN_DIR="keycloak/themes/NoMercy/login"
+ACCOUNT_DIR="keycloak/themes/NoMercy/account"
 
 # Hash every file the browser can end up holding, plus the templates that
-# reference them. The version line itself is excluded so the hash is stable.
+# reference them. Any existing version string is stripped first so the hash
+# depends on the theme's content and not on its own previous value.
 fingerprint() {
+	local dir="$1"
 	{
-		find "${THEME_DIR}/resources" -type f -print0 | sort -z | xargs -0 sha1sum
-		find "${THEME_DIR}" -maxdepth 1 -name '*.ftl' -print0 | sort -z | xargs -0 sha1sum
-		grep -v '^nmAssetVersion=' "${PROPERTIES}"
+		find "${dir}/resources" -type f -print0 | sort -z | xargs -0 sha1sum
+		find "${dir}" -maxdepth 1 -name '*.ftl' -print0 | sort -z | xargs -0 sha1sum
+		sed -E 's/\?v=[0-9a-f]+//g; /^nmAssetVersion=/d' "${dir}/theme.properties"
 	} | sha1sum | cut -c1-10
 }
 
-VERSION="$(fingerprint)"
-CURRENT="$(sed -n 's/^nmAssetVersion=//p' "${PROPERTIES}")"
+# The login theme carries its version in one property the templates interpolate;
+# the account theme, having no templates of ours, pins ?v= on each asset in
+# theme.properties. Both are rewritten from the same fingerprint.
+stamp_login() {
+	local version="$1" file="${LOGIN_DIR}/theme.properties"
+	local current
+	current="$(sed -n 's/^nmAssetVersion=//p' "${file}")"
+	[ "${version}" = "${current}" ] && { echo "login assets ${version} unchanged"; return; }
+	echo "login assets ${current:-none} -> ${version}"
+	sed -i "s/^nmAssetVersion=.*/nmAssetVersion=${version}/" "${file}"
+}
 
-if [ "${VERSION}" != "${CURRENT}" ]; then
-	echo "asset version ${CURRENT:-none} -> ${VERSION}"
-	# In place, preserving the file's own line endings.
-	sed -i "s/^nmAssetVersion=.*/nmAssetVersion=${VERSION}/" "${PROPERTIES}"
-else
-	echo "asset version ${VERSION} unchanged"
-fi
+stamp_account() {
+	local version="$1" file="${ACCOUNT_DIR}/theme.properties"
+	grep -q "?v=${version}" "${file}" && { echo "account assets ${version} unchanged"; return; }
+	echo "account assets -> ${version}"
+	sed -i -E "s/\?v=[0-9a-f]+/?v=${version}/g" "${file}"
+}
+
+LOGIN_VERSION="$(fingerprint "${LOGIN_DIR}")"
+ACCOUNT_VERSION="$(fingerprint "${ACCOUNT_DIR}")"
+stamp_login "${LOGIN_VERSION}"
+stamp_account "${ACCOUNT_VERSION}"
 
 echo "recreating keycloak (clears the theme cache)..."
 docker compose -f docker-compose.yml -p nomercy-stack --env-file .env \
@@ -52,7 +67,7 @@ echo "waiting for ${HEALTH_URL} ..."
 for attempt in $(seq 1 45); do
 	code="$(curl -s -o /dev/null -w '%{http_code}' -m 5 "${HEALTH_URL}" || true)"
 	if [ "${code}" = "200" ]; then
-		echo "ready after ${attempt} attempt(s), assets at ?v=${VERSION}"
+		echo "ready after ${attempt} attempt(s); login ?v=${LOGIN_VERSION}, account ?v=${ACCOUNT_VERSION}"
 		exit 0
 	fi
 	sleep 4

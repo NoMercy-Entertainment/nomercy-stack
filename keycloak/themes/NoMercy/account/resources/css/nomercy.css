@@ -28,6 +28,11 @@
     --surface: var(--slate-1);
     --surface-2: #1a1d1e;
 
+    /* Same focus ring as the login theme: on the accent, forced bright enough to
+       read against both the dark chrome and the accent-filled controls it lands on. */
+    --focus-ring: #a894ff;
+    --focus-ring: oklch(from var(--primary) max(l, 0.72) c h);
+
     --r-input: 8px;
     --r-btn: 10px;
     --r-card: 16px;
@@ -216,6 +221,39 @@ body,
 .pf-v5-c-menu-toggle.pf-m-expanded,
 .pf-v5-c-menu-toggle:focus-within {
     border-color: var(--primary);
+    outline: none;
+}
+
+/* ---- focus ----
+   The console shipped with Chrome's default `outline: auto` in near-black, which
+   is 1.12:1 against this dark chrome — a keyboard indicator nobody can see. One
+   rule owns it here, matching the login theme. */
+.pf-v5-c-button:focus-visible,
+.pf-v5-c-nav__link:focus-visible,
+.pf-v5-c-masthead__brand:focus-visible,
+.pf-v5-c-menu-toggle:focus-visible,
+.pf-v5-c-menu__item:focus-visible,
+.pf-v5-c-tabs__link:focus-visible,
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* the ring belongs on the framed field, not on the bare control inside it */
+.pf-v5-c-menu-toggle:has(:focus-visible),
+.pf-v5-c-input-group:has(:focus-visible) {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.pf-v5-c-menu-toggle :focus-visible,
+.pf-v5-c-input-group :focus-visible {
     outline: none;
 }
 

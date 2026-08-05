@@ -61,30 +61,32 @@
      and fail WCAG 1.4.4), the vw part lets the card breathe between a phone and
      a 4K panel. The ceilings are the design's values, so nothing grows past what
      was drawn — the layout only changes scale, never shape. */
-  --card-w:clamp(280px, 21rem + 4vw, 416px);
-  --card-pad:clamp(18px, 0.9rem + 1vw, 26px);
+  --card-w:clamp(252px, 21rem + 4vw, 416px);
+  --card-pad:clamp(14px, 0.9rem + 1vw, 26px);
   /* Two vertical rhythms, not one. The gap between sections can afford to be
      generous; the gap between stacked fields is what makes a six-row consent
      card outgrow the viewport, so it stays tighter. */
-  --gap-section:clamp(18px, 0.9rem + 1vw, 26px);
-  --gap-field:clamp(14px, 0.75rem + 0.6vw, 20px);
-  --gap-md:clamp(9px, 0.45rem + 0.35vw, 12px);
-  --gap-sm:clamp(5px, 0.25rem + 0.2vw, 8px);
-  --fs-title:clamp(21px, 1.05rem + 0.7vw, 26px);
-  --fs-body:clamp(13px, 0.76rem + 0.12vw, 14px);
-  --fs-control:clamp(14px, 0.84rem + 0.15vw, 16px);
-  --fs-small:clamp(12px, 0.7rem + 0.08vw, 13px);
-  --fs-code:clamp(19px, 0.95rem + 0.6vw, 24px);
-  --h-input:clamp(36px, 2rem + 0.5vw, 42px);
-  --h-btn:clamp(40px, 2.2rem + 0.6vw, 46px);
-  --h-tabs:clamp(44px, 2.5rem + 0.7vw, 52px);
-  --h-code:clamp(46px, 2.5rem + 1vw, 58px);
-  --logo-h:clamp(46px, 2.6rem + 1.2vw, 64px);
+  --gap-section:clamp(14px, 0.9rem + 1vw, 26px);
+  --gap-field:clamp(11px, 0.75rem + 0.6vw, 20px);
+  --gap-md:clamp(8px, 0.45rem + 0.35vw, 12px);
+  --gap-sm:clamp(4px, 0.25rem + 0.2vw, 8px);
+  --fs-title:clamp(19px, 1.05rem + 0.7vw, 26px);
+  --fs-body:clamp(12px, 0.76rem + 0.12vw, 14px);
+  --fs-control:clamp(13px, 0.84rem + 0.15vw, 16px);
+  --fs-small:clamp(11px, 0.7rem + 0.08vw, 13px);
+  --fs-code:clamp(17px, 0.95rem + 0.6vw, 24px);
+  /* Floors sit above the 24px WCAG 2.5.8 target minimum, so the smallest phone
+     still gets a hittable control rather than a merely legible one. */
+  --h-input:clamp(32px, 2rem + 0.5vw, 42px);
+  --h-btn:clamp(36px, 2.2rem + 0.6vw, 46px);
+  --h-tabs:clamp(38px, 2.5rem + 0.7vw, 52px);
+  --h-code:clamp(40px, 2.5rem + 1vw, 58px);
+  --logo-h:clamp(38px, 2.6rem + 1.2vw, 64px);
   /* Minimum breathing room around the card. A real margin, not auto: auto
      margins collapse to zero the moment the card is taller than the viewport,
      which is exactly when the card would otherwise touch the screen edge. */
-  --gutter-y:clamp(16px, 1rem + 2vw, 40px);
-  --gutter-x:clamp(12px, 0.5rem + 1.5vw, 20px);
+  --gutter-y:clamp(10px, 1rem + 2vw, 40px);
+  --gutter-x:clamp(8px, 0.5rem + 1.5vw, 20px);
 }
 
 *{box-sizing:border-box}
@@ -392,8 +394,9 @@ a:hover{color:var(--link-hover)}
 .pf-c-alert__title,.kc-feedback-text,.instruction{color:var(--slate-12) !important;padding:0;font-size:var(--fs-body);font-weight:500}
 .pf-c-alert__icon{display:none}
 
-/* locale dropdown — a <details>, so it opens from the keyboard as well as the pointer */
-#kc-locale{position:fixed;top:14px;right:18px;z-index:50}
+/* locale dropdown — a <details>, so it opens from the keyboard as well as the
+   pointer, sitting in the flow above the card so it cannot land on top of it */
+#kc-locale{display:flex;justify-content:flex-end;width:100%;margin-bottom:var(--gap-sm);z-index:50}
 #kc-locale-dropdown{position:relative}
 #kc-current-locale-link{display:inline-block;padding:4px 8px;border-radius:6px;cursor:pointer;
   font-family:Inter;font-size:var(--fs-small);color:var(--slate-12);list-style:none}

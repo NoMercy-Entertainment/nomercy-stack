@@ -14,7 +14,24 @@
 # loaded the page in the middle is pinned to a half-finished stylesheet for a
 # month. So it is derived from the theme's own bytes here: same files, same URL;
 # any change, new URL.
+#
+# Usage:
+#   keycloak/deploy-theme.sh              deploy to this host (auth-dev)
+#   keycloak/deploy-theme.sh --prod       pull production on the DO box and deploy there
+#
+# The prod path is in here rather than typed out each time because it is three
+# steps that drift when re-derived: the deploy script stamps theme.properties, so
+# an unstaged change is waiting on the box and the next `git pull` aborts on it.
 set -euo pipefail
+
+if [ "${1:-}" = "--prod" ]; then
+	PROD_HOST="${NOMERCY_PROD_HOST:-DigitalOcean}"
+	PROD_PATH="${NOMERCY_PROD_PATH:-/opt/nomercy-stack}"
+	exec ssh -o BatchMode=yes "${PROD_HOST}" "cd ${PROD_PATH} \
+		&& git checkout -- keycloak/themes/NoMercy/login/theme.properties keycloak/themes/NoMercy/account/theme.properties 2>/dev/null || true; \
+		cd ${PROD_PATH} && git pull --ff-only origin production \
+		&& KEYCLOAK_HEALTH_URL='https://auth.nomercy.tv/realms/NoMercyTV/account/' bash keycloak/deploy-theme.sh"
+fi
 
 cd "$(dirname "$0")/.."
 

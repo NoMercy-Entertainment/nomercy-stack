@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('recoveryCodeInput'); section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("auth-recovery-code-header")}</span>
+            <h1 class="nm-head__title">${msg("auth-recovery-code-header")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-recovery-code-login-form" class="nm-form" action="${url.loginAction}" method="post">

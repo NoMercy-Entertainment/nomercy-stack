@@ -3,7 +3,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('email'); section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("updateEmailTitle")}</span>
+            <h1 class="nm-head__title">${msg("updateEmailTitle")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-update-email-form" class="nm-form" action="${url.loginAction}" method="post">

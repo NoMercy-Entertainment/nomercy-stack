@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayInfo=false; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("loginChooseAuthenticator")}</span>
+            <h1 class="nm-head__title">${msg("loginChooseAuthenticator")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-select-credential-form" class="nm-form" action="${url.loginAction}" method="post">

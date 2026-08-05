@@ -5,7 +5,7 @@
             document.title =  "${msg("frontchannel-logout.title")}";
         </script>
         <span class="nm-head">
-            <span class="nm-head__title">${msg("frontchannel-logout.title")}</span>
+            <h1 class="nm-head__title">${msg("frontchannel-logout.title")}</h1>
         </span>
     <#elseif section = "form">
         <p>${msg("frontchannel-logout.message")}</p>

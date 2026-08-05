@@ -2,7 +2,7 @@
 <@layout.registrationLayout; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${kcSanitize(msg("webauthn-login-title"))?no_esc}</span>
+            <h1 class="nm-head__title">${kcSanitize(msg("webauthn-login-title"))?no_esc}</h1>
         </span>
     <#elseif section = "form">
         <form id="webauth" class="nm-form" action="${url.loginAction}" method="post">

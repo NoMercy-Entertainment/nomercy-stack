@@ -2,7 +2,7 @@
 <@layout.registrationLayout; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("confirmLinkIdpTitle")}</span>
+            <h1 class="nm-head__title">${msg("confirmLinkIdpTitle")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-register-form" class="nm-form" action="${url.loginAction}" method="post">

@@ -2,7 +2,7 @@
 <@layout.registrationLayout; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("pageExpiredTitle")}</span>
+            <h1 class="nm-head__title">${msg("pageExpiredTitle")}</h1>
         </span>
     <#elseif section = "form">
         <p>

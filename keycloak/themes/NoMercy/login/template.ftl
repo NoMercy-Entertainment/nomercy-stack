@@ -49,23 +49,28 @@
     <div class="${properties.kcFormCardClass!}">
         <#include "logo.ftl">
         <header class="${properties.kcFormHeaderClass!}">
+            <#-- <details> rather than a hover-only menu: the old <a href="#"> trigger opened
+                 on :hover alone, so the language list could be reached by tab but never
+                 opened without a pointer. <details> is keyboard-operable and carries its own
+                 expanded state for assistive tech. -->
             <#if realm.internationalizationEnabled && locale.supported?size gt 1>
                 <div class="${properties.kcLocaleMainClass!}" id="kc-locale">
-                    <div id="kc-locale-wrapper" class="${properties.kcLocaleWrapperClass!}">
-                        <div id="kc-locale-dropdown" class="${properties.kcLocaleDropDownClass!}">
-                            <a href="#" id="kc-current-locale-link">${locale.current}</a>
-                            <ul class="${properties.kcLocaleListClass!}">
-                                <#list locale.supported as l>
-                                    <li class="${properties.kcLocaleListItemClass!}">
-                                        <a class="${properties.kcLocaleItemClass!}" href="${l.url}">${l.label}</a>
-                                    </li>
-                                </#list>
-                            </ul>
-                        </div>
-                    </div>
+                    <details id="kc-locale-dropdown" class="${properties.kcLocaleDropDownClass!}">
+                        <summary id="kc-current-locale-link" aria-label="${msg('nmLanguageMenu')}: ${locale.current}">${locale.current}</summary>
+                        <ul class="${properties.kcLocaleListClass!}">
+                            <#list locale.supported as l>
+                                <li class="${properties.kcLocaleListItemClass!}">
+                                    <a class="${properties.kcLocaleItemClass!}" href="${l.url}"<#if l.label == locale.current> aria-current="true"</#if>>${l.label}</a>
+                                </li>
+                            </#list>
+                        </ul>
+                    </details>
                 </div>
             </#if>
-            <h1 id="kc-page-title"><#nested "header"></h1>
+            <#-- The heading element belongs to the page: most emit an <h1 class="nm-head__title">,
+                 the sign-in/sign-up pages make their active tab the heading. Wrapping everything
+                 in an <h1> here put the subtitle, and the tab strip, inside the heading's name. -->
+            <div id="kc-page-title"><#nested "header"></div>
         </header>
       <div id="kc-content">
           <div style="display:flex; flex-direction:column; gap:1rem;">

@@ -3,7 +3,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("updatePasswordTitle")}</span>
+            <h1 class="nm-head__title">${msg("updatePasswordTitle")}</h1>
         </span>
     <#elseif section = "form">
         <form id="kc-passwd-update-form" class="nm-form" action="${url.loginAction}" method="post">

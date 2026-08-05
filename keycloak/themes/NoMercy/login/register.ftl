@@ -3,7 +3,7 @@
     <#if section = "header">
         <div class="nm-tabs">
             <a class="nm-tab" href="${url.loginUrl}">${msg("doLogIn")}</a>
-            <span class="nm-tab is-active" aria-current="page">${msg("doRegister")}</span>
+            <h1 class="nm-tab is-active" aria-current="page">${msg("doRegister")}</h1>
         </div>
     <#elseif section = "form">
         <form id="kc-register-form" class="nm-form" action="${url.registrationAction}" method="post">

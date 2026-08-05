@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=true; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${kcSanitize(msg("webauthn-error-title"))?no_esc}</span>
+            <h1 class="nm-head__title">${kcSanitize(msg("webauthn-error-title"))?no_esc}</h1>
         </span>
     <#elseif section = "form">
 

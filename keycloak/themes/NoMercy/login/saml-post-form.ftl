@@ -1,7 +1,7 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout; section>
     <#if section = "header">
-        ${msg("saml.post-form.title")}
+        <h1 class="nm-head__title">${msg("saml.post-form.title")}</h1>
     <#elseif section = "form">
         <script>window.onload = function() {document.forms[0].submit()};</script>
         <p>${msg("saml.post-form.message")}</p>

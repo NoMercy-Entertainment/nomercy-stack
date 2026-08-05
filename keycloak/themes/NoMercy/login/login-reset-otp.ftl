@@ -2,7 +2,7 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('totp'); section>
     <#if section="header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("doLogIn")}</span>
+            <h1 class="nm-head__title">${msg("doLogIn")}</h1>
         </span>
     <#elseif section="form">
         <form id="kc-otp-reset-form" class="nm-form" action="${url.loginAction}" method="post">

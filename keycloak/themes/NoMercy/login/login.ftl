@@ -3,10 +3,14 @@
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=false; section>
     <#if section = "header">
         <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
+        <#-- the active tab IS the page heading: it names the page and is already marked
+             as the current one, so a separate <h1> would only repeat it -->
         <div class="nm-tabs">
-            <span class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</span>
+            <h1 class="nm-tab is-active" aria-current="page">${msg("doLogIn")}</h1>
             <a class="nm-tab" href="${url.registrationUrl}">${msg("doRegister")}</a>
         </div>
+        <#else>
+        <h1 class="nm-head__title">${msg("doLogIn")}</h1>
         </#if>
     <#elseif section = "form">
         <#if realm.password>

@@ -5,7 +5,7 @@
 <@layout.registrationLayout displayInfo=true displayMessage=false; section>
     <#if section = "header">
         <span class="nm-head">
-            <span class="nm-head__title">${msg("emailVerifyTitle")}</span>
+            <h1 class="nm-head__title">${msg("emailVerifyTitle")}</h1>
             <span class="nm-head__sub">${msg("emailVerifyInstruction1",user.email)}</span>
         </span>
     <#elseif section = "form">

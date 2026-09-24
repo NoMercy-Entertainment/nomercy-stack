@@ -104,19 +104,39 @@ fi
 git -C "$IDLE_DATA_DIR" fetch origin master
 git -C "$IDLE_DATA_DIR" reset --hard origin/master
 
-# --- seed the idle checkout's .env from the active color ---
-# A fresh clone/reset has no .env (gitignored), so artisan would fall back to
-# the sqlite default and `migrate` fails ("database.sqlite does not exist").
-# Both colors run against the same production config, so copy the live color's
-# .env. It persists across future deploys (reset --hard leaves untracked files).
+# --- state shared by both colors: .env and storage/app ---
+# Both colors mount website/shared/.env and website/shared/storage-app (see
+# website-compose.yml). A copy per color let them drift: each deploy flipped
+# production between two different sets of uploads and config. On the first
+# run this builds the shared copy from the live color, then adds anything only
+# the idle color has, never overwriting. The per-color copies stay untouched as
+# a backup.
 if [ "$active" = "blue" ]; then
   ACTIVE_DATA_DIR="$WEBSITE_DIR/data"
 else
   ACTIVE_DATA_DIR="$WEBSITE_DIR/data-green"
 fi
-if [ ! -f "$IDLE_DATA_DIR/.env" ] && [ -f "$ACTIVE_DATA_DIR/.env" ]; then
-  echo "Seeding $idle .env from the $active checkout."
-  cp "$ACTIVE_DATA_DIR/.env" "$IDLE_DATA_DIR/.env"
+SHARED_DIR="$WEBSITE_DIR/shared"
+mkdir -p "$SHARED_DIR"
+if [ ! -f "$SHARED_DIR/.env" ]; then
+  if [ ! -f "$ACTIVE_DATA_DIR/.env" ]; then
+    echo "ERROR: no $SHARED_DIR/.env and no $active .env to seed it from" >&2
+    exit 1
+  fi
+  echo "Seeding the shared .env from the $active checkout."
+  cp -p "$ACTIVE_DATA_DIR/.env" "$SHARED_DIR/.env"
+fi
+if [ ! -d "$SHARED_DIR/storage-app" ]; then
+  echo "Seeding the shared storage/app from both colors ($active first)."
+  mkdir -p "$SHARED_DIR/storage-app.tmp"
+  for dir in "$ACTIVE_DATA_DIR" "$IDLE_DATA_DIR"; do
+    if [ -d "$dir/storage/app" ]; then
+      cp -an "$dir/storage/app/." "$SHARED_DIR/storage-app.tmp/"
+    fi
+  done
+  chown -R 1000:1000 "$SHARED_DIR/storage-app.tmp"
+  mv "$SHARED_DIR/storage-app.tmp" "$SHARED_DIR/storage-app"
+  seeded_shared_storage=1
 fi
 
 # --- build only the idle color's image (active color's image/container is
@@ -199,6 +219,13 @@ docker exec "$idle_container" php artisan tunnels:reapply-config \
 echo "Draining $active_service for ${DRAIN_SECONDS}s before stopping it."
 sleep "$DRAIN_SECONDS"
 docker compose stop "$active_service"
+
+# --- first move to shared storage: pick up what the old color wrote while it
+#     still served from its own storage/app (uploads during this deploy) ---
+if [ "${seeded_shared_storage:-0}" = 1 ] && [ -d "$ACTIVE_DATA_DIR/storage/app" ]; then
+  cp -an "$ACTIVE_DATA_DIR/storage/app/." "$SHARED_DIR/storage-app/"
+  chown -R 1000:1000 "$SHARED_DIR/storage-app"
+fi
 
 docker image prune -af
 

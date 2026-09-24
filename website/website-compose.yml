@@ -68,6 +68,13 @@ services:
   # one-time cutover to blue-green doesn't need a cold dependency install.
   # "green" gets its own checkout (./data-green, cloned by the deploy script
   # on first use) and its own vendor_green/node_modules_green volumes.
+  #
+  # Both colors mount the SAME .env and storage/app from ./shared (created by
+  # scripts/deploy-website.sh before either color starts). With a copy per
+  # color, each deploy flipped production between two diverged states: the
+  # live color lacked the server CA (certificates/ca.pem) and 21 uploaded
+  # marketplace plugins. Start a color through the deploy script, not a bare
+  # `compose up`: a missing ./shared/.env would be created as a directory.
   website-blue:
     <<: *website-base
     container_name: "${APP_NAME}-website-blue"
@@ -82,6 +89,8 @@ services:
       - ./data/:/var/www/html
       - vendor:/var/www/html/vendor
       - node_modules:/var/www/html/node_modules
+      - ./shared/.env:/var/www/html/.env
+      - ./shared/storage-app/:/var/www/html/storage/app
 
   website-green:
     <<: *website-base
@@ -102,3 +111,5 @@ services:
       - ./data-green/:/var/www/html
       - vendor_green:/var/www/html/vendor
       - node_modules_green:/var/www/html/node_modules
+      - ./shared/.env:/var/www/html/.env
+      - ./shared/storage-app/:/var/www/html/storage/app

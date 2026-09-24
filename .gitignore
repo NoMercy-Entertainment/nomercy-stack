@@ -55,6 +55,8 @@ website/data/public/*
 # submodule.
 website/data-green/
 website/.active-color
+# .env and storage/app shared by both colors, created by scripts/deploy-website.sh
+website/shared/
 logs/fail2ban/fail2ban.log
 logs/nginx/access.log
 logs/nginx/debug.log

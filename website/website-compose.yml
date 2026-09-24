@@ -14,6 +14,7 @@ x-website-base: &website-base
     dockerfile: Dockerfile
   environment:
     - TZ=${TZ}
+    - NOMERCY_WORKERS=${NOMERCY_WORKERS:-on}
   dns:
     - 1.1.1.1
     - 8.8.8.8

@@ -119,8 +119,8 @@ def inventory(pass_name):
             (AUTH, f"/realms/{REALM}/login-actions/reset-credentials?client_id=nomercy-ui"),
             (AUTH, "/admin/master/console/"),
             (MAIN, "/build/manifest.json"), (MAIN, "/favicon.ico"), (MAIN, "/robots.txt"),
-            (MAIN, "/css/inter.css"), (MAIN, "/fonts/Inter-Regular.woff2"), (MAIN, "/device.svg"),
-            (CDN, "/"), ("portainer.nomercy.tv", "/api/system/status"),
+            (MAIN, "/css/inter.css"), (MAIN, "/fonts/Inter-Regular.woff2"),
+            ("portainer.nomercy.tv", "/api/system/status"),
             ("phpmyadmin.nomercy.tv", "/"), ("storage.nomercy.tv", "/"),
             ("ledger-unknown.example", "/"),
         ]

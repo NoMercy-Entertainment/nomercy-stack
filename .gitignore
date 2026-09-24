@@ -61,4 +61,6 @@ logs/nginx/debug.log
 logs/nginx/error.log
 logs/fail2ban/*
 fail2ban/config/fail2ban/fail2ban.sqlite3
+# Admin IPs, written by scripts/provision-security.sh; this repo is public.
+fail2ban/config/fail2ban/jail.d/01-admin-ignoreip.local
 logs/logrotate.status

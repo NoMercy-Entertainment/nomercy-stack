@@ -9,7 +9,7 @@ services:
         aliases:
           - phpmyadmin
     restart: unless-stopped
-    image: phpmyadmin/phpmyadmin:5.1.3
+    image: phpmyadmin/phpmyadmin:5.2.3
     depends_on:
       - mysql
     links:

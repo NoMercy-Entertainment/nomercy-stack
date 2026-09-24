@@ -7,7 +7,7 @@ services:
       backend:
         aliases:
           - postgres
-    image: postgres:13.1
+    image: postgres:13.23
     restart: unless-stopped
     mem_limit: 5120m
     security_opt:

@@ -1,7 +1,7 @@
 services:
   ### Proxy #########################################
   proxy:
-    image: nginx
+    image: nginx:1.29.5
     container_name: "${APP_NAME}-proxy"
     hostname: proxy
     restart: unless-stopped

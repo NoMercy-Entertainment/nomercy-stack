@@ -75,5 +75,15 @@ su -s /bin/bash www -c "cd /var/www/html && php artisan db:seed --class='Databas
 # Run all Laravel production optimizations
 su -s /bin/bash www -c "cd /var/www/html && php artisan optimize:production"
 
+# NOMERCY_WORKERS=off starts the web server only: no Laravel scheduler and no
+# queue worker. A host being prepared for a migration must not run the
+# scheduled jobs (certificate renewal, server pings, Stripe sync, entitlement
+# pushes) next to production. Default on. Flip it with a blue-green deploy.
+if [ "${NOMERCY_WORKERS:-on}" = "off" ]; then
+    echo "NOMERCY_WORKERS=off: scheduler and queue worker disabled"
+    sed -i '/^\[program:laravel-/,/^autostart=/ s/^autostart=true/autostart=false/' \
+        /etc/supervisor/conf.d/supervisord.conf
+fi
+
 # Start supervisord and services (must be last — exec replaces the shell)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

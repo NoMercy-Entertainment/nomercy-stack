@@ -105,9 +105,11 @@ def inventory(pass_name):
         needs_auth = "Authenticate" in mw or "CheckKeycloak" in mw
         base = {"kind": "route", "method": method, "host": host, "path": path, "route": r["uri"],
                 "name": r.get("name"), "unfilled": missing, "needs_auth": needs_auth}
-        items.append(dict(base, id=f"{method} {host}{path}", auth=False))
+        # The route template, not the filled path: unique, and the same on every host.
+        rid = f"{method} {host}/{r['uri'].lstrip('/')}"
+        items.append(dict(base, id=rid, auth=False))
         if needs_auth and is_read:
-            items.append(dict(base, id=f"{method} {host}{path} [auth]", auth=True))
+            items.append(dict(base, id=f"{rid} [auth]", auth=True))
     if pass_name == "reads":
         extra = [
             (AUTH, f"/realms/{REALM}/.well-known/openid-configuration"),
@@ -237,6 +239,10 @@ def verdict(o, n):
         return "MISSING-ON-NEW", "not checked on new"
     if o is None:
         return "NEW-ONLY", "not checked on old"
+    if (n["error"] or n["status"] == 0) and (o["error"] or o["status"] == 0):
+        if (o["error"] or "").split(":")[0] == (n["error"] or "").split(":")[0]:
+            return "SAME-ERROR", n["error"]
+        return "FAIL", f"old {o['error']} / new {n['error']}"
     if n["error"] or n["status"] == 0:
         return "FAIL", f"new errored: {n['error']}"
     if o["status"] != n["status"]:

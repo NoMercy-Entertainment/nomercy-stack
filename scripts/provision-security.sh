@@ -15,6 +15,13 @@
 #    moment a daemon config change bound it.
 # 3. Tests and reloads nginx, so a proxy/sites change pulled by the deploy
 #    takes effect even when the website deploy itself fails.
+# 4. Cloudflare only on 80/443. Docker publishes the proxy's ports through
+#    the FORWARD chain, which UFW's own rules never see, so anyone who knew
+#    the origin IP could skip Cloudflare. A marked block in UFW's
+#    after.rules (kept across reboots) filters new connections to 80/443 in
+#    DOCKER-USER: Cloudflare's ranges (cloudflare-ips-v4.txt) and Docker's
+#    own networks pass, everything else drops. The script then loads the
+#    site through Cloudflare and takes the block out again if that fails.
 #
 # Idempotent: safe to re-run. An empty ADMIN_IPS leaves the allowlist as is.
 #
@@ -28,6 +35,14 @@ IGNORE_FILE="$STACK_DIR/fail2ban/config/fail2ban/jail.d/01-admin-ignoreip.local"
 FAIL2BAN_CONTAINER="fail2ban"
 PROXY_CONTAINER="${APP_NAME:-nomercy.tv}-proxy"
 ADMIN_COMMENT="nomercy-admin"
+CLOUDFLARE_IPS="$STACK_DIR/scripts/cloudflare-ips-v4.txt"
+UFW_AFTER_RULES="/etc/ufw/after.rules"
+BLOCK_BEGIN="# BEGIN nomercy-cloudflare-only (scripts/provision-security.sh)"
+BLOCK_END="# END nomercy-cloudflare-only"
+# Every Docker network on the host sits in this range. Containers calling out
+# on 443 (TMDB, Cloudflare's API) pass DOCKER-USER too and must not drop.
+DOCKER_NETWORKS="172.16.0.0/12"
+VERIFY_URL="${VERIFY_URL:-https://nomercy.tv/}"
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "ERROR: must run as root" >&2
@@ -94,6 +109,57 @@ fi
 docker exec "$PROXY_CONTAINER" nginx -t
 docker exec "$PROXY_CONTAINER" nginx -s reload
 
+# 4. Cloudflare only on 80/443
+remove_block() {
+    sed -i "\|^$BLOCK_BEGIN\$|,\|^$BLOCK_END\$|d" "$UFW_AFTER_RULES"
+    # ufw reload never clears chains it did not create, so drop the live
+    # rules by hand or the DROP stays in force until the next reboot.
+    for port in 80 443; do
+        while iptables -D DOCKER-USER -p tcp -m conntrack --ctorigdstport "$port" \
+            --ctdir ORIGINAL -j nomercy-cloudflare 2>/dev/null; do :; done
+    done
+    iptables -F nomercy-cloudflare 2>/dev/null || true
+    iptables -X nomercy-cloudflare 2>/dev/null || true
+}
+
+if $ufw_active; then
+    ranges="$(grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}/[0-9]{1,2}$' "$CLOUDFLARE_IPS" || true)"
+    if [ "$(echo "$ranges" | grep -c .)" -lt 10 ]; then
+        echo "ERROR: $CLOUDFLARE_IPS holds fewer than 10 ranges; refusing to lock 80/443 to it" >&2
+        exit 1
+    fi
+
+    [ -f "$UFW_AFTER_RULES.nomercy-orig" ] || cp -p "$UFW_AFTER_RULES" "$UFW_AFTER_RULES.nomercy-orig"
+    remove_block
+    {
+        echo "$BLOCK_BEGIN"
+        echo "*filter"
+        echo ":DOCKER-USER - [0:0]"
+        echo ":nomercy-cloudflare - [0:0]"
+        for port in 80 443; do
+            echo "-A DOCKER-USER -p tcp -m conntrack --ctorigdstport $port --ctdir ORIGINAL -j nomercy-cloudflare"
+        done
+        echo "-A DOCKER-USER -j RETURN"
+        for range in $DOCKER_NETWORKS $ranges; do
+            echo "-A nomercy-cloudflare -s $range -j RETURN"
+        done
+        echo "-A nomercy-cloudflare -j DROP"
+        echo "COMMIT"
+        echo "$BLOCK_END"
+    } >> "$UFW_AFTER_RULES"
+    ufw reload
+
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$VERIFY_URL" || true)"
+    if ! [[ "$code" =~ ^[23] ]]; then
+        echo "ERROR: $VERIFY_URL answered $code with Cloudflare-only on; taking the block out" >&2
+        remove_block
+        ufw reload
+        exit 1
+    fi
+    echo "OK: Cloudflare-only on 80/443; $VERIFY_URL answered $code"
+fi
+
 if $ufw_active; then
     ufw status numbered
+    iptables -S DOCKER-USER
 fi

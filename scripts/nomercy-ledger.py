@@ -194,6 +194,12 @@ def guard_writes():
     db_host = (re.search(r"^DB_HOST=(.*)$", env, re.M) or [None, ""])[1].strip().strip('"')
     if db_host != "mysql":
         sys.exit(f"REFUSED: DB_HOST={db_host!r} is not this host's own copy (mysql); writes would reach live data")
+    # In phase 1 the migration proxies answer AS `mysql` and `postgres-kc`, so the
+    # name alone proves nothing. Their presence means live data.
+    running = sh("docker ps --format '{{.Names}}'").split()
+    proxies = [n for n in running if n in ("migration-proxysql", "migration-pgbouncer")]
+    if proxies:
+        sys.exit(f"REFUSED: {', '.join(proxies)} running: `mysql`/`postgres-kc` lead to live data")
 
 
 def cmd_run(a):

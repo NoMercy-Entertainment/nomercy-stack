@@ -83,7 +83,7 @@ RUN chown -R www:www /var/www/html /run /var/lib/nginx /var/log/nginx
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Copy application code and install dependencies at build time
-COPY --chown=www apps/nomercy-tv/ /var/www/html/
+COPY --chown=www saas/nomercy-tv/ /var/www/html/
 RUN su -s /bin/bash www -c "composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
 RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
 

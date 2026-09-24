@@ -10,6 +10,8 @@
 #    request that skipped Cloudflare, so a single curl to the bare IP from
 #    home locks the admins out of SSH. ADMIN_IPS comes from the deploy's
 #    PRODUCTION_ADMIN_IPS secret and is never committed: this repo is public.
+#    The same list lets admins into pgadmin/phpmyadmin/portainer
+#    (write-admin-allow.sh); everyone else gets 403 there.
 # 2. Removes the old UFW allows for the Docker API ports (2375/2376). Nothing
 #    listens there; the rules would expose an unauthenticated root API the
 #    moment a daemon config change bound it.
@@ -106,6 +108,7 @@ if $ufw_active; then
 fi
 
 # 3. nginx
+ADMIN_IPS="$admin_ips" bash "$STACK_DIR/scripts/write-admin-allow.sh"
 docker exec "$PROXY_CONTAINER" nginx -t
 docker exec "$PROXY_CONTAINER" nginx -s reload
 

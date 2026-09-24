@@ -62,7 +62,7 @@ SAMPLES = {
     "token": "SELECT token FROM server_invites ORDER BY created_at LIMIT 1",
     "videoId": "SELECT source_id FROM trailers ORDER BY created_at LIMIT 1",
 }
-LITERALS = {"lang": "en", "locale": "en", "driver": "github", "category": "marketing",
+LITERALS = {"lang": "en", "locale": "en", "driver": "discord", "category": "marketing",
             "path": "ledger-missing.png", "role": "offline_access"}
 
 

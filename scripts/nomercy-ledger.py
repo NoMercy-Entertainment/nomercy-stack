@@ -187,6 +187,13 @@ def guard_writes():
     rules = sh("iptables -S DOCKER-USER")
     if "! -d 172.16.0.0/12" not in rules or "-j DROP" not in rules:
         sys.exit("REFUSED: container egress is not blocked; run with the egress kill switch on")
+    # From migration phase 1 on, the target talks to the LIVE databases through
+    # ProxySQL/PgBouncer. A write then lands in production data, so writes run
+    # only while the website uses this host's own copy (DB_HOST=mysql).
+    env = open(f"{STACK}/website/shared/.env").read()
+    db_host = (re.search(r"^DB_HOST=(.*)$", env, re.M) or [None, ""])[1].strip().strip('"')
+    if db_host != "mysql":
+        sys.exit(f"REFUSED: DB_HOST={db_host!r} is not this host's own copy (mysql); writes would reach live data")
 
 
 def cmd_run(a):

@@ -41,11 +41,6 @@ def website_container():
     return f"{APP}-website-{color}"
 
 
-def mysql(sql):
-    out = sh(f"docker exec -i {APP}-mysql sh -c 'mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N nomercy 2>/dev/null'", sql)
-    return [l.split("\t") for l in out.splitlines() if l.strip()]
-
-
 # One real key per route parameter, read from this host's database. The same
 # rows exist on old and new (the new database is a copy), so both ledgers ask
 # for the same records.
@@ -87,11 +82,16 @@ def inventory(pass_name):
     routes = json.loads(sh(f"docker exec {website_container()} php artisan route:list --json 2>/dev/null") or "[]")
     if not routes:
         sys.exit("no routes: is the website container running?")
-    samples = {}
-    for k, q in SAMPLES.items():
-        rows = mysql(q + ";")
-        if rows and rows[0] and rows[0][0] not in ("", "NULL"):
-            samples[k] = rows[0][0]
+    # Samples come through the website's own database connection, so they are
+    # read from the database the app really uses (in migration phase 1 the
+    # local mysql container is stopped and the app talks to ProxySQL).
+    php = ("$o=[];foreach(json_decode(base64_decode('%s'),true) as $k=>$q){try{$r=DB::selectOne($q);"
+           "if($r){$v=array_values((array)$r)[0];if($v!==null&&$v!=='')$o[$k]=(string)$v;}}catch(\\Throwable $e){}}"
+           "echo 'LEDGER-SAMPLES '.json_encode($o).PHP_EOL;") % __import__("base64").b64encode(json.dumps(SAMPLES).encode()).decode()
+    out = subprocess.run(["docker", "exec", website_container(), "php", "artisan", "tinker", "--execute", php],
+                         capture_output=True, text=True).stdout
+    line = next((l for l in out.splitlines() if l.startswith("LEDGER-SAMPLES ")), "LEDGER-SAMPLES {}")
+    samples = json.loads(line[len("LEDGER-SAMPLES "):])
     items = []
     for r in routes:
         methods = [m for m in r["method"].split("|") if m != "HEAD"]

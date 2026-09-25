@@ -34,7 +34,7 @@ included in the export.
 
 ```bash
 # SSH in
-ssh root@134.209.137.208 -i ~/.ssh/digitalocean
+ssh <production-host>   # your ssh config alias; no IPs in this public repo
 
 # Run export inside the container (connects directly to Postgres, no admin token needed)
 docker exec nomercy.tv-keycloak /opt/keycloak/bin/kc.sh export \
@@ -51,7 +51,7 @@ docker cp nomercy.tv-keycloak:/tmp/realm-export/NoMercyTV-realm.json /tmp/NoMerc
 
 # Transfer locally
 exit
-scp -i ~/.ssh/digitalocean root@134.209.137.208:/tmp/NoMercyTV-realm.json \
+scp <production-host>:/tmp/NoMercyTV-realm.json \
   ./infra/nomercy-stack/keycloak/realm-export-raw.json
 ```
 

@@ -61,6 +61,13 @@ if [ -f /var/www/html/auth.json ]; then
     chmod 600 /var/www/html/auth.json
 fi
 
+# Drop the cached config first. bootstrap/cache/config.php survives restarts in
+# the checkout, and migrate would otherwise run with the OLD database settings:
+# a DB_HOST change in .env crash-looped the container until the cache was
+# removed by hand (migration phase 1, 2026-09-25). optimize:production below
+# builds the cache again from the current .env.
+su -s /bin/bash www -c "cd /var/www/html && php artisan config:clear"
+
 # Apply pending migrations on boot. DB is ready (depends_on mysql healthy) and the
 # app code is the freshly reset bind mount. set -e means a bad migration fails the
 # container start loudly instead of serving a green deploy on a stale schema.

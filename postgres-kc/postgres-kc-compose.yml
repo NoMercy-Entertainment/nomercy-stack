@@ -7,7 +7,7 @@ services:
       backend:
         aliases:
           - postgres-kc
-    image: postgres:13.23
+    image: postgres:17.11
     restart: unless-stopped
     mem_limit: 5120m
     security_opt:
@@ -27,7 +27,7 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./data/:/var/lib/postgresql/data
+      - ./data-17/:/var/lib/postgresql/data
     logging:
       driver: json-file
       options:

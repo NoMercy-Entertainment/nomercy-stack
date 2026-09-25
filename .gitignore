@@ -18,9 +18,11 @@ keycloak/themes/*
 
 postgres-kc/data/*
 !postgres-kc/data/.gitkeep
+postgres-kc/data-17/*
 
 mysql/data/*
 !mysql/data/.gitkeep
+mysql/data-8.4/*
 
 portainer/data/*
 !portainer/data/.gitkeep

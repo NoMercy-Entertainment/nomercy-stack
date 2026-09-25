@@ -14,7 +14,6 @@ services:
       --db postgres
       --db-url-host postgres-kc
       --db-username keycloak
-      --db-password ${KEYCLOAK_DATABASE_PASSWORD}
       --hostname https://${KEYCLOAK_FRONTEND_URL}
       --proxy-headers xforwarded
       --http-enabled true
@@ -26,6 +25,8 @@ services:
       --metrics-enabled false
     environment:
       KC_PROXY_HEADERS: xforwarded
+      # From the environment, not the command line: docker inspect shows the command.
+      KC_DB_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/9000 && echo -e \"GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && timeout 5 cat <&3 | grep -q UP'"]
       interval: 30s

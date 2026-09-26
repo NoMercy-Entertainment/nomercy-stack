@@ -90,6 +90,7 @@ pulling changes to `docker/daemon.json` or `scripts/logrotate/`:
 ```sh
 ./scripts/provision-docker-daemon-logging.sh   # caps every container's json-file log (max-size 20m x max-file 5)
 ./scripts/provision-nginx-logrotate.sh         # rotates the bind-mounted logs/nginx/*.log files
+./scripts/provision-auto-updates.sh            # daily Ubuntu updates at 04:00 UTC; docker, apparmor, systemd wait for a reboot window
 ```
 
 `scripts/disk-cleanup.sh` runs daily via cron (`/etc/cron.d` or `crontab -l`

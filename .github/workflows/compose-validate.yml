@@ -1,0 +1,22 @@
+name: Compose validate
+
+# Every compose file is rendered the way it is really used (the stack through
+# docker-compose.yml and its include list, dns/ alone) and every build context
+# it names must exist. No path filter: a compose change anywhere, or a removed
+# folder, must run this. No secrets: .env comes from .env.example.
+# Same check locally: bash scripts/validate-compose.sh
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  validate-compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Every compose file renders and every build context exists
+        run: bash scripts/validate-compose.sh

@@ -40,7 +40,7 @@ while IFS= read -r file; do
     echo "FAIL $file: not an entry point and not included by docker-compose.yml"
     failures=$((failures + 1))
   fi
-done < <(git ls-files '*compose*.yml' '*compose*.yaml')
+done < <(git ls-files '*compose*.yml' '*compose*.yaml' ':!.github/**')
 
 for ep in "${entry_points[@]}"; do
   dir=$(dirname "$ep")

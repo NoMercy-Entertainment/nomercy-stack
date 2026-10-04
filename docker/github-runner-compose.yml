@@ -4,9 +4,10 @@ services:
     container_name: "${APP_NAME}-github-runner"
     restart: unless-stopped
     profiles: [ "dev" ]
-    build:
-      context: ./github-runner
-      dockerfile: Dockerfile
+    # The runner image is built and published by the nomercy-github-runner repo
+    # (its docker-compose.yml uses this same image); this repo holds no runner
+    # Dockerfile, so the service pulls the published image instead of building.
+    image: ghcr.io/nomercy-entertainment/nomercy-github-runner:latest
     environment:
       GH_TOKEN: ${GITHUB_TOKEN}
       GITHUB_ORG: ${GITHUB_ORG}

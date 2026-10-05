@@ -1243,7 +1243,6 @@
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "*",
         "/realms/NoMercyTV/account/*"
       ],
       "webOrigins": [],
@@ -1744,13 +1743,14 @@
       "bearerOnly": false,
       "consentRequired": false,
       "standardFlowEnabled": true,
-      "implicitFlowEnabled": true,
+      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "publicClient": true,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "pkce.code.challenge.method": "S256",
         "saml.multivalued.roles": "false",
         "saml.force.post.binding": "false",
         "post.logout.redirect.uris": "+",
@@ -1842,15 +1842,18 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "nomercy://callback",
-        "nomercy://home",
-        "https://*.nomercy.tv/sso-callback/*",
-        "tv.nomercy.app://oauth",
-        "*",
-        "nomercy://*"
+        "https://app.nomercy.tv/*",
+        "https://app-dev.nomercy.tv/*",
+        "https://nomercy.tv/auth/keycloak/callback",
+        "https://dev.nomercy.tv/auth/keycloak/callback",
+        "http://localhost:5502/*",
+        "http://127.0.0.1:5502/*",
+        "http://localhost:7625/*",
+        "tv.nomercy.auth://oauth",
+        "https://*.nomercy.tv/sso-callback/*"
       ],
       "webOrigins": [
-        "*"
+        "+"
       ],
       "notBefore": 0,
       "bearerOnly": false,

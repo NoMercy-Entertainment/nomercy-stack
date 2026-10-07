@@ -20,3 +20,6 @@ jobs:
 
       - name: Every compose file renders and every build context exists
         run: bash scripts/validate-compose.sh
+
+      - name: The proxy leaves API cache headers to Laravel
+        run: bash scripts/check-proxy-cache-headers.sh

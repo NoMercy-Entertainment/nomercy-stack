@@ -79,7 +79,7 @@ def fill(uri, samples):
 
 
 def inventory(pass_name):
-    routes = json.loads(sh(f"docker exec {website_container()} php artisan route:list --json 2>/dev/null") or "[]")
+    routes = json.loads(sh(f"docker exec -u www {website_container()} php artisan route:list --json 2>/dev/null") or "[]")
     if not routes:
         sys.exit("no routes: is the website container running?")
     # Samples come through the website's own database connection, so they are
@@ -88,7 +88,7 @@ def inventory(pass_name):
     php = ("$o=[];foreach(json_decode(base64_decode('%s'),true) as $k=>$q){try{$r=DB::selectOne($q);"
            "if($r){$v=array_values((array)$r)[0];if($v!==null&&$v!=='')$o[$k]=(string)$v;}}catch(\\Throwable $e){}}"
            "echo 'LEDGER-SAMPLES '.json_encode($o).PHP_EOL;") % __import__("base64").b64encode(json.dumps(SAMPLES).encode()).decode()
-    out = subprocess.run(["docker", "exec", website_container(), "php", "artisan", "tinker", "--execute", php],
+    out = subprocess.run(["docker", "exec", "-u", "www", website_container(), "php", "artisan", "tinker", "--execute", php],
                          capture_output=True, text=True).stdout
     line = next((l for l in out.splitlines() if l.startswith("LEDGER-SAMPLES ")), "LEDGER-SAMPLES {}")
     samples = json.loads(line[len("LEDGER-SAMPLES "):])

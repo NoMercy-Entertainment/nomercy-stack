@@ -19,6 +19,17 @@ if [ -d /opt/_vendor_built ]; then
     chown -R www:www /var/www/html/vendor
 fi
 
+# The baked tree matches the lock the image was built from. Production rebuilds
+# the image from the deployed commit, so the two locks are equal and composer
+# never runs there. The dev image is built once and bind-mounts the live
+# checkout: when its lock moves on, the restore above brings back an old tree
+# (2026-10-08: google/auth was missing and FCM pushes failed). Install from the
+# checkout's lock in that case.
+if [ -f /opt/_vendor_built.lock ] && ! cmp -s /opt/_vendor_built.lock /var/www/html/composer.lock; then
+    echo "composer.lock differs from the image's; installing from the lock..."
+    su -s /bin/bash www -c "composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
+fi
+
 # Restore the compiled Vite assets baked into the image over the bind-mounted
 # checkout, which ships without public/build (it is gitignored and never built
 # on the host). Restoring the image build instead of running `yarn build` at

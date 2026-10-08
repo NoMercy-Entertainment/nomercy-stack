@@ -100,6 +100,7 @@ RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
 # memory-heavy `yarn build` off the production host, where it was OOM-killing
 # the blue-green deploy.
 RUN cp -a /var/www/html/vendor /opt/_vendor_built \
+ && cp /var/www/html/composer.lock /opt/_vendor_built.lock \
  && cp -a /var/www/html/node_modules /opt/_node_modules_built \
  && cp -a /var/www/html/public/build /opt/_public_build_built
 

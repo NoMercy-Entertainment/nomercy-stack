@@ -211,7 +211,7 @@ echo "Switched: $idle is now active (nginx reloaded gracefully)."
 # ALPN refuses) never reaches tunnels that already exist. The command is an
 # idempotent PUT of the desired state, and must never fail a deploy that has
 # already switched traffic.
-docker exec "$idle_container" php artisan tunnels:reapply-config \
+docker exec -u www "$idle_container" php artisan tunnels:reapply-config \
   || echo "WARNING: tunnels:reapply-config failed; existing tunnels keep their stored ingress config." >&2
 
 # --- drain, then stop the old color (kept, not removed, so it's warm for

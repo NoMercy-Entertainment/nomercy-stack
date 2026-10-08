@@ -23,3 +23,6 @@ jobs:
 
       - name: The proxy leaves API cache headers to Laravel
         run: bash scripts/check-proxy-cache-headers.sh
+
+      - name: Every host-side artisan call runs as www
+        run: bash scripts/check-artisan-runs-as-www.sh

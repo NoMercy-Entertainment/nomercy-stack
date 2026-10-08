@@ -87,8 +87,10 @@ COPY --chown=www saas/nomercy-tv/ /var/www/html/
 RUN su -s /bin/bash www -c "composer install --working-dir=/var/www/html --no-interaction --optimize-autoloader"
 RUN su -s /bin/bash www -c "cd /var/www/html && yarn && yarn build"
 
-# Stash pre-built deps outside the volume mount point
+# Stash pre-built deps outside the volume mount point, with the lock they were
+# built from: start.sh reinstalls when the bind-mounted checkout's lock differs.
 RUN cp -a /var/www/html/vendor /opt/_vendor_built \
+ && cp /var/www/html/composer.lock /opt/_vendor_built.lock \
  && cp -a /var/www/html/node_modules /opt/_node_modules_built
 
 # Expose the port nginx is reachable on

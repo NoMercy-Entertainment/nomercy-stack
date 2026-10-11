@@ -72,6 +72,7 @@ ENV fpm_conf ${PHP_INI_DIR}/php-fpm.d/www.conf
 
 COPY infra/nomercy-stack/website/config/fpm-pool.conf ${fpm_conf}
 COPY infra/nomercy-stack/website/config/php.ini ${php_ini}
+COPY infra/nomercy-stack/website/config/dev-opcache.ini ${PHP_INI_DIR}/conf.d/99-dev-opcache.ini
 
 # Configure supervisord
 COPY infra/nomercy-stack/website/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

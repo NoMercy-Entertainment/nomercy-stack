@@ -18,6 +18,14 @@ srv.nomercy.tv:53 {
         fallthrough
     }
 
+    # --- AAAA synthesis: <8 hex groups joined by dashes>.<label>.srv.nomercy.tv -> IPv6 ---
+    # Only the full 8-group form: the short form ("2001-db8--1") cannot be read by one pattern.
+    template IN AAAA srv.nomercy.tv {
+        match "^(?P<a>[0-9a-fA-F]{1,4})-(?P<b>[0-9a-fA-F]{1,4})-(?P<c>[0-9a-fA-F]{1,4})-(?P<d>[0-9a-fA-F]{1,4})-(?P<e>[0-9a-fA-F]{1,4})-(?P<f>[0-9a-fA-F]{1,4})-(?P<g>[0-9a-fA-F]{1,4})-(?P<h>[0-9a-fA-F]{1,4})\.[^.]+\.srv\.nomercy\.tv\.$"
+        answer "{{ .Name }} 60 IN AAAA {{ .Group.a }}:{{ .Group.b }}:{{ .Group.c }}:{{ .Group.d }}:{{ .Group.e }}:{{ .Group.f }}:{{ .Group.g }}:{{ .Group.h }}"
+        fallthrough
+    }
+
     # --- NODATA catch-alls (NEVER NXDOMAIN) ---
     # Intermediate / non-matching names must return NOERROR-empty with the SOA in authority so
     # QNAME-minimizing resolvers (Unbound/pfSense) keep walking to the full synthesized name.

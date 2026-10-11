@@ -7,6 +7,8 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 IMAGE="$(grep -m1 'image: coredns/' "$DIR/dns-compose.yml" | awk '{print $2}')"
 NET="coredns-test-$$"
 NAME="coredns-test-$$"
+# Test data only: a made-up server id and documentation addresses (192.0.2.0/24, 2001:db8::/32).
+# Never a real user's id or address: this repo is public.
 ID="00000000-0000-4000-8000-000000000001"
 
 cleanup() {
@@ -23,18 +25,18 @@ MSYS_NO_PATHCONV=1 docker run -d --name "$NAME" --network "$NET" \
 # Each line: TYPE NAME EXPECTED (EXPECTED is the answer, or NODATA for NOERROR with no answer).
 # SERVFAIL: a short form with more than 8 groups matches the pattern but is no IPv6 address.
 CASES="
-A    1-2-3-4.$ID.srv.nomercy.tv                                  1.2.3.4
+A    192-0-2-10.$ID.srv.nomercy.tv                               192.0.2.10
 A    192-168-1-10.$ID.srv.nomercy.tv                             192.168.1.10
-AAAA 2001-db8-1-2-3-4-5-6.$ID.srv.nomercy.tv  2001:db8:1:2:3:4:5:6
+AAAA 2001-db8-1-2-3-4-5-6.$ID.srv.nomercy.tv                     2001:db8:1:2:3:4:5:6
 AAAA 2001-0db8-0000-0000-0000-0000-0000-0001.$ID.srv.nomercy.tv  2001:db8::1
 AAAA 2001-db8--1.$ID.srv.nomercy.tv                              2001:db8::1
-AAAA 2001-db8-1--e8cd.$ID.srv.nomercy.tv                     2001:db8:1::e8cd
-AAAA 2a02-a46-1--5-6-7.$ID.srv.nomercy.tv                         2a02:a46:1::5:6:7
-AAAA 2001-db8--.$ID.srv.nomercy.tv                                2001:db8::
-AAAA 1-2-3-4-5-6-7-8-9.$ID.srv.nomercy.tv                         NODATA
-AAAA 1-2-3-4-5-6-7--8.$ID.srv.nomercy.tv                          SERVFAIL
-AAAA 1-2-3-4.$ID.srv.nomercy.tv                                  NODATA
-A    2001-db8-1-2-3-4-5-6.$ID.srv.nomercy.tv  NODATA
+AAAA 2001-db8-1--e8cd.$ID.srv.nomercy.tv                         2001:db8:1::e8cd
+AAAA 2001-db8-a46--5-6-7.$ID.srv.nomercy.tv                      2001:db8:a46::5:6:7
+AAAA 2001-db8--.$ID.srv.nomercy.tv                               2001:db8::
+AAAA 1-2-3-4-5-6-7-8-9.$ID.srv.nomercy.tv                        NODATA
+AAAA 1-2-3-4-5-6-7--8.$ID.srv.nomercy.tv                         SERVFAIL
+AAAA 192-0-2-10.$ID.srv.nomercy.tv                               NODATA
+A    2001-db8-1-2-3-4-5-6.$ID.srv.nomercy.tv                     NODATA
 AAAA $ID.srv.nomercy.tv                                          NODATA
 A    $ID.srv.nomercy.tv                                          NODATA
 "

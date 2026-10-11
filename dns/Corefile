@@ -19,10 +19,18 @@ srv.nomercy.tv:53 {
     }
 
     # --- AAAA synthesis: <8 hex groups joined by dashes>.<label>.srv.nomercy.tv -> IPv6 ---
-    # Only the full 8-group form: the short form ("2001-db8--1") cannot be read by one pattern.
     template IN AAAA srv.nomercy.tv {
         match "^(?P<a>[0-9a-fA-F]{1,4})-(?P<b>[0-9a-fA-F]{1,4})-(?P<c>[0-9a-fA-F]{1,4})-(?P<d>[0-9a-fA-F]{1,4})-(?P<e>[0-9a-fA-F]{1,4})-(?P<f>[0-9a-fA-F]{1,4})-(?P<g>[0-9a-fA-F]{1,4})-(?P<h>[0-9a-fA-F]{1,4})\.[^.]+\.srv\.nomercy\.tv\.$"
         answer "{{ .Name }} 60 IN AAAA {{ .Group.a }}:{{ .Group.b }}:{{ .Group.c }}:{{ .Group.d }}:{{ .Group.e }}:{{ .Group.f }}:{{ .Group.g }}:{{ .Group.h }}"
+        fallthrough
+    }
+
+    # --- AAAA synthesis, short form: "2001-db8--1" -> 2001:db8::1 ---
+    # The control plane and the media server both turn ':' into '-', so "::" arrives as "--".
+    # Up to 7 groups each side of it; empty groups are skipped by the {{ if }} blocks.
+    template IN AAAA srv.nomercy.tv {
+        match "^(?:(?P<h1>[0-9a-fA-F]{1,4})(?:-(?P<h2>[0-9a-fA-F]{1,4}))?(?:-(?P<h3>[0-9a-fA-F]{1,4}))?(?:-(?P<h4>[0-9a-fA-F]{1,4}))?(?:-(?P<h5>[0-9a-fA-F]{1,4}))?(?:-(?P<h6>[0-9a-fA-F]{1,4}))?(?:-(?P<h7>[0-9a-fA-F]{1,4}))?)?--(?:(?P<t1>[0-9a-fA-F]{1,4})(?:-(?P<t2>[0-9a-fA-F]{1,4}))?(?:-(?P<t3>[0-9a-fA-F]{1,4}))?(?:-(?P<t4>[0-9a-fA-F]{1,4}))?(?:-(?P<t5>[0-9a-fA-F]{1,4}))?(?:-(?P<t6>[0-9a-fA-F]{1,4}))?(?:-(?P<t7>[0-9a-fA-F]{1,4}))?)?\.[^.]+\.srv\.nomercy\.tv\.$"
+        answer "{{ .Name }} 60 IN AAAA {{ .Group.h1 }}{{ if .Group.h2 }}:{{ .Group.h2 }}{{ end }}{{ if .Group.h3 }}:{{ .Group.h3 }}{{ end }}{{ if .Group.h4 }}:{{ .Group.h4 }}{{ end }}{{ if .Group.h5 }}:{{ .Group.h5 }}{{ end }}{{ if .Group.h6 }}:{{ .Group.h6 }}{{ end }}{{ if .Group.h7 }}:{{ .Group.h7 }}{{ end }}::{{ .Group.t1 }}{{ if .Group.t2 }}:{{ .Group.t2 }}{{ end }}{{ if .Group.t3 }}:{{ .Group.t3 }}{{ end }}{{ if .Group.t4 }}:{{ .Group.t4 }}{{ end }}{{ if .Group.t5 }}:{{ .Group.t5 }}{{ end }}{{ if .Group.t6 }}:{{ .Group.t6 }}{{ end }}{{ if .Group.t7 }}:{{ .Group.t7 }}{{ end }}"
         fallthrough
     }
 

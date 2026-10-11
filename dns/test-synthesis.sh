@@ -21,11 +21,18 @@ MSYS_NO_PATHCONV=1 docker run -d --name "$NAME" --network "$NET" \
     "$IMAGE" -conf /Corefile >/dev/null
 
 # Each line: TYPE NAME EXPECTED (EXPECTED is the answer, or NODATA for NOERROR with no answer).
+# SERVFAIL: a short form with more than 8 groups matches the pattern but is no IPv6 address.
 CASES="
 A    1-2-3-4.$ID.srv.nomercy.tv                                  1.2.3.4
 A    192-168-1-10.$ID.srv.nomercy.tv                             192.168.1.10
 AAAA 2001-db8-1-2-3-4-5-6.$ID.srv.nomercy.tv  2001:db8:1:2:3:4:5:6
 AAAA 2001-0db8-0000-0000-0000-0000-0000-0001.$ID.srv.nomercy.tv  2001:db8::1
+AAAA 2001-db8--1.$ID.srv.nomercy.tv                              2001:db8::1
+AAAA 2001-db8-1--e8cd.$ID.srv.nomercy.tv                     2001:db8:1::e8cd
+AAAA 2a02-a46-1--5-6-7.$ID.srv.nomercy.tv                         2a02:a46:1::5:6:7
+AAAA 2001-db8--.$ID.srv.nomercy.tv                                2001:db8::
+AAAA 1-2-3-4-5-6-7-8-9.$ID.srv.nomercy.tv                         NODATA
+AAAA 1-2-3-4-5-6-7--8.$ID.srv.nomercy.tv                          SERVFAIL
 AAAA 1-2-3-4.$ID.srv.nomercy.tv                                  NODATA
 A    2001-db8-1-2-3-4-5-6.$ID.srv.nomercy.tv  NODATA
 AAAA $ID.srv.nomercy.tv                                          NODATA
@@ -40,7 +47,9 @@ echo "$CASES" | while read -r type name want; do
     out=\$(dig +tries=3 +time=2 @"\$TARGET" "\$name" "\$type")
     status=\$(echo "\$out" | grep -o 'status: [A-Z]*' | cut -d' ' -f2)
     got=\$(dig +short +tries=3 +time=2 @"\$TARGET" "\$name" "\$type" | head -1)
-    if [ "\$want" = NODATA ]; then
+    if [ "\$want" = SERVFAIL ]; then
+        [ "\$status" = SERVFAIL ] && ok=1 || ok=0
+    elif [ "\$want" = NODATA ]; then
         [ "\$status" = NOERROR ] && [ -z "\$got" ] && ok=1 || ok=0
     else
         [ "\$got" = "\$want" ] && ok=1 || ok=0

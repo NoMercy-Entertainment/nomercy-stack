@@ -63,7 +63,8 @@ RUN apk add --no-cache -X /tmp/php85-repo \
   yarn \
   zlib
 
-RUN ln -s /usr/bin/php85 /usr/bin/php
+# Alpine 3.24's php85 already provides /usr/bin/php; -f keeps the link when it does not.
+RUN ln -sf /usr/bin/php85 /usr/bin/php
 
 # Refuse an image whose PHP is not the version we patched to.
 RUN test "$(php -r 'echo PHP_VERSION;')" = "${PHP_EXPECTED}" || { echo "PHP is $(php -r 'echo PHP_VERSION;'), expected ${PHP_EXPECTED}"; exit 1; }

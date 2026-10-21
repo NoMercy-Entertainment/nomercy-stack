@@ -36,6 +36,8 @@ services:
         condition: service_started
       phpmyadmin:
         condition: service_started
+        # Turned off behind a profile; the proxy starts without it.
+        required: false
       portainer:
         condition: service_started
     logging:

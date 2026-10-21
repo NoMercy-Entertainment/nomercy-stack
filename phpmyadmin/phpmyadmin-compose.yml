@@ -2,6 +2,8 @@ services:
 
   ### PHPMyAdmin ####################################
   phpmyadmin:
+    # Turned off (2026-10-21): not in use. Start it with `docker compose --profile phpmyadmin up -d phpmyadmin`.
+    profiles: ["phpmyadmin"]
     container_name: "${APP_NAME}-phpmyadmin"
     hostname: phpmyadmin
     networks:

@@ -1,45 +1,50 @@
 # syntax=docker/dockerfile:1
-FROM alpine:3.22.2
+FROM alpine:3.24.2
 LABEL Maintainer="Stoney Eagle <stoney@nomercy.tv>"
-LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.4 based on Alpine Linux."
+LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.5 based on Alpine Linux."
 
 # Setup document root
 WORKDIR /var/www/html
 
 RUN adduser -D -g '' www sudo
 
+# PHP security fix before Alpine ships it: php85 built from Alpine's own recipe at the patched
+# version, served from a local repo (php85-repo/, not in git). Drop both once Alpine has it.
+ARG PHP_EXPECTED=8.5.12
+COPY php85-repo/ /tmp/php85-repo/
+RUN cp /tmp/php85-repo/*.rsa.pub /etc/apk/keys/
+
 # Install packages and remove default server definition
-RUN apk add --no-cache \
+RUN apk add --no-cache -X /tmp/php85-repo \
   curl \
   nginx \
-  php84 \
-  php84-bcmath \
-  php84-ctype \
-  php84-curl \
-  php84-dom \
-  php84-fileinfo \
-  php84-fpm \
-  php84-ftp \
-  php84-gd \
-  php84-iconv \
-  php84-intl \
-  php84-mbstring \
-  php84-mysqli \
-  php84-opcache \
-  php84-openssl \
-  php84-pdo_mysql \
-  php84-pdo_sqlite \
-  php84-pdo_pgsql \
-  php84-phar \
-  php84-session \
-  php84-simplexml \
-  php84-sqlite3 \
-  php84-tokenizer \
-  php84-sodium \
-  php84-xml \
-  php84-xmlreader \
-  php84-xmlwriter \
-  php84-zip \
+  php85 \
+  php85-bcmath \
+  php85-ctype \
+  php85-curl \
+  php85-dom \
+  php85-fileinfo \
+  php85-fpm \
+  php85-ftp \
+  php85-gd \
+  php85-iconv \
+  php85-intl \
+  php85-mbstring \
+  php85-mysqli \
+  php85-openssl \
+  php85-pdo_mysql \
+  php85-pdo_sqlite \
+  php85-pdo_pgsql \
+  php85-phar \
+  php85-session \
+  php85-simplexml \
+  php85-sqlite3 \
+  php85-tokenizer \
+  php85-sodium \
+  php85-xml \
+  php85-xmlreader \
+  php85-xmlwriter \
+  php85-zip \
   bash \
   curl \
   git \
@@ -59,7 +64,10 @@ RUN apk add --no-cache \
   yarn \
   zlib
 
-RUN ln -s /usr/bin/php84 /usr/bin/php
+RUN ln -s /usr/bin/php85 /usr/bin/php
+
+# Refuse an image whose PHP is not the version we patched to.
+RUN test "$(php -r 'echo PHP_VERSION;')" = "${PHP_EXPECTED}" || { echo "PHP is $(php -r 'echo PHP_VERSION;'), expected ${PHP_EXPECTED}"; exit 1; }
 
 # Configure nginx - http
 COPY config/nginx.conf /etc/nginx/nginx.conf
@@ -67,7 +75,7 @@ COPY config/nginx.conf /etc/nginx/nginx.conf
 COPY config/conf.d /etc/nginx/conf.d/
 
 # Configure PHP-FPM
-ENV PHP_INI_DIR /etc/php84
+ENV PHP_INI_DIR /etc/php85
 ENV php_ini ${PHP_INI_DIR}/php.ini
 ENV fpm_conf ${PHP_INI_DIR}/php-fpm.d/www.conf
 

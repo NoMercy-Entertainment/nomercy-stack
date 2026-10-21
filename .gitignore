@@ -5,6 +5,9 @@
 # Local dev compose override — not for production
 docker-compose.override.yml
 
+# Locally built PHP packages (security fix ahead of Alpine); copied to each host, never committed
+website/php85-repo/
+
 # Database dumps and backups — never commit these
 *.sql
 *.sql.gz

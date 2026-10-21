@@ -1,52 +1,20 @@
 # syntax=docker/dockerfile:1
-FROM alpine:3.24.2
+FROM php:8.5.12-fpm-alpine3.24
 LABEL Maintainer="Stoney Eagle <stoney@nomercy.tv>"
-LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.5 based on Alpine Linux."
+LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.5 based on the official PHP Alpine image."
 
 # Setup document root
 WORKDIR /var/www/html
 
 RUN adduser -D -g '' www sudo
 
-# PHP security fix before Alpine ships it: php85 built from Alpine's own recipe at the patched
-# version, served from a local repo (php85-repo/, not in git). Drop both once Alpine has it.
 ARG PHP_EXPECTED=8.5.12
-COPY php85-repo/ /tmp/php85-repo/
-RUN cp /tmp/php85-repo/*.rsa.pub /etc/apk/keys/
 
-# Install packages and remove default server definition
-RUN apk add --no-cache -X /tmp/php85-repo \
+# Install packages (nginx, supervisor, the build toolchain for assets, and the libraries the PHP extensions load)
+RUN apk add --no-cache \
   curl \
   nginx \
-  php85 \
-  php85-bcmath \
-  php85-ctype \
-  php85-curl \
-  php85-dom \
-  php85-fileinfo \
-  php85-fpm \
-  php85-ftp \
-  php85-gd \
-  php85-iconv \
-  php85-intl \
-  php85-mbstring \
-  php85-mysqli \
-  php85-openssl \
-  php85-pdo_mysql \
-  php85-pdo_sqlite \
-  php85-pdo_pgsql \
-  php85-phar \
-  php85-session \
-  php85-simplexml \
-  php85-sqlite3 \
-  php85-tokenizer \
-  php85-sodium \
-  php85-xml \
-  php85-xmlreader \
-  php85-xmlwriter \
-  php85-zip \
   bash \
-  curl \
   git \
   htop \
   imagemagick \
@@ -62,10 +30,22 @@ RUN apk add --no-cache -X /tmp/php85-repo \
   texinfo \
   wget \
   yarn \
-  zlib
+  zlib \
+  icu-libs \
+  libpng \
+  libjpeg-turbo \
+  freetype \
+  libwebp \
+  libzip \
+  libpq
 
-# Alpine 3.24's php85 already provides /usr/bin/php; -f keeps the link when it does not.
-RUN ln -sf /usr/bin/php85 /usr/bin/php
+# PHP extensions the official image does not ship. It already has ctype, curl, dom, fileinfo, iconv, mbstring,
+# openssl, pdo_sqlite, phar, session, simplexml, sodium, sqlite3, tokenizer, xml, xmlreader, xmlwriter and OPcache.
+RUN apk add --no-cache --virtual .php-build-deps $PHPIZE_DEPS icu-dev libpng-dev libjpeg-turbo-dev freetype-dev \
+    libwebp-dev libzip-dev postgresql-dev linux-headers \
+ && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+ && docker-php-ext-install -j"$(nproc)" bcmath ftp gd intl mysqli pdo_mysql pdo_pgsql zip \
+ && apk del .php-build-deps
 
 # Refuse an image whose PHP is not the version we patched to.
 RUN test "$(php -r 'echo PHP_VERSION;')" = "${PHP_EXPECTED}" || { echo "PHP is $(php -r 'echo PHP_VERSION;'), expected ${PHP_EXPECTED}"; exit 1; }
@@ -75,10 +55,10 @@ COPY config/nginx.conf /etc/nginx/nginx.conf
 # Configure nginx - default server
 COPY config/conf.d /etc/nginx/conf.d/
 
-# Configure PHP-FPM
-ENV PHP_INI_DIR /etc/php85
-ENV php_ini ${PHP_INI_DIR}/php.ini
-ENV fpm_conf ${PHP_INI_DIR}/php-fpm.d/www.conf
+# Configure PHP-FPM (PHP_INI_DIR is /usr/local/etc/php in the official image). supervisord starts php-fpm with
+# only our pool file, so the image's zz-docker.conf (listen = 9000) never replaces our unix socket.
+ENV php_ini=${PHP_INI_DIR}/php.ini
+ENV fpm_conf=/usr/local/etc/php-fpm.d/www.conf
 
 COPY config/fpm-pool.conf ${fpm_conf}
 COPY config/php.ini ${php_ini}

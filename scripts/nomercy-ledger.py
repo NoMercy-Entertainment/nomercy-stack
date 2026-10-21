@@ -121,7 +121,7 @@ def inventory(pass_name):
             (MAIN, "/build/manifest.json"), (MAIN, "/favicon.ico"), (MAIN, "/robots.txt"),
             (MAIN, "/css/inter.css"), (MAIN, "/fonts/Inter-Regular.woff2"),
             ("portainer.nomercy.tv", "/api/system/status"),
-            ("phpmyadmin.nomercy.tv", "/"), ("storage.nomercy.tv", "/"),
+            ("storage.nomercy.tv", "/"),
             ("ledger-unknown.example", "/"),
         ]
         for host, path in extra:

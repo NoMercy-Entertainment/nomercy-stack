@@ -1,6 +1,6 @@
 # nomercy-stack
 
-A multi-service stack using Docker Compose, including MySQL, PostgreSQL, Keycloak, phpMyAdmin, pgAdmin, Portainer, Nginx proxy, and a website container. This is the production stack for the control plane (`nomercy-tv`) and Keycloak; it is also runnable locally for development and testing.
+A multi-service stack using Docker Compose, including MySQL, PostgreSQL, Keycloak, pgAdmin, Portainer, Nginx proxy, and a website container. This is the production stack for the control plane (`nomercy-tv`) and Keycloak; it is also runnable locally for development and testing.
 
 ## Prerequisites
 
@@ -25,7 +25,6 @@ A multi-service stack using Docker Compose, including MySQL, PostgreSQL, Keycloa
 
 1. **Access Services**
    - **Website**: https://nomercy.tv (production; `proxy/sites/website.conf`)
-   - **phpMyAdmin**: https://phpmyadmin.nomercy.tv
    - **pgAdmin**: https://pgadmin.nomercy.tv
    - **Keycloak**: https://auth.nomercy.tv
    - **Portainer**: https://portainer.nomercy.tv
@@ -67,7 +66,6 @@ To enable Keycloak authentication in Portainer:
 - `keycloak/`       - Keycloak service and custom themes
 - `mysql/`          - MySQL service and data
 - `pgadmin/`        - pgAdmin service
-- `phpmyadmin/`     - phpMyAdmin service
 - `portainer/`      - Portainer service and data
 - `postgres/`       - PostgreSQL service and data
 - `postgres-kc/`    - Separate PostgreSQL for Keycloak
@@ -160,7 +158,6 @@ This allows you to easily expose additional static sites or resources as separat
 - Data folders (e.g., `mysql/data/`, `postgres/data/`) are git-ignored for safety and performance.
 - Custom Keycloak themes can be placed in `keycloak/themes/<your theme name>/`.
 - Configuration files for each service are in their respective folders.
-- PHPMyAdmin has a keycloak login flow
 
 ## Troubleshooting
 

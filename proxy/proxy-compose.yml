@@ -34,8 +34,6 @@ services:
         condition: service_healthy
       pgadmin:
         condition: service_started
-      phpmyadmin:
-        condition: service_started
       portainer:
         condition: service_started
     logging:

@@ -126,6 +126,26 @@
       }
     ],
     "client": {
+      "arcanum-app": [
+        {
+          "id": "b9aed5c5-3cc8-4b80-b820-52a9a5a3a38c",
+          "name": "arcanum:owner",
+          "description": "Arcanum: everything, including grants",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "3542b75c-5800-448e-8bc2-039dc9e5d863",
+          "attributes": {}
+        },
+        {
+          "id": "dbac513d-01d2-40c5-88c8-cffb75e1bbdd",
+          "name": "arcanum:operator",
+          "description": "Arcanum: the playbooks and alerts the operator manages",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "3542b75c-5800-448e-8bc2-039dc9e5d863",
+          "attributes": {}
+        }
+      ],
       "nomercy-api": [
         {
           "id": "1148e400-37bd-4c28-9a3d-5c7eb8fdb4fe",
@@ -1719,6 +1739,52 @@
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
       }
+    },
+    {
+      "id": "3542b75c-5800-448e-8bc2-039dc9e5d863",
+      "clientId": "arcanum-app",
+      "name": "Arcanum",
+      "description": "Arcanum phone and desktop apps. Public PKCE client, no direct grants.",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "tv.nomercy.arcanum:/oauth",
+        "http://127.0.0.1/*"
+      ],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "use.refresh.tokens": "true",
+        "display.on.consent.screen": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": false,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": []
     },
     {
       "id": "3ade2204-3f7b-4ae1-8dab-d745b7bada41",

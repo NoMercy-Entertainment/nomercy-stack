@@ -124,6 +124,13 @@ self-hosted media server use case — users should not be kicked out mid-stream.
 - This is how nomercy-tv impersonates users to generate tokens for media servers
 - Used by: nomercy-tv `Server::apiToken()` flow
 
+**arcanum-app** — Arcanum phone and desktop apps.
+- Public client, standard flow only, PKCE S256 required
+- Redirect URIs: `tv.nomercy.arcanum:/oauth` and `http://127.0.0.1/*` (desktop loopback)
+- No direct grants, no implicit flow, no service account; full scope off, so tokens carry only its own roles
+- Client roles `arcanum:owner` and `arcanum:operator`; assignments are live data, not in the export
+- Checked by `scripts/check-arcanum-app-client.py`
+
 **https://gitlab.nomercy.tv** — GitLab instance OAuth client.
 - Confidential client
 - Redirect URI: `https://gitlab.nomercy.tv/*`

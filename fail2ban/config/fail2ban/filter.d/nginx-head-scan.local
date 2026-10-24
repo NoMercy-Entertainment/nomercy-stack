@@ -1,7 +1,6 @@
 [Definition]
-# Detect systematic HEAD request scanning patterns
-# This catches bots doing reconnaissance with HEAD requests
+# HEAD requests that return 404: reconnaissance. See nginx-wp-scan for the log
+# format and why <HOST> is anchored after the user agent.
+failregex = ^[^"]*"HEAD [^"]*" 404 \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-failregex = ^.*"HEAD .*".*404.*<HOST>.*$
-
-ignoreregex = ^.*"HEAD .*".*200.*<HOST>.*$
+ignoreregex =

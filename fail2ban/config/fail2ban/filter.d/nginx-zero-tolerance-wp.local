@@ -1,9 +1,10 @@
 [Definition]
-# ZERO TOLERANCE - Permanent ban for any WordPress-related requests
-# Single attempt = PERMANENT BAN
+# WordPress paths: any status code, one request is enough. See nginx-wp-scan
+# for the log format and why <HOST> is anchored after the user agent.
+_pre = ^[^"]*"[A-Z]+ [^ "]*
+_post = [^ "]*(?: [^"]*)?"
+_tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-failregex = ^.*".*wp.*".*<HOST>.*$
-            ^.*".*wordpress.*".*<HOST>.*$
-            ^.*".*wp-.*".*<HOST>.*$
+failregex = %(_pre)s(?:wp-(?:admin|login|content|includes|json|config|cron|signup|trackback)|wp-[a-z0-9_-]+\.php|xmlrpc\.php|wordpress)%(_post)s[ ]\d{3} %(_tail)s
 
 ignoreregex =

@@ -1,0 +1,47 @@
+# Adds the Cloudflare edge ban to every web jail. The host firewall action stays
+# as it was. This file sorts after the per-jail files, so its action line wins.
+# cftoken and cfaccount come from 02-cloudflare-edge.local (gitignored).
+
+[nginx-aggressive-scan]
+action = iptables-allports[name=nginx-aggressive-scan]
+         cloudflare-edge[name=nginx-aggressive-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-bad-bots]
+action = iptables-allports[name=nginx-bad-bots]
+         cloudflare-edge[name=nginx-bad-bots, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-direct-access]
+action = iptables-allports[name=nginx-direct-access]
+         cloudflare-edge[name=nginx-direct-access, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-exploit-attempts]
+action = iptables-allports[name=nginx-exploit-attempts]
+         cloudflare-edge[name=nginx-exploit-attempts, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-head-scan]
+action = iptables-allports[name=nginx-head-scan]
+         cloudflare-edge[name=nginx-head-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-reconnaissance]
+action = iptables-allports[name=nginx-reconnaissance]
+         cloudflare-edge[name=nginx-reconnaissance, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-smb-exploit]
+action = iptables-allports[name=nginx-smb-exploit]
+         cloudflare-edge[name=nginx-smb-exploit, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-systematic-scan]
+action = iptables-allports[name=nginx-systematic-scan]
+         cloudflare-edge[name=nginx-systematic-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-vuln-scan]
+action = iptables-allports[name=nginx-vuln-scan]
+         cloudflare-edge[name=nginx-vuln-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-wp-scan]
+action = iptables-allports[name=nginx-wp-scan]
+         cloudflare-edge[name=nginx-wp-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+
+[nginx-zero-tolerance]
+action = iptables-allports[name=nginx-zero-tolerance]
+         cloudflare-edge[name=nginx-zero-tolerance, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]

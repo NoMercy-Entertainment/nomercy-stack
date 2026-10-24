@@ -1,24 +1,14 @@
 [Definition]
-# ZERO TOLERANCE - WordPress and Secure File Access Attempts
-# ANY WordPress path or secure file request = PERMANENT BAN
-# This is the consolidated filter for ultimate protection
+# Exploit and secret-file probes: any status code, one request is enough.
+# Log format (proxy/nginx.conf main_timed):
+#   [time] "METHOD /path HTTP/1.1" status bytes "referer" "user-agent" xff remote_addr rt urt pipe cache
+# The patterns look at the request path only. <HOST> is the client address after
+# the user agent. A greedy ".*<HOST>" binds to a number in the timing fields
+# (the jail then banned "0.0.0.1"), so the host is anchored after the quotes.
+_pre = ^[^"]*"[A-Z]+ [^ "]*
+_post = [^ "]*(?: [^"]*)?"
+_tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-# Match ANY WordPress-related requests (regardless of status code)
-failregex = ^.*".*wp.*".*<HOST>.*$
-            ^.*".*wordpress.*".*<HOST>.*$
-            ^.*".*\.env.*".*<HOST>.*$
-            ^.*".*\.git.*".*<HOST>.*$
-            ^.*".*\.aws.*".*<HOST>.*$
-            ^.*".*\.htaccess.*".*<HOST>.*$
-            ^.*".*\.htpasswd.*".*<HOST>.*$
-            ^.*".*config\.php.*".*<HOST>.*$
-            ^.*".*database\.sql.*".*<HOST>.*$
-            ^.*".*backup\.sql.*".*<HOST>.*$
-            ^.*".*dump\.sql.*".*<HOST>.*$
-            ^.*".*admin\.php.*".*<HOST>.*$
-            ^.*".*phpmyadmin.*".*<HOST>.*$
-            ^.*".*alfacgiapi.*".*<HOST>.*$
-            ^.*".*ALFA_DATA.*".*<HOST>.*$
+failregex = %(_pre)s(?:wp-(?:admin|login|content|includes|json|config|cron|signup|trackback)|wp-[a-z0-9_-]+\.php|xmlrpc\.php|wordpress|\.env|\.git\b|\.aws|\.htaccess|\.htpasswd|config\.php|(?:database|backup|dump|db)\.sql|admin\.php|phpmyadmin|alfacgiapi|ALFA_DATA)%(_post)s[ ]\d{3} %(_tail)s
 
-# No exceptions - zero tolerance
-ignoreregex = 
+ignoreregex =

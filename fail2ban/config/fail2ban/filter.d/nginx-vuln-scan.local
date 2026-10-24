@@ -1,17 +1,10 @@
 [Definition]
-# Block aggressive web vulnerability scanning attempts
-# This catches common patterns used by automated scanners
+# Vulnerability probes that return 404. See nginx-wp-scan for the log format and
+# why <HOST> is anchored after the user agent.
+_pre = ^[^"]*"[A-Z]+ [^ "]*
+_post = [^ "]*(?: [^"]*)?"
+_tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-# Log format: [timestamp] "method /path HTTP/version" status size "referer" "user-agent" real_ip forwarded_ip response_time upstream_time . -
+failregex = %(_pre)s(?:\.env|alfacgiapi|ALFA_DATA|/admin|\.git\b|\.aws|phpmyadmin)%(_post)s[ ]404 %(_tail)s
 
-# Match common vulnerability scanning patterns that return 404
-failregex = ^.*\.env.*404.*<HOST>.*$
-            ^.*alfacgiapi.*404.*<HOST>.*$
-            ^.*ALFA_DATA.*404.*<HOST>.*$
-            ^.*/admin.*404.*<HOST>.*$
-            ^.*\.git.*404.*<HOST>.*$
-            ^.*\.aws.*404.*<HOST>.*$
-            ^.*phpmyadmin.*404.*<HOST>.*$
-
-# Ignore legitimate requests
-ignoreregex = 
+ignoreregex =

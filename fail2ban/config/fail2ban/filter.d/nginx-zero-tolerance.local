@@ -1,18 +1,11 @@
 [Definition]
-# Immediate ban for obvious malicious scanning patterns
-# Zero tolerance for these patterns - instant permanent ban
+# Secret-file and exploit-path probes: any status code, one request is enough.
+# Same patterns as nginx-wp-scan. See that file for the log format and why
+# <HOST> is anchored after the user agent.
+_pre = ^[^"]*"[A-Z]+ [^ "]*
+_post = [^ "]*(?: [^"]*)?"
+_tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-# Git repository scanning
-failregex = ^.*".*\.git.*".*<HOST>.*$
-            ^.*".*\.env.*".*<HOST>.*$
-            ^.*".*\.aws.*".*<HOST>.*$
-            ^.*".*\.htaccess.*".*<HOST>.*$
-            ^.*".*\.htpasswd.*".*<HOST>.*$
-            ^.*".*config\.php.*".*<HOST>.*$
-            ^.*".*database\.sql.*".*<HOST>.*$
-            ^.*".*dump\.sql.*".*<HOST>.*$
-            ^.*".*backup\.sql.*".*<HOST>.*$
-            ^.*".*alfacgiapi.*".*<HOST>.*$
-            ^.*".*ALFA_DATA.*".*<HOST>.*$
+failregex = %(_pre)s(?:wp-(?:admin|login|content|includes|json|config|cron|signup|trackback)|wp-[a-z0-9_-]+\.php|xmlrpc\.php|wordpress|\.env|\.git\b|\.aws|\.htaccess|\.htpasswd|config\.php|(?:database|backup|dump|db)\.sql|admin\.php|phpmyadmin|alfacgiapi|ALFA_DATA)%(_post)s[ ]\d{3} %(_tail)s
 
 ignoreregex =

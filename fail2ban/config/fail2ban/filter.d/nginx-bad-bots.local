@@ -1,20 +1,11 @@
 [Definition]
-# Block bad bots and automated scanners based on User-Agent patterns
-# This filter targets known malicious user agents and scanning tools
+# Known scanner user agents. See nginx-wp-scan for the log format and why <HOST>
+# is anchored after the user agent. The user agent is the second quoted field
+# after the status, so the pattern cannot match the request path or referer.
+_req = ^[^"]*"[^"]*" \d{3} \d+ "[^"]*"
+_tail = .*?<HOST> [0-9.]+ .*$
 
-# Log format: [timestamp] "method /path HTTP/version" status size "referer" "user-agent" real_ip forwarded_ip response_time upstream_time . -
+failregex = %(_req)s "[^"]*(?:MJ12bot|masscan|zgrab|sqlmap|Nmap|python-requests|ALFA_DATA|alfacgiapi)[^"]*" %(_tail)s
+            ^[^"]*"[^"]*" 404 \d+ "[^"]*" "[^"]*(?:curl|Wget)[^"]*" %(_tail)s
 
-# Match known bad user agents
-failregex = ^.*".*MJ12bot.*".*<HOST>.*$
-            ^.*".*masscan.*".*<HOST>.*$
-            ^.*".*zgrab.*".*<HOST>.*$
-            ^.*".*sqlmap.*".*<HOST>.*$
-            ^.*".*Nmap.*".*<HOST>.*$
-            ^.*".*python-requests.*".*<HOST>.*$
-            ^.*".*curl.*".*404.*<HOST>.*$
-            ^.*".*Wget.*".*404.*<HOST>.*$
-            ^.*".*ALFA_DATA.*".*<HOST>.*$
-            ^.*".*alfacgiapi.*".*<HOST>.*$
-
-# Match requests with suspicious patterns in User-Agent
 ignoreregex =

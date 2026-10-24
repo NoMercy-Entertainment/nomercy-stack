@@ -1,9 +1,14 @@
 [Definition]
-# Aggressive detection of directory scanning and reconnaissance attempts
-# This filter catches systematic scanning patterns that indicate malicious intent
+# Directory and backup-file scanning that returns 404. See nginx-wp-scan for the
+# log format and why <HOST> is anchored after the user agent.
+# The old pattern matched words like "api", "app", "new" and "old" anywhere in
+# the request, so one 404 for a normal path could ban a real user for ever. This
+# one needs a probe name at the start of a path segment, or an archive or backup
+# file extension.
+_pre = ^[^"]*"[A-Z]+ [^ "]*
+_post = [^ "]*(?: [^"]*)?"
+_tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-# Match directory scanning patterns that return 404
-failregex = ^.*".*(?:old|new|backup|test|wordpress|wp-|admin|login|manager|phpmyadmin|webmail|mail|ftp|sql|database|db|api|app|config|setup|install).*".*404.*<HOST>.*$
-            ^.*".*(?:20[0-9][0-9]|19[0-9][0-9]).*".*404.*<HOST>.*$
+failregex = %(_pre)s(?:/(?:old|backup|backups|bak|wordpress|wp-[a-z]+|phpmyadmin|pma|webmail|ftp|sql|database|dump|config|setup|install)(?:[/.?_-]|$)|\.(?:zip|tar|tgz|gz|rar|7z|bak|old|sql|swp)(?:\?|$))%(_post)s[ ]404 %(_tail)s
 
 ignoreregex =

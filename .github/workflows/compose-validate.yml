@@ -26,3 +26,6 @@ jobs:
 
       - name: Every host-side artisan call runs as www
         run: bash scripts/check-artisan-runs-as-www.sh
+
+      - name: Trusted runner addresses reach only fail2ban's ignoreip
+        run: bash scripts/check-fail2ban-ignore.sh

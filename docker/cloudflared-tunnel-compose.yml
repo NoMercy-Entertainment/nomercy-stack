@@ -6,7 +6,7 @@ services:
   ### Cloudflare Tunnel ##################################
   tunnel:
     container_name: cloudflared-tunnel
-    image: cloudflare/cloudflared
+    image: cloudflare/cloudflared:2026.10.4
     restart: unless-stopped
     command: tunnel run
     environment:

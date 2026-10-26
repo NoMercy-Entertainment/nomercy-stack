@@ -1,47 +1,61 @@
-# Adds the Cloudflare edge ban to every web jail. The host firewall action stays
-# as it was. This file sorts after the per-jail files, so its action line wins.
-# cftoken and cfaccount come from 02-cloudflare-edge.local (gitignored).
+# Adds the Cloudflare edge ban and an AbuseIPDB report to every web jail. The host
+# firewall action stays as it was. This file sorts after the per-jail files, so its
+# action line wins.
+# cftoken and cfaccount come from 02-cloudflare-edge.local, abuseipdb_apikey from
+# 03-abuseipdb.local (both gitignored). AbuseIPDB categories: 14 port scan,
+# 15 hacking, 19 bad web bot, 21 web app attack.
 
 [nginx-aggressive-scan]
 action = iptables-allports[name=nginx-aggressive-scan]
          cloudflare-edge[name=nginx-aggressive-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-aggressive-scan, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="14,21"]
 
 [nginx-bad-bots]
 action = iptables-allports[name=nginx-bad-bots]
          cloudflare-edge[name=nginx-bad-bots, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-bad-bots, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="19"]
 
 [nginx-direct-access]
 action = iptables-allports[name=nginx-direct-access]
          cloudflare-edge[name=nginx-direct-access, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-direct-access, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="21"]
 
 [nginx-exploit-attempts]
 action = iptables-allports[name=nginx-exploit-attempts]
          cloudflare-edge[name=nginx-exploit-attempts, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-exploit-attempts, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="15,21"]
 
 [nginx-head-scan]
 action = iptables-allports[name=nginx-head-scan]
          cloudflare-edge[name=nginx-head-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-head-scan, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="14"]
 
 [nginx-reconnaissance]
 action = iptables-allports[name=nginx-reconnaissance]
          cloudflare-edge[name=nginx-reconnaissance, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-reconnaissance, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="14,21"]
 
 [nginx-smb-exploit]
 action = iptables-allports[name=nginx-smb-exploit]
          cloudflare-edge[name=nginx-smb-exploit, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-smb-exploit, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="15"]
 
 [nginx-systematic-scan]
 action = iptables-allports[name=nginx-systematic-scan]
          cloudflare-edge[name=nginx-systematic-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-systematic-scan, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="14,21"]
 
 [nginx-vuln-scan]
 action = iptables-allports[name=nginx-vuln-scan]
          cloudflare-edge[name=nginx-vuln-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-vuln-scan, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="21"]
 
 [nginx-wp-scan]
 action = iptables-allports[name=nginx-wp-scan]
          cloudflare-edge[name=nginx-wp-scan, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-wp-scan, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="21"]
 
 [nginx-zero-tolerance]
 action = iptables-allports[name=nginx-zero-tolerance]
          cloudflare-edge[name=nginx-zero-tolerance, cftoken="%(cftoken)s", cfaccount="%(cfaccount)s"]
+         abuseipdb-nomercy[name=nginx-zero-tolerance, abuseipdb_apikey="%(abuseipdb_apikey)s", abuseipdb_category="15,21"]

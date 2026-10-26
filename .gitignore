@@ -71,4 +71,5 @@ fail2ban/config/fail2ban/fail2ban.sqlite3
 # Admin IPs, written by scripts/provision-security.sh; this repo is public.
 fail2ban/config/fail2ban/jail.d/01-admin-ignoreip.local
 fail2ban/config/fail2ban/jail.d/02-cloudflare-edge.local
+fail2ban/config/fail2ban/jail.d/03-abuseipdb.local
 logs/logrotate.status

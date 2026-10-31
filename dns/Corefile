@@ -8,6 +8,7 @@ srv.nomercy.tv:53 {
     template IN NS srv.nomercy.tv {
         match "^srv\.nomercy\.tv\.$"
         answer "srv.nomercy.tv. 60 IN NS ns1.nomercy.tv."
+        answer "srv.nomercy.tv. 60 IN NS ns2.nomercy.tv."
         fallthrough
     }
 

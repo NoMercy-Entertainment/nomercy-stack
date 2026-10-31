@@ -111,11 +111,33 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(`{"ok":true}`))
 }
 
+// zone serves the raw zone file so a replica name server can mirror it.
+func zone(w http.ResponseWriter, r *http.Request) {
+	if !authed(r) {
+		http.Error(w, `{"ok":false,"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, `{"ok":false,"error":"method"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	mu.Lock()
+	raw, err := os.ReadFile(zonePath)
+	mu.Unlock()
+	if err != nil {
+		http.Error(w, `{"ok":false,"error":"zone read"}`, http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	_, _ = w.Write(raw)
+}
+
 func main() {
 	if token == "" {
 		log.Fatal("TXT_UPDATER_TOKEN must be set")
 	}
 	http.HandleFunc("/txt", handle)
+	http.HandleFunc("/zone", zone)
 	addr := envOr("LISTEN", "0.0.0.0:8081")
 	log.Printf("txt-updater listening on %s (zone=%s)", addr, zonePath)
 	log.Fatal(http.ListenAndServe(addr, nil))

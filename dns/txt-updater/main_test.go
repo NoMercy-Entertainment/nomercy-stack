@@ -1,8 +1,44 @@
 package main
 
-import "strings"
+import (
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
 
-import "testing"
+func TestZoneEndpointServesRawFileBehindToken(t *testing.T) {
+	zonePath = filepath.Join(t.TempDir(), "dynamic.db")
+	want := "$ORIGIN srv.nomercy.tv.\n@ IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. ( 1 ; serial\n 7200 3600 1209600 60 )\n"
+	if err := os.WriteFile(zonePath, []byte(want), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	token = "test-token"
+
+	rec := httptest.NewRecorder()
+	zone(rec, httptest.NewRequest(http.MethodGet, "/zone", nil))
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("no token: want 401, got %d", rec.Code)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/zone", nil)
+	req.Header.Set("Authorization", "Bearer test-token")
+	rec = httptest.NewRecorder()
+	zone(rec, req)
+	if rec.Code != http.StatusOK || rec.Body.String() != want {
+		t.Fatalf("with token: want 200 and the exact file, got %d %q", rec.Code, rec.Body.String())
+	}
+
+	req = httptest.NewRequest(http.MethodPost, "/zone", nil)
+	req.Header.Set("Authorization", "Bearer test-token")
+	rec = httptest.NewRecorder()
+	zone(rec, req)
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("POST: want 405, got %d", rec.Code)
+	}
+}
 
 func TestAddTxtBumpsSerialAndAppends(t *testing.T) {
 	zone := "$ORIGIN srv.nomercy.tv.\n$TTL 60\n@ IN SOA ns1.nomercy.tv. hostmaster.nomercy.tv. (\n        2026070301 ; serial\n        7200 3600 1209600 60 )\n@ IN NS ns1.nomercy.tv.\n"

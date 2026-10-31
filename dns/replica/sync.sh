@@ -1,0 +1,25 @@
+#!/bin/sh
+# Mirrors ns1's dynamic.db every 3 s. Replaces the local file only when the download
+# is non-empty, looks like a zone, and differs from what is already there.
+set -u
+OUT=/zones/dynamic.db
+TMP=/zones/.dynamic.db.new
+INTERVAL="${SYNC_INTERVAL:-3}"
+
+while true; do
+    if curl -fsS --max-time 5 -H "Authorization: Bearer ${TXT_UPDATER_TOKEN}" \
+        -o "$TMP" "$ZONE_URL" 2>/dev/null; then
+        if [ -s "$TMP" ] && grep SOA "$TMP" > /dev/null; then
+            if ! cmp -s "$TMP" "$OUT"; then
+                mv "$TMP" "$OUT"
+                echo "zone updated $(date -u +%H:%M:%S)"
+            fi
+        else
+            echo "ignored empty or non-zone response" >&2
+        fi
+    else
+        echo "fetch failed" >&2
+    fi
+    rm -f "$TMP"
+    sleep "$INTERVAL"
+done

@@ -1,0 +1,52 @@
+services:
+  coredns:
+    image: coredns/coredns:1.11.3
+    container_name: coredns-replica
+    command: -conf /etc/coredns/Corefile
+    volumes:
+      - ./Corefile:/etc/coredns/Corefile:ro
+      - ./zones:/etc/coredns/zones:ro
+    ports:
+      - "${DNS_BIND_IP}:${DNS_PORT:-53}:53/udp"
+      - "${DNS_BIND_IP}:${DNS_PORT:-53}:53/tcp"
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  zone-sync:
+    image: alpine:3.20
+    container_name: zone-sync
+    environment:
+      - ZONE_URL=${ZONE_URL:-http://tunnel:8081/zone}
+      - TXT_UPDATER_TOKEN=${TXT_UPDATER_TOKEN}
+    volumes:
+      - ./zones:/zones
+      - ./sync.sh:/sync.sh:ro
+    command: sh -c "apk add -q --no-cache curl && exec sh /sync.sh"
+    depends_on:
+      - tunnel
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+
+  tunnel:
+    image: alpine:3.20
+    container_name: zone-tunnel
+    command: >
+      sh -c "apk add -q --no-cache openssh-client &&
+      exec ssh -N -L 0.0.0.0:8081:127.0.0.1:8081
+      -i /ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes
+      -o UserKnownHostsFile=/ssh/known_hosts
+      -o ExitOnForwardFailure=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=3
+      ${TUNNEL_USER:-tunnel}@${TUNNEL_HOST}"
+    volumes:
+      - ${TUNNEL_KEY_FILE:-./secrets/tunnel_key}:/ssh/id_ed25519:ro
+      - ${TUNNEL_KNOWN_HOSTS:-./secrets/known_hosts}:/ssh/known_hosts:ro
+    restart: always
+    labels:
+      - com.centurylinklabs.watchtower.enable=false

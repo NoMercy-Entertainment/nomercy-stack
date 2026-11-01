@@ -34,6 +34,18 @@ services:
     labels:
       - com.centurylinklabs.watchtower.enable=false
 
+  ip-sync:
+    image: alpine:3.20
+    container_name: ns2-ip-sync
+    env_file:
+      - ./ddns.env
+    volumes:
+      - ./ip-sync.sh:/ip-sync.sh:ro
+    command: sh -c "apk add -q --no-cache curl jq && exec sh /ip-sync.sh"
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+
   tunnel:
     image: alpine:3.20
     container_name: zone-tunnel

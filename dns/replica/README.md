@@ -14,6 +14,9 @@ If ns1 dies, ns2 keeps every `*.srv.nomercy.tv` name alive.
 - `zone-sync` fetches `GET /zone` through the tunnel every 3 s with the bearer token.
   It replaces `zones/dynamic.db` only when the download is non-empty, contains `SOA` and differs.
   CoreDNS reloads the file every 5 s. A new ACME token is on ns2 within about 8 s worst case.
+- `ip-sync` asks `api.ipify.org` for the home public IPv4 every 60 s and fixes the `ns2` A record at Cloudflare
+  when it differs. It reads `ddns.env` (`CF_TOKEN`, `CF_ZONE_ID`, `CF_RECORD_NAME`; gitignored). Use a token limited to
+  "DNS Write" on the one zone. Test: `bash dns/replica/test-ip-sync.sh` (needs bash, curl, jq, python3).
 - The synthesis rules (A, AAAA, NODATA) are in the Corefile and need no sync.
 - `Corefile` here equals `../Corefile` except for the second apex NS line (`ns2.nomercy.tv.`).
   The SOA stays `ns1.nomercy.tv.` because an SOA names one primary.

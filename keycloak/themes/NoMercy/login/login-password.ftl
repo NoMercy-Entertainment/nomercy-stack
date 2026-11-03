@@ -11,7 +11,6 @@
                     <label for="password">${msg("password")} <span class="nm-req">*</span></label>
                     <div class="nm-input">
                         <input id="password" name="password" type="password" autocomplete="current-password" autofocus
-                               data-pw-length="8" data-pw-digits="1" data-pw-special="1"
                                aria-invalid="<#if messagesPerField.existsError('password')>true</#if>"/>
                     </div>
                     <#if messagesPerField.existsError('password')>

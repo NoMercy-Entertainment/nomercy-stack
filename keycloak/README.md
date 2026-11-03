@@ -242,7 +242,7 @@ Display name: `NoMercy Entertainment`
 Auth: enabled, SSL: enabled
 
 Login theme: `NoMercy` (custom theme in `./themes/`)
-Account theme: `keycloak.v3`
+Account theme: `NoMercy` (inherits `keycloak.v3`)
 Admin theme: `keycloak.v2`
 Email theme: `keycloak` (default)
 

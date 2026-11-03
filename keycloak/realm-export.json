@@ -3156,7 +3156,7 @@
     "user": "noreply@nomercy.tv"
   },
   "loginTheme": "NoMercy",
-  "accountTheme": "keycloak.v3",
+  "accountTheme": "NoMercy",
   "adminTheme": "keycloak.v2",
   "emailTheme": "keycloak",
   "eventsEnabled": true,

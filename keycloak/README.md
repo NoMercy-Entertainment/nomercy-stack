@@ -267,10 +267,14 @@ If the Keycloak instance is lost:
    ```bash
    /opt/keycloak/bin/kc.sh import --file /path/to/NoMercyTV-realm.json
    ```
-4. Verify all clients have their correct secrets configured
-5. Verify identity providers can perform OAuth handshake
-6. Update any `.env` files that reference `KEYCLOAK_CLIENT_SECRET` or similar
-7. Rotate the JWKS cache in nomercy-tv if the RSA key changed (restart container)
+4. After signing in with `kcadm.sh` as an administrator, create the separate cast receiver client:
+   ```bash
+   /opt/keycloak/bin/kcadm.sh create clients -r NoMercyTV -f /path/to/cast-receiver-client.json
+   ```
+5. Verify all clients have their correct secrets configured
+6. Verify identity providers can perform OAuth handshake
+7. Update any `.env` files that reference `KEYCLOAK_CLIENT_SECRET` or similar
+8. Rotate the JWKS cache in nomercy-tv if the RSA key changed (restart container)
 
 After import, the RSA key pair will be regenerated. This means the public key in `nomercy-tv`'s
 `.env` (`KEYCLOAK_REALM_PUBLIC_KEY`) must be updated to match the new key from:

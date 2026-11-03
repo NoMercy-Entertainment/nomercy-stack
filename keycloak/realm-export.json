@@ -4608,13 +4608,6 @@
       }
     },
     {
-      "id": "70c810f8-73a1-4aa1-8a86-54e5d37095c4",
-      "alias": "fuck you",
-      "config": {
-        "denyErrorMessage": "fuck you"
-      }
-    },
-    {
       "id": "dec714c4-b463-4a91-a36f-9cd34dabfe28",
       "alias": "google",
       "config": {

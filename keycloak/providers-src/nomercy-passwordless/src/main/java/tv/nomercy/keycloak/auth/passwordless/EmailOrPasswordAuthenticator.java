@@ -211,7 +211,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     /**
      * Rate-limited code send, keyed per user across all login sessions (anti email-bombing / SMTP cost).
      * Returns 0 when an email was sent, the seconds remaining when inside the per-user cooldown,
-     * or -1 when the hourly cap is reached or the user has no email.
+     * -1 when the hourly cap is reached or the user has no email, or -2 when sending fails.
      */
     private long sendCode(AuthenticationFlowContext context) {
         UserModel user = context.getUser();
@@ -229,24 +229,29 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
                 return remaining;
             }
         }
-        if (!reserveHourlySlot(store, userId, maxSendsPerHour(context))) {
+        String slotKey = reserveHourlySlot(store, userId, maxSendsPerHour(context));
+        if (slotKey == null) {
             return -1;
         }
+        if (!emitCode(context, user)) {
+            store.remove(slotKey);
+            return -2;
+        }
         store.put(SUO_COOLDOWN + userId, resendCooldown(context), Map.of("t", Long.toString(now)));
-        emitCode(context, user);
         return 0;
     }
 
-    private static boolean reserveHourlySlot(SingleUseObjectProvider store, String userId, int maxPerHour) {
+    private static String reserveHourlySlot(SingleUseObjectProvider store, String userId, int maxPerHour) {
         for (int slot = 0; slot < maxPerHour; slot++) {
-            if (store.putIfAbsent(SUO_HOUR_SLOT + userId + ":" + slot, SEND_WINDOW_SECONDS)) {
-                return true;
+            String slotKey = SUO_HOUR_SLOT + userId + ":" + slot;
+            if (store.putIfAbsent(slotKey, SEND_WINDOW_SECONDS)) {
+                return slotKey;
             }
         }
-        return false;
+        return null;
     }
 
-    private void emitCode(AuthenticationFlowContext context, UserModel user) {
+    private boolean emitCode(AuthenticationFlowContext context, UserModel user) {
         KeycloakSession session = context.getSession();
         RealmModel realm = context.getRealm();
         int ttl = codeTtl(context);
@@ -269,8 +274,13 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
         try {
             EmailSenderProvider sender = session.getProvider(EmailSenderProvider.class);
             sender.send(realm.getSmtpConfig(), user, subject, text, html);
+            return true;
         } catch (EmailException e) {
             LOG.errorf(e, "Failed to send NoMercy sign-in code to user %s", user.getId());
+            authSession.removeAuthNote(NOTE_CODE_HASH);
+            authSession.removeAuthNote(NOTE_CODE_EXP);
+            authSession.removeAuthNote(NOTE_ATTEMPTS);
+            return false;
         }
     }
 
@@ -285,7 +295,7 @@ public class EmailOrPasswordAuthenticator implements Authenticator {
     }
 
     private Response codeChallenge(AuthenticationFlowContext context, long sendResult) {
-        String errorKey = sendResult == -1 ? "nmTooManyRequests" : null;
+        String errorKey = sendResult == -1 ? "nmTooManyRequests" : sendResult == -2 ? "nmCodeSendFailed" : null;
         Long cooldownRemaining = sendResult > 0 ? sendResult : null;
         return codeForm(context, errorKey, cooldownRemaining);
     }

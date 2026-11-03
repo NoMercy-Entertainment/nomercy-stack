@@ -19,7 +19,7 @@ x-website-base: &website-base
     - 1.1.1.1
     - 8.8.8.8
   healthcheck:
-    test: ["CMD", "curl", "--silent", "--fail", "http://127.0.0.1:8080/fpm-ping"]
+    test: ["CMD-SHELL", "test -e /run/website-booting || curl --silent --fail http://127.0.0.1:8080/fpm-ping"]
     interval: 10s
     timeout: 10s
     retries: 3

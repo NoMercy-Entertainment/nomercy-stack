@@ -43,7 +43,7 @@ UPSTREAM_CONF="$STACK_DIR/proxy/sites/upstream-website.conf"
 UPSTREAM_DEFAULT="$STACK_DIR/proxy/sites/upstream-website.conf.default"
 PROXY_CONTAINER="${APP_NAME:-nomercy.tv}-proxy"
 LEGACY_CONTAINER="${APP_NAME:-nomercy.tv}-website"
-HEALTH_TIMEOUT_TRIES=24    # 24 * 5s = 120s
+HEALTH_TIMEOUT_TRIES=72    # 72 * 5s = 360s
 HEALTH_TIMEOUT_SLEEP=5
 DRAIN_SECONDS=15
 
@@ -163,8 +163,11 @@ status="missing"
 for _ in $(seq 1 "$HEALTH_TIMEOUT_TRIES"); do
   status=$(docker inspect --format '{{.State.Health.Status}}' "$idle_container" 2>/dev/null || echo missing)
   if [ "$status" = "healthy" ]; then
-    healthy=1
-    break
+    code=$(docker exec "$idle_container" curl -s -o /dev/null -w '%{http_code}' -m 10 http://127.0.0.1:8080/up || echo 000)
+    if [ "$code" = "200" ]; then
+      healthy=1
+      break
+    fi
   fi
   sleep "$HEALTH_TIMEOUT_SLEEP"
 done
@@ -178,13 +181,6 @@ if [ "$healthy" != "1" ]; then
   exit 1
 fi
 
-code=$(docker exec "$idle_container" curl -s -o /dev/null -w '%{http_code}' -m 10 http://127.0.0.1:8080/up || echo 000)
-if [ "$code" != "200" ]; then
-  echo "ERROR: /up returned $code on $idle_container after deploy." >&2
-  docker logs --tail 60 "$idle_container" || true
-  echo "ROLLBACK: leaving '$active' serving, nginx untouched." >&2
-  exit 1
-fi
 echo "$idle_container verified healthy and /up returns 200."
 
 # --- atomic switch: point the nginx upstream at idle, then graceful reload.

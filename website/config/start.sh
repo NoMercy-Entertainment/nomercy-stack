@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Keep autoheal from interrupting migrations before nginx has started.
+touch /run/website-booting
+
 # Restore the optimized vendor tree baked into the image over the named volume,
 # which persists (and can go stale) across recreates. Done unconditionally — a
 # cheap cp — so the freshly-built --no-cache image's autoload always wins and we
@@ -104,4 +107,5 @@ if [ "${NOMERCY_WORKERS:-on}" = "off" ]; then
 fi
 
 # Start supervisord and services (must be last — exec replaces the shell)
+rm -f /run/website-booting
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

@@ -6,6 +6,7 @@
 #                        under docker/, keycloak/, mysql/, ... so one render of
 #                        the top-level file validates all of them together.
 #   dns/dns-compose.yml  standalone (own .env.example), rendered alone.
+#   dns/replica/replica-compose.yml  the ns2 replica, standalone the same way.
 #
 # Two checks per entry point:
 #   1. `docker compose config -q` with every profile on: YAML, interpolation,
@@ -25,6 +26,7 @@ cd "$repo"
 entry_points=(
   "docker-compose.yml"
   "dns/dns-compose.yml"
+  "dns/replica/replica-compose.yml"
 )
 
 failures=0
@@ -48,6 +50,10 @@ for ep in "${entry_points[@]}"; do
   if [ -f "$dir/.env.example" ] && [ ! -f "$dir/.env" ]; then
     cp "$dir/.env.example" "$dir/.env"
     echo "info $ep: .env copied from .env.example"
+  fi
+  # the replica names a gitignored secret file; an empty one lets config render
+  if [ "$ep" = "dns/replica/replica-compose.yml" ] && [ ! -f "$dir/ddns.env" ]; then
+    : > "$dir/ddns.env"
   fi
 
   if ! (cd "$dir" && docker compose -f "$file" --profile '*' config -q); then

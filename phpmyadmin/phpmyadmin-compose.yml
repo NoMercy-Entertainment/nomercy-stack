@@ -16,9 +16,17 @@ services:
       - mysql
     links:
       - mysql:db
+    # Only what the sign-on code reads, never the whole stack .env (stack#23).
     environment:
       - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_SERVER_NAME=${MYSQL_SERVER_NAME}
+      - MYSQL_CSP_ALLOW=${MYSQL_CSP_ALLOW:-}
+      - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_FRONTEND_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
       - PMA_HOST=mysql
       - ServerName=${MYSQL_SERVER_NAME}
 #    ports:
@@ -26,7 +34,6 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ../.env:/var/www/.env:ro
       - ./config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:ro
       - ./classes/DotEnv.php:/var/www/html/classes/DotEnv.php:ro
       - ./classes/KeycloakClient.php:/var/www/html/classes/KeycloakClient.php:ro

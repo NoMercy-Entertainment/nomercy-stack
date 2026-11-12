@@ -2,7 +2,9 @@
 enabled = true
 filter = nginx-aggressive-scan
 logpath = /remotelogs/nginx/access.log
-maxretry = 2   # the least certain probe names: two hits, not one (stack#4)
+# The least certain probe names: two hits, not one. 7 days: a wrong match must
+# end (stack#4). No inline comments: fail2ban keeps them in the value.
+maxretry = 2
 findtime = 86400
-bantime = 604800   # 7 days: a wrong match must end (stack#4)
+bantime = 604800
 action = iptables-allports[name=nginx-aggressive-scan]

@@ -84,11 +84,28 @@ for jail in JAILS:
         if host != VISITOR:
             failures.append(f"{jail} misses a probe (got {host}): {text}")
     for name in sorted((ROOT / "jail.d").glob(jail + ".*")):
-        parser = configparser.RawConfigParser(strict=False, inline_comment_prefixes=("#", ";"))
+        # No inline comment stripping: fail2ban keeps "604800   # note" as the value,
+        # finds it is not a number and silently falls back to its default.
+        parser = configparser.RawConfigParser(strict=False)
         parser.read(name, encoding="utf-8")
+        for key in ("bantime", "maxretry", "findtime"):
+            value = parser.get(jail, key, fallback=None)
+            if value is not None and not re.fullmatch(r"-?\d+", value.strip()):
+                failures.append(f"{name.name}: {key} = {value.strip()!r} is not a plain number")
         bantime = parser.get(jail, "bantime", fallback=None)
         if bantime is not None and bantime.strip().startswith("-"):
             failures.append(f"{name.name}: bantime {bantime.strip()} bans for ever")
+
+# Every jail file: number settings must be plain numbers (an inline comment makes
+# fail2ban fall back to its default without an error).
+for name in sorted((ROOT / "jail.d").glob("*")):
+    parser = configparser.RawConfigParser(strict=False)
+    parser.read(name, encoding="utf-8")
+    for section in parser.sections():
+        for key in ("bantime", "maxretry", "findtime"):
+            value = parser.get(section, key, fallback=None)
+            if value is not None and "%" not in value and not re.fullmatch(r"-?\d+[smhdw]?", value.strip()):
+                failures.append(f"{name.name} [{section}]: {key} = {value.strip()!r} is not a plain number")
 
 # No action a jail uses may put a secret on a command line: a process list in
 # the container shows it (a Cloudflare token leaked that way, 2026-11-12).

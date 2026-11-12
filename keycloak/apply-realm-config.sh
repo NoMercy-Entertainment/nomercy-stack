@@ -35,16 +35,27 @@ CLIENT_SECRET=$(grep -E '^KEYCLOAK_ADMIN_CLIENT_SECRET=' "$ENV_FILE" | cut -d= -
 : "${CLIENT_ID:?KEYCLOAK_ADMIN_CLIENT_ID missing from $ENV_FILE}"
 : "${CLIENT_SECRET:?KEYCLOAK_ADMIN_CLIENT_SECRET missing from $ENV_FILE}"
 
-TOKEN=$(curl -s --max-time 20 \
+# No secret on a command line (stack#8): any user on the host can read process arguments.
+# The client secret goes to curl on stdin (printf is a shell builtin), and the token sits in a
+# header file only this user can read. On Git Bash, curl is a native program, so it gets the
+# file's Windows path.
+TOKEN=$(printf '%s' "$CLIENT_SECRET" | curl -s --max-time 20 \
   -d 'grant_type=client_credentials' \
   -d "client_id=$CLIENT_ID" \
-  --data-urlencode "client_secret=$CLIENT_SECRET" \
+  --data-urlencode "client_secret@-" \
   "$BASE/realms/$REALM/protocol/openid-connect/token" \
   | python3 -c "import sys,json;print(json.load(sys.stdin).get('access_token',''))")
 [ -n "$TOKEN" ] || { echo "could not obtain a service-account token from $BASE" >&2; exit 1; }
 
-get()  { curl -s --max-time 30 -H "Authorization: Bearer $TOKEN" "$ADMIN$1"; }
-put()  { curl -s --max-time 30 -X PUT -H "Authorization: Bearer $TOKEN" \
+AUTH_FILE=$(umask 077 && mktemp)
+trap 'rm -f "$AUTH_FILE"' EXIT
+printf 'Authorization: Bearer %s\n' "$TOKEN" > "$AUTH_FILE"
+unset TOKEN CLIENT_SECRET
+AUTH_ARG="$AUTH_FILE"
+command -v cygpath > /dev/null 2>&1 && AUTH_ARG=$(cygpath -m "$AUTH_FILE")
+
+get()  { curl -s --max-time 30 -H @"$AUTH_ARG" "$ADMIN$1"; }
+put()  { curl -s --max-time 30 -X PUT -H @"$AUTH_ARG" \
            -H 'Content-Type: application/json' -d @- "$ADMIN$1" -o /dev/null -w "%{http_code}"; }
 
 echo "==> $BASE  realm $REALM"

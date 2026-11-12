@@ -5,9 +5,14 @@ set -u
 OUT=/zones/dynamic.db
 TMP=/zones/.dynamic.db.new
 INTERVAL="${SYNC_INTERVAL:-3}"
+# The token goes to curl through a header file only this user can read, never on the
+# command line, where any user on the host can see it (stack#8).
+AUTH=$(umask 077 && mktemp)
+trap 'rm -f "$AUTH"' EXIT
+printf 'Authorization: Bearer %s\n' "$TXT_UPDATER_TOKEN" > "$AUTH"
 
 while true; do
-    if curl -fsS --max-time 5 -H "Authorization: Bearer ${TXT_UPDATER_TOKEN}" \
+    if curl -fsS --max-time 5 -H @"$AUTH" \
         -o "$TMP" "$ZONE_URL" 2>/dev/null; then
         if [ -s "$TMP" ] && grep SOA "$TMP" > /dev/null; then
             if ! cmp -s "$TMP" "$OUT"; then

@@ -52,7 +52,11 @@ esac
 if [ -n "${PLANT_URL:-}" ]; then
     name="_acme-challenge.$ID.srv.nomercy.tv"
     value="plant-$(date +%s)"
-    curl -fsS -X POST -H "Authorization: Bearer ${PLANT_TOKEN}" -d "{\"name\":\"$name\",\"value\":\"$value\"}" "$PLANT_URL" >/dev/null
+    # The token goes to curl through a header file, never on the command line (stack#8).
+    AUTH=$(umask 077 && mktemp)
+    trap 'rm -f "$AUTH"' EXIT
+    printf 'Authorization: Bearer %s\n' "$PLANT_TOKEN" > "$AUTH"
+    curl -fsS -X POST -H @"$AUTH" -d "{\"name\":\"$name\",\"value\":\"$value\"}" "$PLANT_URL" >/dev/null
     start=$(date +%s)
     seen=0
     for i in $(seq 1 40); do
@@ -62,7 +66,7 @@ if [ -n "${PLANT_URL:-}" ]; then
     done
     elapsed=$(( $(date +%s) - start ))
     if [ $seen = 1 ]; then echo "PASS planted TXT $name visible on replica after ~${elapsed}s"; else echo "FAIL planted TXT not on replica within 20s"; FAIL=1; fi
-    curl -fsS -X DELETE -H "Authorization: Bearer ${PLANT_TOKEN}" -d "{\"name\":\"$name\"}" "$PLANT_URL" >/dev/null
+    curl -fsS -X DELETE -H @"$AUTH" -d "{\"name\":\"$name\"}" "$PLANT_URL" >/dev/null
 fi
 
 [ $FAIL = 0 ] && echo "replica matches reference" || { echo "replica check FAILED"; exit 1; }

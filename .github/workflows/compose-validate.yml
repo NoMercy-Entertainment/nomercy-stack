@@ -32,3 +32,6 @@ jobs:
 
       - name: The web scan jails ban scanners, never a normal visitor
         run: python3 scripts/check-fail2ban-web-filters.py
+
+      - name: No secret is passed on a command line
+        run: python3 scripts/check-no-secret-on-argv.py

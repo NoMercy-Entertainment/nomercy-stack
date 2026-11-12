@@ -13,7 +13,8 @@ DNS_DIR="$(dirname "$DIR")"
 
 if [ "${1:-}" != "--local" ]; then
     [ $# -eq 2 ] || { echo "usage: $0 REF_IP REPLICA_IP | --local"; exit 2; }
-    MSYS_NO_PATHCONV=1 docker run --rm -i -e PLANT_URL="${PLANT_URL:-}" -e PLANT_TOKEN="${PLANT_TOKEN:-}" \
+    # `-e NAME` without a value copies it from this environment, off the command line (stack#8).
+    PLANT_TOKEN="${PLANT_TOKEN:-}" MSYS_NO_PATHCONV=1 docker run --rm -i -e PLANT_URL="${PLANT_URL:-}" -e PLANT_TOKEN \
         -v "$DIR/compare.sh:/compare.sh:ro" alpine:3.20 sh /compare.sh "$1" "$2"
     exit $?
 fi
@@ -42,11 +43,11 @@ chmod 666 "$WORK/up/dynamic.db" "$DIR/zones/dynamic.db"
     docker compose -p "$PROJECT" -f replica-compose.yml up -d --no-deps coredns zone-sync)
 
 docker build -q -t ns2-test-txt-updater "$DNS_DIR/txt-updater" >/dev/null
-MSYS_NO_PATHCONV=1 docker run -d --name upstream --network "$NET" -e TXT_UPDATER_TOKEN="$TOKEN" \
+TXT_UPDATER_TOKEN="$TOKEN" MSYS_NO_PATHCONV=1 docker run -d --name upstream --network "$NET" -e TXT_UPDATER_TOKEN \
     -e ZONE_PATH=/zones/dynamic.db -v "$WORK/up:/zones" ns2-test-txt-updater >/dev/null
 MSYS_NO_PATHCONV=1 docker run -d --name ref-ns1 --network "$NET" \
     -v "$DNS_DIR/Corefile:/Corefile:ro" -v "$WORK/up:/etc/coredns/zones:ro" "$IMAGE" -conf /Corefile >/dev/null
 
 sleep 8
-MSYS_NO_PATHCONV=1 docker run --rm -i --network "$NET" -e PLANT_URL=http://upstream:8081/txt -e PLANT_TOKEN="$TOKEN" \
+PLANT_TOKEN="$TOKEN" MSYS_NO_PATHCONV=1 docker run --rm -i --network "$NET" -e PLANT_URL=http://upstream:8081/txt -e PLANT_TOKEN \
     -v "$DIR/compare.sh:/compare.sh:ro" alpine:3.20 sh /compare.sh ref-ns1 coredns-replica

@@ -24,9 +24,11 @@ class H(BaseHTTPRequestHandler):
             state[kind] = val
             return self.send("ok")
         if "/dns_records" in self.path:
+            if self.headers.get("Authorization") != "Bearer t": return self.send("no token", 401)
             return self.send({"success": True, "result": [{"id": "rec1", "content": state["content"]}]})
         self.send("?", 404)
     def do_PATCH(self):
+        if self.headers.get("Authorization") != "Bearer t": return self.send("no token", 401)
         n = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(n))
         state["content"] = body["content"]

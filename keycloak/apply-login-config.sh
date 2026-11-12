@@ -5,8 +5,8 @@
 # with this realm imported: one POST of username+password returns an authorization code,
 # the passkey button renders, and no user is forced into passkey enrolment.
 #
-# Idempotent — safe to re-run. Reads the admin password from KC_ADMIN_PASSWORD so no
-# credential is ever passed on the command line.
+# Idempotent — safe to re-run. Reads the admin password from KC_ADMIN_PASSWORD and hands it to
+# kcadm as KC_CLI_PASSWORD, so no credential is ever passed on the command line.
 #
 # Read the realm BEFORE running this. auth-dev turned out not to have a "Forms" flow at all —
 # it was bound to a custom "passwordless-email" flow whose executions endpoint 404s because one
@@ -56,8 +56,11 @@ if e:
 }
 
 echo "==> authenticating against $CONTAINER"
-kc config credentials --server http://localhost:8080 --realm master \
-  --user "$ADMIN_USER" --password "$KC_ADMIN_PASSWORD" >/dev/null
+# kcadm reads KC_CLI_PASSWORD when --password is absent. `-e KC_CLI_PASSWORD` without a value
+# copies it from this environment, so the password never sits on a command line (stack#8).
+KC_CLI_PASSWORD="$KC_ADMIN_PASSWORD" docker exec -i -e KC_CLI_PASSWORD "$CONTAINER" \
+  /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master \
+  --user "$ADMIN_USER" >/dev/null
 
 # ---------------------------------------------------------------------------
 # 1. One screen: the combined form replaces the email-only step.

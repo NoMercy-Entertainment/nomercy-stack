@@ -22,7 +22,9 @@ services:
 #    ports:
 #        - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USERNAME}", "-p${MYSQL_PASSWORD}"]
+      # The password reaches mysqladmin as MYSQL_PWD, never on its command line (stack#8).
+      # $$ keeps compose from writing the value into the container config.
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysqladmin ping -h localhost -u \"$$MYSQL_USER\""]
       interval: 30s
       timeout: 10s
       retries: 5

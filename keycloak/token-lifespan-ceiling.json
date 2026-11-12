@@ -1,0 +1,5 @@
+{
+  "accessTokenLifespan": 864000,
+  "accessTokenLifespanForImplicitFlow": 86400,
+  "target": 900
+}

@@ -15,6 +15,9 @@ on:
       - 'keycloak/keycloak-compose.yml'
       - 'scripts/check-registration-form-matches-realm.py'
       - 'scripts/check-keycloak-version.py'
+      - 'keycloak/cast-receiver-client.json'
+      - 'keycloak/token-lifespan-ceiling.json'
+      - 'scripts/check-token-lifespans.py'
       - '.github/workflows/keycloak-consistency.yml'
   pull_request:
     paths:
@@ -24,6 +27,9 @@ on:
       - 'keycloak/keycloak-compose.yml'
       - 'scripts/check-registration-form-matches-realm.py'
       - 'scripts/check-keycloak-version.py'
+      - 'keycloak/cast-receiver-client.json'
+      - 'keycloak/token-lifespan-ceiling.json'
+      - 'scripts/check-token-lifespans.py'
   workflow_dispatch:
 
 permissions:
@@ -44,3 +50,6 @@ jobs:
 
       - name: The export and the README name the Keycloak version that runs
         run: python scripts/check-keycloak-version.py
+
+      - name: No access token lifespan is above its approved ceiling
+        run: python scripts/check-token-lifespans.py

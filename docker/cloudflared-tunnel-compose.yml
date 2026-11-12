@@ -1,6 +1,13 @@
 networks:
   backend:
     driver: bridge
+  # Private link between cloudflared and the proxy. cloudflared's fixed IP is
+  # the only address nginx trusts for CF-Connecting-IP (proxy/nginx.conf).
+  tunnel:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.250.0/29
 
 services:
   ### Cloudflare Tunnel ##################################
@@ -9,6 +16,9 @@ services:
     image: cloudflare/cloudflared:2026.10.4
     restart: unless-stopped
     command: tunnel run
+    networks:
+      tunnel:
+        ipv4_address: 172.31.250.2
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:

@@ -19,6 +19,7 @@ services:
     networks:
       - backend
       - frontend
+      - tunnel
     depends_on:
       keycloak:
         condition: service_healthy

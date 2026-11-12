@@ -21,6 +21,9 @@ jobs:
       - name: Every compose file renders and every build context exists
         run: bash scripts/validate-compose.sh
 
+      - name: Only Cloudflare sets the client IP and no database runs without seccomp
+        run: python3 scripts/check-stack-trust.py
+
       - name: The proxy leaves API cache headers to Laravel
         run: bash scripts/check-proxy-cache-headers.sh
 

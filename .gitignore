@@ -72,4 +72,5 @@ fail2ban/config/fail2ban/fail2ban.sqlite3
 fail2ban/config/fail2ban/jail.d/01-admin-ignoreip.local
 fail2ban/config/fail2ban/jail.d/02-cloudflare-edge.local
 fail2ban/config/fail2ban/jail.d/03-abuseipdb.local
+fail2ban/config/fail2ban/*.auth
 logs/logrotate.status

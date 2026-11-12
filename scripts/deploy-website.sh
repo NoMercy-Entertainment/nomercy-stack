@@ -31,7 +31,7 @@
 # proxy/sites/upstream-website.conf (what nginx currently points at, kept in
 # sync with the marker by this script).
 #
-# Usage: ./scripts/deploy-website.sh
+# Usage: RELEASE_SHA=<tested commit> ./scripts/deploy-website.sh
 # Run from anywhere; paths below are absolute to the stack root.
 
 set -euo pipefail
@@ -48,6 +48,9 @@ HEALTH_TIMEOUT_SLEEP=5
 DRAIN_SECONDS=15
 
 cd "$STACK_DIR"
+
+# shellcheck source=release-sha.sh
+source "$STACK_DIR/scripts/release-sha.sh"
 
 echo "== nomercy-tv blue-green deploy =="
 
@@ -101,8 +104,7 @@ if [ "$idle" = "green" ] && [ ! -d "$IDLE_DATA_DIR/.git" ]; then
 fi
 
 # --- update the idle color's code checkout to the release commit ---
-git -C "$IDLE_DATA_DIR" fetch origin master
-git -C "$IDLE_DATA_DIR" reset --hard origin/master
+reset_to_release_sha "$IDLE_DATA_DIR"
 
 # --- state shared by both colors: .env and storage/app ---
 # Both colors mount website/shared/.env and website/shared/storage-app (see

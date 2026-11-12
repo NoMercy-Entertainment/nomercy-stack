@@ -90,6 +90,21 @@ for jail in JAILS:
         if bantime is not None and bantime.strip().startswith("-"):
             failures.append(f"{name.name}: bantime {bantime.strip()} bans for ever")
 
+# No action a jail uses may put a secret on a command line: a process list in
+# the container shows it (a Cloudflare token leaked that way, 2026-11-12).
+SECRET = re.compile(r"<\w*(?:token|apikey|api_key|secret|password)\w*>", re.I)
+used = set()
+for name in (ROOT / "jail.d").glob("*"):
+    for m in re.finditer(r"^\s*(?:action\s*=)?\s*([\w-]+)\[", name.read_text(encoding="utf-8"), re.M):
+        used.add(m.group(1))
+for action in sorted(used):
+    for path in (ROOT / "action.d" / f"{action}.conf", ROOT / "action.d" / f"{action}.local"):
+        if not path.exists():
+            continue
+        for n, text in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if not text.lstrip().startswith("#") and SECRET.search(text):
+                failures.append(f"{path.name}:{n} puts a secret on a command line: {SECRET.search(text).group(0)}")
+
 for f in failures:
     print("FAIL", f)
 print(f"{len(failures)} failure(s) over {len(JAILS)} jails, {len(VISITORS)} visitor lines, "

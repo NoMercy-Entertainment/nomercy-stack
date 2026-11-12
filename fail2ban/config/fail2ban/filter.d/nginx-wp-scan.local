@@ -5,7 +5,9 @@
 # The patterns look at the request path only. <HOST> is the client address after
 # the user agent. A greedy ".*<HOST>" binds to a number in the timing fields
 # (the jail then banned "0.0.0.1"), so the host is anchored after the quotes.
-_pre = ^[^"]*"[A-Z]+ [^ "]*
+# _pre stops at "?": a probe name in the query string (/search?q=wordpress) is a
+# visitor's search, not a probe (stack#4).
+_pre = ^[^"]*"[A-Z]+ [^ "?]*
 _post = [^ "]*(?: [^"]*)?"
 _tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 

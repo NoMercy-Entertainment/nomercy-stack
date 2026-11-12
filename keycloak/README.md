@@ -169,8 +169,6 @@ Microsoft is configured against a specific Azure AD tenant
 | `nova` | Access to Nova (Laravel Nova admin panel) |
 | `offline_access` | Default role — grants offline access token |
 | `uma_authorization` | Default role — UMA authorization |
-| `passwordless` | User has chosen passkey-only login |
-| `disable password login` | Password login disabled for this user |
 | `default-roles-nomercytv` | Composite: offline_access + impersonatable + uma_authorization |
 
 ## Client Roles (nomercy-api)

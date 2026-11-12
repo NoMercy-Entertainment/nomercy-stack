@@ -105,24 +105,6 @@
         "clientRole": false,
         "containerId": "nomercy-ui",
         "attributes": {}
-      },
-      {
-        "id": "cde87e5b-55f8-488d-9926-26232f6b80da",
-        "name": "passwordless",
-        "description": "User has choosen to use a passkey and cannot use passwords.",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "nomercy-ui",
-        "attributes": {}
-      },
-      {
-        "id": "c9299352-2a3d-447e-84db-64614bede5c0",
-        "name": "disable password login",
-        "description": "User has choosen to use a passkey and cannot use passwords.",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "nomercy-ui",
-        "attributes": {}
       }
     ],
     "client": {
@@ -3974,15 +3956,6 @@
           "priority": 1,
           "autheticatorFlow": false,
           "userSetupAllowed": false
-        },
-        {
-          "authenticatorConfig": "Passwordless",
-          "authenticator": "conditional-user-role",
-          "authenticatorFlow": false,
-          "requirement": "DISABLED",
-          "priority": 2,
-          "autheticatorFlow": false,
-          "userSetupAllowed": false
         }
       ]
     },
@@ -4568,30 +4541,6 @@
     }
   ],
   "authenticatorConfig": [
-    {
-      "id": "2e888639-a9da-4d4f-8695-5d07da95c9cd",
-      "alias": "NOT Passwordless",
-      "config": {
-        "condUserRole": "passwordless",
-        "negate": "true"
-      }
-    },
-    {
-      "id": "807c4c2c-99a8-4577-a701-a1973c9b0ede",
-      "alias": "NOT Passwordless",
-      "config": {
-        "negate": "true",
-        "condUserRole": "disable password login"
-      }
-    },
-    {
-      "id": "6b73b8cc-2f19-40d2-b4c7-15771ca9cac7",
-      "alias": "Passwordless",
-      "config": {
-        "condUserRole": "disable password login",
-        "negate": "true"
-      }
-    },
     {
       "id": "201bf551-9f71-4860-8082-974b5304def4",
       "alias": "Passwordless",

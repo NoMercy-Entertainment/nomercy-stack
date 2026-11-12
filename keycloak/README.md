@@ -4,7 +4,7 @@
 
 This directory contains the exported configuration for the `NoMercyTV` Keycloak realm.
 
-- **Keycloak version**: 22.0.1
+- **Keycloak version**: 26.7.2
 - **Realm name**: `NoMercyTV`
 - **Production URL**: `https://auth.nomercy.tv`
 - **Dev URL**: `https://auth-dev.nomercy.tv`
@@ -12,6 +12,8 @@ This directory contains the exported configuration for the `NoMercyTV` Keycloak 
 
 The file `realm-export.json` is the source of truth for auth configuration. It was previously
 only in the running Keycloak instance. If that instance is lost, this file is the recovery point.
+Users, the cast receiver client (step 4 of the recovery) and clients that belong to one user's
+own server are live data and stay out of the export.
 
 ## Secrets Policy
 
@@ -259,7 +261,7 @@ token-exchange, preview, admin2, docker
 
 If the Keycloak instance is lost:
 
-1. Start a fresh Keycloak 22.0.1 instance
+1. Start a fresh Keycloak 26.7.2 instance (the image in `keycloak-compose.yml`; `scripts/check-keycloak-version.py` keeps the two in step)
 2. Copy `realm-export.json` and replace all `REDACTED` values with real secrets from vault
 3. Import via Admin UI: Realm Settings > Import realm, or via CLI:
    ```bash

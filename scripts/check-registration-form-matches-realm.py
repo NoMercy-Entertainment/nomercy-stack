@@ -39,14 +39,17 @@ def required_attributes(realm_path: Path) -> set[str]:
         sys.exit(f"{realm_path}: no declarative user profile component, cannot check")
 
     config = profiles[0].get("config", {})
-    pieces = sorted(
-        (key for key in config if key.startswith("config-piece-")),
-        key=lambda key: int(key.rsplit("-", 1)[1]),
-    )
-    if not pieces:
-        sys.exit(f"{realm_path}: user profile component carries no config pieces")
-
-    raw = "".join(config[piece][0] for piece in pieces)
+    # Keycloak 26 exports the profile as one value; 22 split it into config-piece-N.
+    if config.get("kc.user.profile.config"):
+        raw = config["kc.user.profile.config"][0]
+    else:
+        pieces = sorted(
+            (key for key in config if key.startswith("config-piece-")),
+            key=lambda key: int(key.rsplit("-", 1)[1]),
+        )
+        if not pieces:
+            sys.exit(f"{realm_path}: user profile component carries no config pieces")
+        raw = "".join(config[piece][0] for piece in pieces)
     profile = json.loads(raw)
 
     return {

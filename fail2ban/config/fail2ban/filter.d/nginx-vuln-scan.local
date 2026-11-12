@@ -1,10 +1,13 @@
 [Definition]
 # Vulnerability probes that return 404. See nginx-wp-scan for the log format and
-# why <HOST> is anchored after the user agent.
-_pre = ^[^"]*"[A-Z]+ [^ "]*
+# why <HOST> is anchored after the user agent. Only the path counts (_pre stops
+# at "?"). "/admin" is not a probe here: nomercy.tv serves its own admin pages
+# under /admin and the API under /api/v1/admin, so a stale admin link banned the
+# admin (stack#4).
+_pre = ^[^"]*"[A-Z]+ [^ "?]*
 _post = [^ "]*(?: [^"]*)?"
 _tail = \d+ "[^"]*" "[^"]*" .*?<HOST> [0-9.]+ .*$
 
-failregex = %(_pre)s(?:\.env|alfacgiapi|ALFA_DATA|/admin|\.git\b|\.aws|phpmyadmin)%(_post)s[ ]404 %(_tail)s
+failregex = %(_pre)s(?:\.env|alfacgiapi|ALFA_DATA|\.git\b|\.aws|phpmyadmin)%(_post)s[ ]404 %(_tail)s
 
 ignoreregex =

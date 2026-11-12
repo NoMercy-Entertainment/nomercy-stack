@@ -4,6 +4,6 @@ port = http,https
 filter = nginx-vuln-scan
 logpath = /remotelogs/nginx/access.log
 maxretry = 1
-bantime = -1
+bantime = 604800   # 7 days: a wrong match must end (stack#4)
 findtime = 86400   # 24 hours
 backend = auto

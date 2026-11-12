@@ -38,7 +38,7 @@
   "resetPasswordAllowed": true,
   "editUsernameAllowed": true,
   "bruteForceProtected": true,
-  "permanentLockout": true,
+  "permanentLockout": false,
   "maxFailureWaitSeconds": 900,
   "minimumQuickLoginWaitSeconds": 600,
   "waitIncrementSeconds": 60,
@@ -1575,7 +1575,7 @@
       "bearerOnly": false,
       "consentRequired": false,
       "standardFlowEnabled": true,
-      "implicitFlowEnabled": true,
+      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": true,
@@ -1803,7 +1803,7 @@
         "*"
       ],
       "webOrigins": [
-        "*"
+        "+"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -3134,7 +3134,7 @@
   ],
   "browserSecurityHeaders": {
     "contentSecurityPolicyReportOnly": "",
-    "xContentTypeOptions": "nosnif",
+    "xContentTypeOptions": "nosniff",
     "xRobotsTag": "none",
     "xFrameOptions": "SAMEORIGIN https://www.google.com",
     "contentSecurityPolicy": "frame-src 'self' https://www.recaptcha.net https://www.google.com; frame-ancestors 'self' http://localhost:5502 https://app-dev.nomercy.tv https://app.nomercy.tv; object-src 'none';",

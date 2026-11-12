@@ -33,7 +33,12 @@ check "a callback with a foreign state is refused" "$(status '&state=00000000000
 check "a callback without a state is refused" "$(status '')" "400"
 check "a callback without the cookie is refused" \
   "$(curl -s -o /dev/null -w '%{http_code}' "$URL?callback=1&code=abc&state=${state:-x}")" "400"
-check "a callback with the matching state reaches the token exchange" "$(status "&state=${state:-x}")" "302"
+got=$(status "&state=${state:-x}")
+check "a callback with the matching state reaches the token exchange" "$got" "302"
+if [ "$got" != "302" ]; then
+  echo "  $("$PHP" -r 'echo PHP_VERSION;' 2>/dev/null) said:"
+  curl -s -b "nm_oidc_state=${cookie:-none}" "$URL?callback=1&code=abc&state=${state:-x}" | head -c 600; echo
+fi
 
 compose="$DIR/phpmyadmin/phpmyadmin-compose.yml"
 check "the container does not mount the stack .env" "$(grep -cE '\.env:/' "$compose" | tr -d ' ')" "0"

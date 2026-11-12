@@ -288,8 +288,9 @@ class KeycloakClient
             CURLOPT_HTTPHEADER => $headers,
         ));
 
+        // No curl_close: it does nothing since PHP 8.0 and is deprecated in 8.5, where DotEnv's
+        // error handler would turn the deprecation into a fatal exception.
         $response = curl_exec($curl);
-        curl_close($curl);
 
         // Bounded retry on transient transport failure. The previous version recursed
         // unconditionally whenever the body was empty, which hung the request forever

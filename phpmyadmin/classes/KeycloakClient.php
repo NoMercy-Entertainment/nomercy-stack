@@ -5,10 +5,16 @@ use JetBrains\PhpStorm\NoReturn;
 if (!class_exists('DotEnv')) {
     require '/var/www/html/classes/DotEnv.php';
 }
-(new DotEnv('/var/www/.env'))->load();
+// The compose file passes only the variables this code reads (stack#23). The env file stays
+// optional for a hand-run container that still mounts one.
+if (is_readable('/var/www/.env')) {
+    (new DotEnv('/var/www/.env'))->load();
+}
 
 class KeycloakClient
 {
+    private const STATE_COOKIE = 'nm_oidc_state';
+
     private string $baseUrl;
     private string $realm;
     private string $client_id;
@@ -53,15 +59,29 @@ class KeycloakClient
     {
         $response_mode = 'query';
         $response_type = 'code';
-        $nonce = uniqid(strval(rand()), true);
+        $nonce = bin2hex(random_bytes(16));
+        // The state binds the callback to this browser (stack#24): a code someone else started
+        // cannot be finished here, because this browser never got their state cookie.
+        $state = bin2hex(random_bytes(32));
+        $this->set_secure_cookie(self::STATE_COOKIE, $state, time() + 600);
         $redirect = urlencode("$this->phpmyadminUrl/auth.php?callback=1");
 
-        header("Location: $this->baseUrl/auth?client_id=$this->client_id&response_mode=$response_mode&response_type=$response_type&scope=$this->scope&nonce=$nonce&redirect_uri=$redirect");
+        header("Location: $this->baseUrl/auth?client_id=$this->client_id&response_mode=$response_mode&response_type=$response_type&scope=$this->scope&nonce=$nonce&state=$state&redirect_uri=$redirect");
         die();
     }
 
     public function get_token($code): void
     {
+        $expected = $_COOKIE[self::STATE_COOKIE] ?? '';
+        $given = $_GET['state'] ?? '';
+        $this->set_secure_cookie(self::STATE_COOKIE, '', time() - 3600);
+        if ($expected === '' || !is_string($given) || !hash_equals($expected, $given)) {
+            http_response_code(400);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo "This sign-in did not start in this browser. Open auth.php to sign in again.\n";
+            die();
+        }
+
         $redirect = urlencode("$this->phpmyadminUrl/auth.php?callback=1");
         $grant_type = 'authorization_code';
 

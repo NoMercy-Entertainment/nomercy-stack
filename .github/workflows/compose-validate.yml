@@ -35,3 +35,6 @@ jobs:
 
       - name: No secret is passed on a command line
         run: python3 scripts/check-no-secret-on-argv.py
+
+      - name: phpMyAdmin sign-on is bound to the browser and gets only its own variables
+        run: bash scripts/check-phpmyadmin-signon.sh

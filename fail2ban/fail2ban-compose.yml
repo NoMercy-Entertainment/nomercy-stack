@@ -2,11 +2,13 @@ services:
   fail2ban:
     image: lscr.io/linuxserver/fail2ban:latest
     container_name: fail2ban
+    # NET_ADMIN and NET_RAW on the host network are all iptables bans need.
+    # No privileged mode: it would hand the container every device and capability
+    # on the host (stack#6).
     cap_add:
       - NET_ADMIN
       - NET_RAW
     network_mode: host
-    privileged: true
     environment:
       - PUID=1000
       - PGID=1000

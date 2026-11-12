@@ -10,8 +10,6 @@ services:
     image: postgres:17.11
     restart: unless-stopped
     mem_limit: 5120m
-    security_opt:
-      - seccomp:unconfined
     environment:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}

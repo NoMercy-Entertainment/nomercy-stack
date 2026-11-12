@@ -36,6 +36,9 @@ jobs:
       - name: No secret is passed on a command line
         run: python3 scripts/check-no-secret-on-argv.py
 
+      - name: Fail2ban ban and unban report failures
+        run: bash scripts/check-fail2ban-actions.sh
+
       - name: The website deploy resets to the tested commit
         run: bash scripts/test-deploy-release-sha.sh
 

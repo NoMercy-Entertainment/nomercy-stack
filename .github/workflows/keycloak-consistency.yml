@@ -11,13 +11,19 @@ on:
     paths:
       - 'keycloak/realm-export.json'
       - 'keycloak/themes/**'
+      - 'keycloak/README.md'
+      - 'keycloak/keycloak-compose.yml'
       - 'scripts/check-registration-form-matches-realm.py'
+      - 'scripts/check-keycloak-version.py'
       - '.github/workflows/keycloak-consistency.yml'
   pull_request:
     paths:
       - 'keycloak/realm-export.json'
       - 'keycloak/themes/**'
+      - 'keycloak/README.md'
+      - 'keycloak/keycloak-compose.yml'
       - 'scripts/check-registration-form-matches-realm.py'
+      - 'scripts/check-keycloak-version.py'
   workflow_dispatch:
 
 jobs:
@@ -33,3 +39,6 @@ jobs:
 
       - name: Every required attribute is reachable from the registration form
         run: python scripts/check-registration-form-matches-realm.py
+
+      - name: The export and the README name the Keycloak version that runs
+        run: python scripts/check-keycloak-version.py

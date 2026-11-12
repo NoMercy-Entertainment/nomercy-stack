@@ -7,10 +7,10 @@
 iptables = /usr/sbin/xtables-legacy-multi iptables
 
 # Ban IP
-actionban = <iptables> -I f2b-<name> 1 -s <ip> -j <blocktype> 2>/dev/null || true
+actionban = <iptables> -I f2b-<name> 1 -s <ip> -j <blocktype>
 
 # Unban IP  
-actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype> 2>/dev/null || true
+actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype>
 
 # Check if chain exists, create if not
 actionstart = <iptables> -N f2b-<name> 2>/dev/null || true

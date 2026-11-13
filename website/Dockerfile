@@ -13,6 +13,7 @@ ARG PHP_EXPECTED=8.5.12
 # Install packages (nginx, supervisor, the build toolchain for assets, and the libraries the PHP extensions load)
 RUN apk add --no-cache \
   curl \
+  docker-cli \
   nginx \
   bash \
   git \

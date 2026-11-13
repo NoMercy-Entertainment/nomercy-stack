@@ -50,3 +50,6 @@ jobs:
 
       - name: phpMyAdmin sign-on is bound to the browser and gets only its own variables
         run: bash scripts/check-phpmyadmin-signon.sh
+
+      - name: The website reaches only the rootless plugin-builder Docker socket
+        run: bash scripts/check-plugin-builder.sh

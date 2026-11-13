@@ -1,0 +1,44 @@
+networks:
+  backend:
+    driver: bridge
+
+services:
+  ### DNS TXT updater tunnel (local dev only) ##############
+  # The website reaches the DNS TXT updater (certificate challenges) through this
+  # tunnel; DNS_NODES in saas/nomercy-tv/.env is http://dns-tunnel:8081.
+  # Production runs the updater itself, so the profile stays off there.
+  # Local: put COMPOSE_PROFILES=dev-dns in this stack's .env.
+  dns-tunnel:
+    container_name: dns-tunnel
+    image: alpine:3.20
+    profiles: ["dev-dns"]
+    restart: unless-stopped
+    networks:
+      - backend
+    environment:
+      DNS_TUNNEL_HOST: ${DNS_TUNNEL_HOST:-167.99.210.61}
+    volumes:
+      # Copied in the command: a Windows bind mount is world-readable and ssh refuses it.
+      - ${DNS_TUNNEL_KEY:-${USERPROFILE}/.ssh/digitalocean}:/run/dns-tunnel-key:ro
+    command:
+      - sh
+      - -c
+      - |
+        apk add --no-cache openssh >/dev/null 2>&1
+        mkdir -p /root/.ssh && cp /run/dns-tunnel-key /root/.ssh/id_ed25519 && chmod 600 /root/.ssh/id_ed25519
+        while true; do
+          ssh -i /root/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -N -L 0.0.0.0:8081:127.0.0.1:8081 root@$${DNS_TUNNEL_HOST}
+          echo "tunnel dropped, reconnecting in 10s"
+          sleep 10
+        done
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8081"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

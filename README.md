@@ -21,6 +21,7 @@ A multi-service stack using Docker Compose, including MySQL, PostgreSQL, Keycloa
 
 1. **Configure Domain and Environment Variables**
    - Copy `.env.example` to `.env` if provided, and adjust values as needed.
+   - Set `APP_NAME` to a nonempty prefix for container names; the example uses `nomercy`.
    - Some services may require additional configuration in their respective folders.
 
 1. **Access Services**

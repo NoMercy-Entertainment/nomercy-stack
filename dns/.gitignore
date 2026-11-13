@@ -1,3 +1,6 @@
 .env
 acme/
 *.tmp
+replica/secrets/
+replica/ddns.env
+replica/zones/

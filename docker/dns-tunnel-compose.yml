@@ -19,7 +19,8 @@ services:
       DNS_TUNNEL_HOST: ${DNS_TUNNEL_HOST:-167.99.210.61}
     volumes:
       # Copied in the command: a Windows bind mount is world-readable and ssh refuses it.
-      - ${DNS_TUNNEL_KEY:-${USERPROFILE}/.ssh/digitalocean}:/run/dns-tunnel-key:ro
+      # HOME when USERPROFILE is unset: Linux hosts parse this file too, and warned.
+      - ${DNS_TUNNEL_KEY:-${USERPROFILE:-${HOME}}/.ssh/digitalocean}:/run/dns-tunnel-key:ro
     command:
       - sh
       - -c

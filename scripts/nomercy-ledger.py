@@ -4,8 +4,8 @@
 # Coverage ledger for the whole NoMercy stack on ONE host. It lists every
 # surface the host serves (every Laravel route, Keycloak, static assets, the
 # CDN, the admin panels), requests each one through this host's own nginx on
-# 127.0.0.1 (so Cloudflare and DNS play no part), and writes one JSON line per
-# check. Run it on the old and the new droplet, then `compare` the two ledgers.
+# 127.0.0.1 (so Cloudflare and DNS play no part; an admin panel is asked at its
+# own container, past the nginx allowlist), and writes one JSON line per check. Run it on the old and the new droplet, then `compare` the two ledgers.
 # Built for the zero-downtime droplet migration (2026-09-25).
 #
 #   python3 scripts/nomercy-ledger.py run --out /root/ledger-<host> [--pass reads|writes] [--token-file F]
@@ -27,9 +27,12 @@ import argparse, http.client, json, os, re, socket, ssl, subprocess, sys, time
 
 STACK = "/opt/nomercy-stack"
 APP = os.environ.get("APP_NAME", "nomercy.tv")
-CLIENT_IP = os.environ.get("LEDGER_CLIENT_IP", "")   # an ADMIN_IPS entry: passes the admin allowlist
 MAIN, API, AUTH, CDN = "nomercy.tv", "api.nomercy.tv", "auth.nomercy.tv", "cdn.nomercy.tv"
 REALM = "NoMercyTV"
+# Sites behind the nginx admin allowlist: host -> (container suffix, scheme, port),
+# the same upstream proxy/sites/<name>.conf passes to.
+ADMIN_UPSTREAMS = {"portainer.nomercy.tv": ("portainer", "https", 9443),
+                   "phpmyadmin.nomercy.tv": ("phpmyadmin", "http", 80)}
 
 
 def sh(cmd, stdin=None):
@@ -141,12 +144,29 @@ class LocalHTTPS(http.client.HTTPSConnection):
         self.sock = self._context.wrap_socket(sock, server_hostname=self._sni)
 
 
+def container_address(name):
+    out = subprocess.run(["docker", "inspect", "-f", "{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}", name],
+                         capture_output=True, text=True).stdout.split()
+    if not out:
+        raise RuntimeError(f"container {name} has no address: is it running?")
+    return out[0]
+
+
+def connect(host):
+    upstream = ADMIN_UPSTREAMS.get(host)
+    if not upstream:
+        return LocalHTTPS(host)
+    name, scheme, port = upstream
+    address = container_address(f"{APP}-{name}")
+    if scheme == "https":
+        return http.client.HTTPSConnection(address, port, context=ssl._create_unverified_context(), timeout=30)
+    return http.client.HTTPConnection(address, port, timeout=30)
+
+
 def request(item, token):
     headers = {"Host": item["host"], "User-Agent": "nomercy-ledger/1",
                "Accept": "application/json" if item["host"] == API else "text/html,application/json",
                "CF-Ray": "nomercy-ledger"}
-    if CLIENT_IP:
-        headers["CF-Connecting-IP"] = CLIENT_IP
     if item.get("auth") and token:
         headers["Authorization"] = f"Bearer {token}"
     body = None
@@ -154,7 +174,7 @@ def request(item, token):
         body, headers["Content-Type"] = "{}", "application/json"
     t0 = time.time()
     try:
-        c = LocalHTTPS(item["host"])
+        c = connect(item["host"])
         c.request(item["method"], item["path"], body=body, headers=headers)
         r = c.getresponse()
         data = r.read()

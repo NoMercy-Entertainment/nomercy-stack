@@ -60,11 +60,16 @@ fi
 # set -e, crash-loops the container before supervisord ever starts. Running from
 # / writes the system config without repo discovery.
 git -C / config --system --add safe.directory /var/www/html
-chown -R www:www \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache \
-    /var/www/html/public
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Touch only what is wrong: on a Docker Desktop bind mount every file costs a
+# cross-VM call (chown -R took 18 minutes). The file cache (70k entries on dev)
+# is fixed after supervisord starts; nothing in the boot below writes there.
+CACHE=/var/www/html/storage/framework/cache
+find /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public \
+    -path "$CACHE" -prune -o \! \( -user www -group www \) -exec chown www:www {} +
+find /var/www/html/storage /var/www/html/bootstrap/cache \
+    -path "$CACHE" -prune -o \! -perm 775 -exec chmod 775 {} +
+( find "$CACHE" \! \( -user www -group www \) -exec chown www:www {} +
+  find "$CACHE" \! -perm 775 -exec chmod 775 {} + ) >/dev/null 2>&1 &
 
 # auth.json holds composer registry credentials (a 0600 secret). It arrives via
 # the root-owned host bind mount, which the www user that runs composer cannot

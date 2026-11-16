@@ -7,7 +7,7 @@
             <h1 class="nm-head__title">${msg("loginTotpTitle")}</h1>
         </span>
     <#elseif section = "form">
-        <div style="display:flex;gap:3rem;">
+        <div class="nm-totp">
             <ol id="kc-totp-settings">
                 <li>
                     <p>${msg("loginTotpStep1")}</p>
@@ -43,7 +43,7 @@
                 <#else>
                     <li>
                         <p>${msg("loginTotpStep2")}</p>
-                        <img id="kc-totp-secret-qr-code" src="data:image/png;base64, ${totp.totpSecretQrCode}" alt="Figure: Barcode"><br/>
+                        <img id="kc-totp-secret-qr-code" class="nm-totp__qr" src="data:image/png;base64, ${totp.totpSecretQrCode}" alt="Figure: Barcode"><br/>
                         <p><a href="${totp.manualUrl}" id="mode-manual">${msg("loginTotpUnableToScan")}</a></p>
                     </li>
                 </#if>

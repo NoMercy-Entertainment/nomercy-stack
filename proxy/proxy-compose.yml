@@ -17,9 +17,12 @@ services:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
     networks:
-      - backend
-      - frontend
-      - tunnel
+      backend:
+      frontend:
+      # Fixed, so the proxy never takes .2: that address belongs to cloudflared,
+      # the one client nginx.conf trusts to set the visitor IP.
+      tunnel:
+        ipv4_address: 172.31.250.3
     depends_on:
       keycloak:
         condition: service_healthy

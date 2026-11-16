@@ -26,6 +26,9 @@ on:
       - 'scripts/check-keycloak-version.py'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   registration-form-matches-realm:
     timeout-minutes: 7200

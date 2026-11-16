@@ -195,13 +195,13 @@ body{
 /* ---- authenticator setup ----
    A phone camera has to read the QR code from the screen, so this page gets a
    wider card and a large code. The two columns wrap to one on a narrow screen.
-   `pixelated` keeps the scaled code's module edges sharp for the camera; the
-   white padding is the quiet zone a scanner needs around the code. */
+   `pixelated` keeps the scaled code's module edges sharp for the camera.
+   Keycloak's PNG already carries the white quiet zone, so no padding is added. */
 .login-pf-page:has(.nm-totp){max-width:clamp(252px, 34rem + 12vmin, 760px)}
 .nm-totp{display:flex;flex-wrap:wrap;gap:var(--gap-section)}
 .nm-totp > *{flex:1 1 260px;min-width:0}
 .nm-totp__qr{display:block;width:100%;max-width:300px;height:auto;aspect-ratio:1;margin:var(--gap-md) 0;
-  padding:14px;background:#fff;border-radius:var(--r-input);image-rendering:pixelated}
+  background:#fff;border-radius:var(--r-input);image-rendering:pixelated}
 .nm-field label{font-family:Inter;font-weight:500;font-size:var(--fs-body);line-height:1.45;color:var(--slate-12)}
 .nm-req{color:var(--link)}
 .nm-input{display:flex;align-items:center;height:var(--h-input);padding:0 10px;border:1px solid var(--slate-a4);

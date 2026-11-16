@@ -50,7 +50,7 @@
             </ol>
 
             <form action="${url.loginAction}" class="nm-form" id="kc-totp-settings-form" method="post">
-                <ol>
+                <ol start="<#if mode?? && mode = "manual">4<#else>3</#if>">
                     <li>
                         <p>${msg("loginTotpStep3")}</p>
                         <p>${msg("loginTotpStep3DeviceName")}</p>

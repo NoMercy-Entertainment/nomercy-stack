@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM php:8.5.12-fpm-alpine3.24
+FROM php:8.5.13-fpm-alpine3.24
 LABEL Maintainer="Stoney Eagle <stoney@nomercy.tv>"
 LABEL Description="Lightweight container with Nginx 1.26 & PHP 8.5 based on the official PHP Alpine image."
 
@@ -8,7 +8,7 @@ WORKDIR /var/www/html
 
 RUN adduser -D -g '' www sudo
 
-ARG PHP_EXPECTED=8.5.12
+ARG PHP_EXPECTED=8.5.13
 
 # Install packages (nginx, supervisor, the build toolchain for assets, and the libraries the PHP extensions load)
 RUN apk add --no-cache \
